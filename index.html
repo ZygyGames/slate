@@ -324,7 +324,7 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 </blockquote>
 <pre class="highlight shell"><code>curl -X POST <span class="s2">"https://zygygames.com/zygy_app_api/register"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
-  -d <span class="s2">"username=xxxxx&amp;referral_code=xxxxxx&amp;first_name=xxxxx&amp;last_name=xxxxx&amp;email=xxxxx@xxx.com&amp;confirm_email=xxxxx@xxx.com&amp;birthday=xx/xx/xx&amp;password=xxxxxxxx&amp;confirm_password=xxxxxxxx"</span>
+  -d <span class="s2">"username=xxxxx&amp;referral_code=xxxxxx&amp;first_name=xxxxx&amp;last_name=xxxxx&amp;email=xxxxx@xxx.com&amp;confirm_email=xxxxx@xxx.com&amp;birthday=xx/xx/xx&amp;password=xxxxxxxx&amp;confirm_password=xxxxxxxx&amp;accepted_tos=true"</span>
 </code></pre>
 
 <table><thead>
@@ -394,6 +394,12 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 <td><code class="prettyprint">confirm_password</code></td>
 <td>true</td>
 <td>Confirm password - Must match <code class="prettyprint">password</code> field</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">accepted_tos</code></td>
+<td>true</td>
+<td>Checkbox confirming user agrees to TOS and Privacy Policy</td>
 </tr>
 </tbody></table>
 
