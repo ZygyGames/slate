@@ -109,9 +109,6 @@
         <ul class="search-results"></ul>
       <div id="toc">
       </div>
-        <ul class="toc-footer">
-            <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
-        </ul>
     </div>
     <div class="page-wrapper">
       <div class="dark-box"></div>
@@ -237,24 +234,24 @@ Not sure what to use for the App-Identifier? Contact Rocco. For security reasons
 </blockquote>
 <pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">false</span>
 -H Error-Message : Invalid Username or Password
+
+<span class="o">{</span>
+  <span class="s2">"error"</span>: <span class="s2">"Invalid Username or Password"</span>
+<span class="o">}</span>
 </code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Invalid Username or Password"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
 
 <blockquote>
 <p>Response - Success</p>
 </blockquote>
 <pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">true</span>
 -H Authorization-Code : OUKdeYQf1qiEoTF8clnk
+
+<span class="o">{</span>
+  <span class="s2">"username"</span>: <span class="s2">"JohnDoe67"</span>,
+  <span class="s2">"server_id"</span>: <span class="s2">"4"</span>,
+  <span class="s2">"zygy_id"</span>: <span class="s2">"XUPR71"</span>
+<span class="o">}</span>
 </code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"JohnDoe67"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"server_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"zygy_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XUPR71"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
 
 <table><thead>
 <tr>
@@ -407,24 +404,24 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 </blockquote>
 <pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">false</span>
 -H Error-Message : Username already taken.
+
+<span class="o">{</span>
+  <span class="s2">"error"</span>: <span class="s2">"Username already taken."</span>
+<span class="o">}</span>
 </code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Username already taken."</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
 
 <blockquote>
 <p>Response - Success</p>
 </blockquote>
 <pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">true</span>
 -H Authorization-Code : OUKdeYQf1qiEoTF8clnk
+
+<span class="o">{</span>
+  <span class="s2">"username"</span>: <span class="s2">"JohnDoe67"</span>,
+  <span class="s2">"server_id"</span>: <span class="s2">"4"</span>,
+  <span class="s2">"zygy_id"</span>: <span class="s2">"XUPR71"</span>
+<span class="o">}</span>
 </code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"JohnDoe67"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"server_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"zygy_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XUPR71"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
 
 <table><thead>
 <tr>
@@ -481,6 +478,360 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 <aside class="success">
 Remember — Store the `Authorization-Code` in-app and over-write it every time a user logs in!
 </aside>
+
+<h1 id="zygy-now">Zygy Now</h1>
+
+<p>Zygy Now is a a Scoreboard based tracker that allows a User to track their information. It contains information for the selected month, as well as an &lsquo;all-time best&rsquo;.</p>
+
+<p>A user can select which month to view, and can also change the user in which information is shown. A user can ONLY view a different user&rsquo;s information if the perspective user is a &#39;downline&rsquo; of the current user.</p>
+
+<p>All values and dates sent as a response from the server will be pre-formatted for display.</p>
+
+<h2 id="endpoint">Endpoint</h2>
+
+<p><code class="prettyprint">GET https://zygygames.com/zygy_app_api/zygy_now</code></p>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="c"># params are optional</span>
+curl -X GET <span class="s2">"https://zygygames.com/zygy_app_api/zygy_now"</span>
+  -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
+  -H <span class="s2">"Authorization-Code: OUKdeYQf1qiEoTF8clnk"</span>
+  -d <span class="s2">"user_identification=rockster160&amp;month=4&amp;year=2016"</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">App-Identifier</code></td>
+<td>true</td>
+<td>App Identification String</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization-Code</code></td>
+<td>true</td>
+<td>User Authorization Code</td>
+</tr>
+<tr>
+<td>params</td>
+<td><code class="prettyprint">user_identification</code></td>
+<td>false</td>
+<td><code class="prettyprint">Default: current user</code> If supplied, looks up user by this value. (Username, Email, or Zygy ID)</td>
+</tr>
+<tr>
+<td>params</td>
+<td><code class="prettyprint">month</code></td>
+<td>false</td>
+<td><code class="prettyprint">Default: current month</code> If supplied, filters dates based on this integer value. (1=January, 12=December)</td>
+</tr>
+<tr>
+<td>params</td>
+<td><code class="prettyprint">year</code></td>
+<td>false</td>
+<td><code class="prettyprint">Default: current year</code> If supplied, filters dates based on this integer value. (YYYY)</td>
+</tr>
+</tbody></table>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<blockquote>
+<p>Response - Failure</p>
+</blockquote>
+<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">false</span>
+-H Error-Message : Cannot view a user unless they are on your team.
+
+<span class="o">{</span>
+  <span class="s2">"error"</span>: <span class="s2">"Cannot view a user unless they are on your team."</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">true</span>
+
+<span class="o">[</span>
+  <span class="s2">"current_month"</span>: <span class="s2">"04/16"</span>
+  <span class="s2">"data"</span>: <span class="o">[</span>
+    <span class="s2">"New Players Added"</span>: <span class="o">{</span>
+      <span class="s2">"current_month"</span>: <span class="s2">"2"</span>,
+      <span class="s2">"best_month"</span>: <span class="o">{</span>
+        <span class="s2">"date"</span>: <span class="s2">"6/15"</span>,
+        <span class="s2">"value"</span>: <span class="s2">"8"</span>
+      <span class="o">}</span>
+    <span class="o">}</span>,
+    <span class="s2">"Pirate Pike"</span>: <span class="o">{</span>
+      <span class="s2">"current_month"</span>: <span class="s2">"23,421"</span>,
+      <span class="s2">"best_month"</span>: <span class="o">{</span>
+        <span class="s2">"date"</span>: <span class="s2">"10/15"</span>,
+        <span class="s2">"value"</span>: <span class="s2">"46,872"</span>
+      <span class="o">}</span>
+    <span class="o">}</span>,
+    <span class="s2">"Kubed"</span>: <span class="o">{</span>
+      <span class="s2">"current_month"</span>: <span class="s2">"143"</span>,
+      <span class="s2">"best_month"</span>: <span class="o">{</span>
+        <span class="s2">"date"</span>: <span class="s2">"1/16"</span>,
+        <span class="s2">"value"</span>: <span class="s2">"321"</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">]</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization-Success</code></td>
+<td>N/A</td>
+<td>Stringified boolean representing whether or not the request was successful.</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Error-Message</code></td>
+<td>false</td>
+<td>Same message as json-error, passed as a Header.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">error</code></td>
+<td>false</td>
+<td>Description of why a failure resulted - Displayable to user</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">current_month</code> (top)</td>
+<td>true</td>
+<td>The currently scoped month as a String for display</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">data</code></td>
+<td>true</td>
+<td>Array of &#39;data rows&rsquo; containing values for each section.</td>
+</tr>
+<tr>
+<td>json</td>
+<td>&ldquo;data row&rdquo;</td>
+<td>true</td>
+<td>Key: Value pair. Key is name of the row (Game name, description, etc). Value is JSON</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">current_month</code> (nested)</td>
+<td>true</td>
+<td>String value of row at selected month</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">best_month</code></td>
+<td>true</td>
+<td>String value of row at best month</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">date</code></td>
+<td>true</td>
+<td>String value of date the relevant value occurred</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">value</code></td>
+<td>true</td>
+<td>String of relevant value</td>
+</tr>
+</tbody></table>
+
+<h1 id="news-feed">News Feed</h1>
+
+<p>News Feed is a list of articles that contain basic information shown to users. It&rsquo;s an extensive list, so it is paginated.</p>
+
+<p>Pagination options are <code class="prettyprint">page</code> and <code class="prettyprint">per</code>. Both optional.</p>
+
+<p><code class="prettyprint">per</code> defines how many you would like to receive per page. This number defaults to 5. If changed, should be consistent on each request to avoid skipping or duplicating articles.</p>
+
+<p><code class="prettyprint">page</code> defines which &#39;page&rsquo; of articles you want. Default is 1. Articles are ordered most recent first.</p>
+
+<h3 id="example">Example</h3>
+
+<p>Assuming articles are numbered starting at 1, 1 being the most recent article:</p>
+
+<table><thead>
+<tr>
+<th>Request</th>
+<th>Article IDs</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">page 1 per 5</code></td>
+<td>1-6</td>
+</tr>
+<tr>
+<td><code class="prettyprint">page 2 per 5</code></td>
+<td>7-11</td>
+</tr>
+<tr>
+<td><code class="prettyprint">page 2 per 6</code></td>
+<td>8-14</td>
+</tr>
+<tr>
+<td><code class="prettyprint">page 5 per 10</code></td>
+<td>41-51</td>
+</tr>
+</tbody></table>
+
+<h2 id="endpoint">Endpoint</h2>
+
+<p><code class="prettyprint">GET https://zygygames.com/zygy_app_api/news_feed</code></p>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="c"># params are optional</span>
+curl -X GET <span class="s2">"https://zygygames.com/zygy_app_api/news_feed"</span>
+  -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
+  -H <span class="s2">"Authorization-Code: OUKdeYQf1qiEoTF8clnk"</span>
+  -d <span class="s2">"page=4&amp;per=2"</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">App-Identifier</code></td>
+<td>true</td>
+<td>App Identification String</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization-Code</code></td>
+<td>true</td>
+<td>User Authorization Code</td>
+</tr>
+<tr>
+<td>params</td>
+<td><code class="prettyprint">page</code></td>
+<td>false</td>
+<td><code class="prettyprint">Default: 1</code> If supplied, retrieves articles at specified page.</td>
+</tr>
+<tr>
+<td>params</td>
+<td><code class="prettyprint">per</code></td>
+<td>false</td>
+<td><code class="prettyprint">Default: 5</code> If supplied, sets the &#39;number per page&rsquo;</td>
+</tr>
+</tbody></table>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<blockquote>
+<p>Response - Failure</p>
+</blockquote>
+<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">false</span>
+-H Error-Message : Authorization failure.
+
+<span class="o">{</span>
+  <span class="s2">"error"</span>: <span class="s2">"Authorization failure."</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">true</span>
+
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"main_header"</span>: <span class="s2">"Breaking News!"</span>,
+    <span class="s2">"image"</span>: <span class="s2">"http://s3.amazonaws.com/zygy-news-uploads/news_articles/images/000/000/004/original/Pirate_Pike_Pro_Player_April_Challenge_Header.png?1460654941"</span>,
+    <span class="s2">"second_header"</span>: <span class="s2">"Don't miss out on the competition!"</span>,
+    <span class="s2">"body"</span>: <span class="s2">"The prize rules are listed somewhere and you should go read them so you know. Scores are based on how well your team does, not just you."</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"main_header"</span>: <span class="s2">"Winners!"</span>,
+    <span class="s2">"image"</span>: <span class="s2">"http://s3.amazonaws.com/zygy-news-uploads/news_articles/images/000/000/008/original/March_Pro_Player_Winners-01.jpg?1460654882"</span>,
+    <span class="s2">"second_header"</span>: <span class="s2">"All of these guys won cash prizes!"</span>,
+    <span class="s2">"body"</span>: <span class="s2">"Est occaecati temporibus itaque neque omnis in et. Consequatur doloremque et fugiat quo autem illum. Explicabo commodi ut distinctio sit quas laudantium voluptate."</span>
+  <span class="o">}</span>,
+<span class="o">]</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization-Success</code></td>
+<td>N/A</td>
+<td>Stringified boolean representing whether or not the request was successful.</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Error-Message</code></td>
+<td>false</td>
+<td>Same message as json-error, passed as a Header.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">error</code></td>
+<td>false</td>
+<td>Description of why a failure resulted - Displayable to user</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">main_header</code></td>
+<td>true</td>
+<td>Main Header text of Article- to be displayed first</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">image</code></td>
+<td>true</td>
+<td>Url for image in article</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">second_header</code></td>
+<td>true</td>
+<td>Sub-header</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">body</code></td>
+<td>true</td>
+<td>Body of text. Uses <code class="prettyprint">\n</code> to report new lines.</td>
+</tr>
+</tbody></table>
 
       </div>
       <div class="dark-box">
