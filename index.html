@@ -187,14 +187,14 @@ Not sure what to use for the App-Identifier? Contact Rocco. For security reasons
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://zygygames.com/zygy_app_api/login</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/zygy_app_api/login</code></p>
 
 <h3 id="request-expectations">Request expectations:</h3>
 
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>curl -X POST <span class="s2">"https://zygygames.com/zygy_app_api/login"</span>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/zygy_app_api/login"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
   -d <span class="s2">"identifier_field=xxxxx&amp;password_field=xxxxx"</span>
 </code></pre>
@@ -315,14 +315,14 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">POST https://zygygames.com/zygy_app_api/register</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/zygy_app_api/register</code></p>
 
 <h3 id="request-expectations">Request expectations:</h3>
 
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>curl -X POST <span class="s2">"https://zygygames.com/zygy_app_api/register"</span>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/zygy_app_api/register"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
   -d <span class="s2">"username=xxxxx&amp;referral_code=xxxxxx&amp;first_name=xxxxx&amp;last_name=xxxxx&amp;email=xxxxx@xxx.com&amp;confirm_email=xxxxx@xxx.com&amp;birthday=xx/xx/xx&amp;password=xxxxxxxx&amp;confirm_password=xxxxxxxx&amp;accepted_tos=true"</span>
 </code></pre>
