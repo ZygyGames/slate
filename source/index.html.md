@@ -166,7 +166,7 @@ This endpoint authorizes a new user. All fields are required.
 ```shell
 curl -X POST "https://zygygames.com/zygy_app_api/register"
   -H "App-Identifier: 123456789-987654321"
-  -d "username=xxxxx&referral_code=xxxxxx&first_name=xxxxx&last_name=xxxxx&email=xxxxx@xxx.com&confirm_email=xxxxx@xxx.com&birthday=xx/xx/xx&password=xxxxxxxx&confirm_password=xxxxxxxx"
+  -d "username=xxxxx&referral_code=xxxxxx&first_name=xxxxx&last_name=xxxxx&email=xxxxx@xxx.com&confirm_email=xxxxx@xxx.com&birthday=xx/xx/xx&password=xxxxxxxx&confirm_password=xxxxxxxx&accepted_tos=true"
 ```
 
 Type | Parameter | Required? | Description
@@ -181,6 +181,7 @@ param | `confirm_email` | true | Confirmation email, must match `email` field.
 param | `birthday` | true | Birthday in the format MM/DD/YYYY
 param | `password` | true | Desired password. Must be 8 characters or more.
 param | `confirm_password` | true | Confirm password - Must match `password` field
+param | `accepted_tos` | true | Checkbox confirming user agrees to TOS and Privacy Policy
 
 ### Response Expectations
 
