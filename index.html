@@ -91,7 +91,7 @@
       <script src="javascripts/all.js"></script>
   </head>
 
-  <body class="index" data-languages="[&quot;shell&quot;,&quot;ruby&quot;,&quot;python&quot;]">
+  <body class="index" data-languages="[&quot;shell&quot;]">
     <a href="#" id="nav-button">
       <span>
         NAV
@@ -102,8 +102,6 @@
       <img src="images/logo.png" />
         <div class="lang-selector">
               <a href="#" data-language-name="shell">shell</a>
-              <a href="#" data-language-name="ruby">ruby</a>
-              <a href="#" data-language-name="python">python</a>
         </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
@@ -112,7 +110,6 @@
       <div id="toc">
       </div>
         <ul class="toc-footer">
-            <li><a href='#'>Sign Up for a Developer Key</a></li>
             <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
         </ul>
     </div>
@@ -121,226 +118,366 @@
       <div class="content">
         <h1 id="introduction">Introduction</h1>
 
-<p>Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.</p>
+<p>Welcome to the Zygy Games API Documentation. This will include basic information for each endpoint as well as possible responses.</p>
 
-<p>We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
+<p>All of the examples will be given in <code class="prettyprint">curl</code> (for Requests TO the server) and <code class="prettyprint">JSON</code> (for responses FROM the server)</p>
 
-<p>This example API documentation page was created with <a href="https://github.com/tripit/slate">Slate</a>. Feel free to edit it and use it as a base for your own API&rsquo;s documentation.</p>
+<p>This is to retain a consistent syntax, since <code class="prettyprint">curl</code> is easy to read and understand.</p>
+
+<h1 id="curl">Curl</h1>
+
+<h2 id="what-is-curl">What is <code class="prettyprint">curl</code>?</h2>
+<pre class="highlight shell"><code>curl www.google.com
+</code></pre>
+
+<p><code class="prettyprint">curl</code> is a Command Line tool used for data transfer with URL syntax.</p>
+
+<p>A basic <code class="prettyprint">curl</code> request contains any url.</p>
+
+<p>It accepts arguments by specifying an argument type followed by the argument.</p>
+<pre class="highlight shell"><code>curl -X GET www.google.com
+</code></pre>
+
+<p>For this documentation, we will only be using 3 different arguments.</p>
+
+<p><code class="prettyprint">-X</code>, <code class="prettyprint">-H</code>, and <code class="prettyprint">-d</code></p>
+
+<p>The arguments are not order-specific, as long as the argument value immediately follows it&rsquo;s flag.</p>
+<pre class="highlight shell"><code>curl -X GET www.google.com
+-H <span class="s2">"MyHeader: ThisIsMyHeaderData"</span>
+-H <span class="s2">"MyOtherHeader: ThisIsMyOtherHeaderData"</span>
+</code></pre>
+
+<p>The <code class="prettyprint">-X</code> argument specifies the HTML Verb. (<code class="prettyprint">GET</code>, <code class="prettyprint">PUT</code>, <code class="prettyprint">POST</code>, <code class="prettyprint">DELETE</code>, etc&hellip;)</p>
+
+<p>Normally arguments are all done in-line, but for this documentation, we will split keep the <code class="prettyprint">-X</code> inline and drop the headers and data onto following lines for readability.</p>
+
+<p><code class="prettyprint">-H</code> contains the Headers. Headers are shown 1 at a time in <code class="prettyprint">key: value</code> format. All params/headers/urls are assumed to be strings, so no quotes are necessary.</p>
+<pre class="highlight shell"><code><span class="c"># Request by parameter appending</span>
+curl -X GET www.google.com?search<span class="o">=</span>What+is+this
+
+<span class="c"># Request by using data/param flag</span>
+curl -X GET www.google.com
+-d <span class="s2">"search=What+is+this'
+
+# Multiple parameters in single request separated by </span><span class="sb">`</span>&amp;<span class="sb">`</span><span class="s2">. No spaces are used in parameters.
+# Spaces, where necessary, are replaced with </span><span class="sb">`</span>+<span class="sb">`</span><span class="s2">
+curl -X GET www.google.com
+-d "</span><span class="nv">username</span><span class="o">=</span>myusername&amp;password<span class="o">=</span>my+super+secure+password<span class="s1">'
+</span></code></pre>
+
+<p><code class="prettyprint">-d</code> contains the params. Unlike the Headers, params are all shown together in URL Parameter format. Normally, params are attached to the url by appending the parameterized string onto the end of the url request with a <code class="prettyprint">?</code></p>
 
 <h1 id="authentication">Authentication</h1>
 
-<blockquote>
-<p>To authorize, use this code:</p>
-</blockquote>
-<pre class="highlight ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<p>Every request should include the App-Identifier. All non-authorization requests should include the App-Identifier and the Authorization-Code retrieved from Authorization.</p>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre>
-<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">kittn</span>
+<p>Every request will respond with a <code class="prettyprint">Authorization-Success</code> header with a value of a stringified boolean.</p>
 
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre>
-<pre class="highlight shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
-curl <span class="s2">"api_endpoint_here"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre>
+<p>The <code class="prettyprint">Authorization-Code</code> contains a 20 character alpha-numeric string that should be stored on the app. Every non-authorization request will require this code in order to authorize the user.</p>
 
-<blockquote>
-<p>Make sure to replace <code class="prettyprint">meowmeowmeow</code> with your API key.</p>
-</blockquote>
+<p>Every time a user logs in to the Zygy App, this code will be regenerated. The code will persist across sessions, but the user can only be logged in to 1 device at a time, so logging in to a different device will cause the old code to expire.</p>
 
-<p>Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our <a href="http://example.com/developers">developer portal</a>.</p>
-
-<p>Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
-
-<p><code class="prettyprint">Authorization: meowmeowmeow</code></p>
+<p>In the case of an Authorization Failure because of an expired <code class="prettyprint">Authorization-Code</code>, the user should be logged out of the app and taken back to the Login screen.</p>
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+Not sure what to use for the App-Identifier? Contact Rocco. For security reasons, the App-Identifier&rsquo;s will not be posted in the docs.
 </aside>
 
-<h1 id="kittens">Kittens</h1>
+<h2 id="login">Login</h2>
 
-<h2 id="get-all-kittens">Get All Kittens</h2>
-<pre class="highlight ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span>
-</code></pre>
-<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</code></pre>
-<pre class="highlight shell"><code>curl <span class="s2">"http://example.com/api/kittens"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre>
-
-<blockquote>
-<p>The above command returns JSON structured like this:</p>
-</blockquote>
-<pre class="highlight json"><code><span class="p">[</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Fluffums"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"calico"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">]</span><span class="w">
-</span></code></pre>
-
-<p>This endpoint retrieves all kittens.</p>
+<p>This endpoint authorizes a user.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET http://example.com/api/kittens</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/zygy_app_api/login</code></p>
 
-<h3 id="query-parameters">Query Parameters</h3>
+<h3 id="request-expectations">Request expectations:</h3>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/zygy_app_api/login"</span>
+-H <span class="s2">"App-Identifier: 123456789-987654321"</span>
+-d <span class="s2">"identifier_field=xxxxx&amp;password_field=xxxxx"</span>
+</code></pre>
 
 <table><thead>
 <tr>
+<th>Type</th>
 <th>Parameter</th>
-<th>Default</th>
+<th>Required?</th>
 <th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>include_cats</td>
-<td>false</td>
-<td>If set to true, the result will also include cats.</td>
+<td>header</td>
+<td><code class="prettyprint">App-Identifier</code></td>
+<td>true</td>
+<td>App Identification String</td>
 </tr>
 <tr>
-<td>available</td>
+<td>param</td>
+<td><code class="prettyprint">identifier_field</code></td>
 <td>true</td>
-<td>If set to false, the result will include kittens that have already been adopted.</td>
+<td>Username, Email Address, or Zygy ID supplied by user</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">password_field</code></td>
+<td>true</td>
+<td>Password supplied by user</td>
+</tr>
+</tbody></table>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<blockquote>
+<p>Response - Failure</p>
+</blockquote>
+<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">false</span>
+-H Error-Message : Invalid Username or Password
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Invalid Username or Password"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">true</span>
+-H Authorization-Code : OUKdeYQf1qiEoTF8clnk
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"JohnDoe67"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"server_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"zygy_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XUPR71"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization-Success</code></td>
+<td>N/A</td>
+<td>Stringified boolean representing whether or not the request was successful.</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Error-Message</code></td>
+<td>false</td>
+<td>Same message as json-error, passed as a Header.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">error</code></td>
+<td>false</td>
+<td>Description of why a failure resulted - Displayable to user</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization-Code</code></td>
+<td>true</td>
+<td>Authorization Code for user. Save this within the app.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">username</code></td>
+<td>true</td>
+<td>Username of logged in user.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">server_id</code></td>
+<td>true</td>
+<td>Id for user on the server for URL requests only. (Uncommonly used)</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">zygy_id</code></td>
+<td>true</td>
+<td>6 digit Zygy ID of user. Commonly used and displayable</td>
 </tr>
 </tbody></table>
 
 <aside class="success">
-Remember — a happy kitten is an authenticated kitten!
+Remember — Store the `Authorization-Code` in-app and over-write it every time a user logs in!
 </aside>
 
-<h2 id="get-a-specific-kitten">Get a Specific Kitten</h2>
-<pre class="highlight ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
+<h2 id="register">Register</h2>
 
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre>
-<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre>
-<pre class="highlight shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre>
-
-<blockquote>
-<p>The above command returns JSON structured like this:</p>
-</blockquote>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p>This endpoint retrieves a specific kitten.</p>
-
-<aside class="warning">Inside HTML code blocks like this one, you can&rsquo;t use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+<p>This endpoint authorizes a new user. All fields are required.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET http://example.com/kittens/&lt;ID&gt;</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/zygy_app_api/register</code></p>
 
-<h3 id="url-parameters">URL Parameters</h3>
+<h3 id="request-expectations">Request expectations:</h3>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/zygy_app_api/register"</span>
+-H <span class="s2">"App-Identifier: 123456789-987654321"</span>
+-d <span class="s2">"username=xxxxx&amp;referral_code=xxxxxx&amp;first_name=xxxxx&amp;last_name=xxxxx&amp;email=xxxxx@xxx.com&amp;confirm_email=xxxxx@xxx.com&amp;birthday=xx/xx/xx&amp;password=xxxxxxxx&amp;confirm_password=xxxxxxxx"</span>
+</code></pre>
 
 <table><thead>
 <tr>
+<th>Type</th>
 <th>Parameter</th>
+<th>Required?</th>
 <th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>ID</td>
-<td>The ID of the kitten to retrieve</td>
+<td>header</td>
+<td><code class="prettyprint">App-Identifier</code></td>
+<td>true</td>
+<td>App Identification String</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">username</code></td>
+<td>true</td>
+<td>Desired username. Must be between 2 and 20 characters</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">referral_code</code></td>
+<td>true</td>
+<td>Zygy ID of the users friend that referred them to Zygy.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">first_name</code></td>
+<td>true</td>
+<td>User&rsquo;s First Name</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">last_name</code></td>
+<td>true</td>
+<td>User&rsquo;s Last Name</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">email</code></td>
+<td>true</td>
+<td>User&rsquo;s email address</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">confirm_email</code></td>
+<td>true</td>
+<td>Confirmation email, must match <code class="prettyprint">email</code> field.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">birthday</code></td>
+<td>true</td>
+<td>Birthday in the format MM/DD/YYYY</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">password</code></td>
+<td>true</td>
+<td>Desired password. Must be 8 characters or more.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">confirm_password</code></td>
+<td>true</td>
+<td>Confirm password - Must match <code class="prettyprint">password</code> field</td>
 </tr>
 </tbody></table>
 
-          <h1 id="errors">Errors</h1>
+<h3 id="response-expectations">Response Expectations</h3>
 
-<aside class="notice">This error section is stored in a separate file in `includes/_errors.md`. Slate allows you to optionally separate out your docs into many files&hellip;just save them to the `includes` folder and add them to the top of your `index.md`&rsquo;s frontmatter. Files are included in the order listed.</aside>
+<blockquote>
+<p>Response - Failure</p>
+</blockquote>
+<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">false</span>
+-H Error-Message : Username already taken.
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Username already taken."</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
-<p>The Kittn API uses the following error codes:</p>
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">true</span>
+-H Authorization-Code : OUKdeYQf1qiEoTF8clnk
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"username"</span><span class="p">:</span><span class="w"> </span><span class="s2">"JohnDoe67"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"server_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"zygy_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XUPR71"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <table><thead>
 <tr>
-<th>Error Code</th>
-<th>Meaning</th>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>400</td>
-<td>Bad Request &ndash; Your request sucks</td>
+<td>header</td>
+<td><code class="prettyprint">Authorization-Success</code></td>
+<td>N/A</td>
+<td>Stringified boolean representing whether or not the request was successful.</td>
 </tr>
 <tr>
-<td>401</td>
-<td>Unauthorized &ndash; Your API key is wrong</td>
+<td>header</td>
+<td><code class="prettyprint">Error-Message</code></td>
+<td>false</td>
+<td>Same message as json-error, passed as a Header.</td>
 </tr>
 <tr>
-<td>403</td>
-<td>Forbidden &ndash; The kitten requested is hidden for administrators only</td>
+<td>json</td>
+<td><code class="prettyprint">error</code></td>
+<td>false</td>
+<td>Description of why a failure resulted - Displayable to user</td>
 </tr>
 <tr>
-<td>404</td>
-<td>Not Found &ndash; The specified kitten could not be found</td>
+<td>header</td>
+<td><code class="prettyprint">Authorization-Code</code></td>
+<td>true</td>
+<td>Authorization Code for user. Save this within the app.</td>
 </tr>
 <tr>
-<td>405</td>
-<td>Method Not Allowed &ndash; You tried to access a kitten with an invalid method</td>
+<td>json</td>
+<td><code class="prettyprint">username</code></td>
+<td>true</td>
+<td>Username of logged in user.</td>
 </tr>
 <tr>
-<td>406</td>
-<td>Not Acceptable &ndash; You requested a format that isn&rsquo;t json</td>
+<td>json</td>
+<td><code class="prettyprint">server_id</code></td>
+<td>true</td>
+<td>Id for user on the server for URL requests only. (Uncommonly used)</td>
 </tr>
 <tr>
-<td>410</td>
-<td>Gone &ndash; The kitten requested has been removed from our servers</td>
-</tr>
-<tr>
-<td>418</td>
-<td>I&rsquo;m a teapot</td>
-</tr>
-<tr>
-<td>429</td>
-<td>Too Many Requests &ndash; You&rsquo;re requesting too many kittens! Slow down!</td>
-</tr>
-<tr>
-<td>500</td>
-<td>Internal Server Error &ndash; We had a problem with our server. Try again later.</td>
-</tr>
-<tr>
-<td>503</td>
-<td>Service Unavailable &ndash; We&rsquo;re temporarially offline for maintanance. Please try again later.</td>
+<td>json</td>
+<td><code class="prettyprint">zygy_id</code></td>
+<td>true</td>
+<td>6 digit Zygy ID of user. Commonly used and displayable</td>
 </tr>
 </tbody></table>
+
+<aside class="success">
+Remember — Store the `Authorization-Code` in-app and over-write it every time a user logs in!
+</aside>
 
       </div>
       <div class="dark-box">
           <div class="lang-selector">
                 <a href="#" data-language-name="shell">shell</a>
-                <a href="#" data-language-name="ruby">ruby</a>
-                <a href="#" data-language-name="python">python</a>
           </div>
       </div>
     </div>
