@@ -93,14 +93,14 @@ This endpoint authorizes a user.
 
 ### HTTP Request
 
-`POST https://zygygames.com/zygy_app_api/login`
+`GET https://zygygames.com/api/login`
 
 ### Request expectations:
 
 > Example request
 
 ```shell
-curl -X POST "https://zygygames.com/zygy_app_api/login"
+curl -X GET "https://zygygames.com/api/login"
   -H "App-Identifier: 123456789-987654321"
   -d "identifier_field=xxxxx&password_field=xxxxx"
 ```
@@ -157,14 +157,14 @@ This endpoint authorizes a new user. All fields are required.
 
 ### HTTP Request
 
-`POST https://zygygames.com/zygy_app_api/register`
+`GET https://zygygames.com/api/register`
 
 ### Request expectations:
 
 > Example request
 
 ```shell
-curl -X POST "https://zygygames.com/zygy_app_api/register"
+curl -X GET "https://zygygames.com/api/register"
   -H "App-Identifier: 123456789-987654321"
   -d "username=xxxxx&referral_code=xxxxxx&first_name=xxxxx&last_name=xxxxx&email=xxxxx@xxx.com&confirm_email=xxxxx@xxx.com&birthday=xx/xx/xx&password=xxxxxxxx&confirm_password=xxxxxxxx&accepted_tos=true"
 ```
@@ -233,7 +233,7 @@ All values and dates sent as a response from the server will be pre-formatted fo
 
 ## Endpoint
 
-`GET https://zygygames.com/zygy_app_api/zygy_now`
+`GET https://zygygames.com/api/zygy_now`
 
 ### Request Expectations
 
@@ -241,7 +241,7 @@ All values and dates sent as a response from the server will be pre-formatted fo
 
 ```shell
 # params are optional
-curl -X GET "https://zygygames.com/zygy_app_api/zygy_now"
+curl -X GET "https://zygygames.com/api/zygy_now"
   -H "App-Identifier: 123456789-987654321"
   -H "Authorization-Code: OUKdeYQf1qiEoTF8clnk"
   -d "user_identification=rockster160&month=4&year=2016"
@@ -337,7 +337,7 @@ Request | Article IDs
 
 ## Endpoint
 
-`GET https://zygygames.com/zygy_app_api/news_feed`
+`GET https://zygygames.com/api/news_feed`
 
 ### Request Expectations
 
@@ -345,7 +345,7 @@ Request | Article IDs
 
 ```shell
 # params are optional
-curl -X GET "https://zygygames.com/zygy_app_api/news_feed"
+curl -X GET "https://zygygames.com/api/news_feed"
   -H "App-Identifier: 123456789-987654321"
   -H "Authorization-Code: OUKdeYQf1qiEoTF8clnk"
   -d "page=4&per=2"
