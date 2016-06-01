@@ -273,32 +273,35 @@ params | `year` | false | `Default: current year` If supplied, filters dates bas
 ```shell
 -H Authorization-Success : true
 
-[
-  "current_month": "04/16"
-  "data": [
-    "New Players Added": {
-      "current_month": "2",
-      "best_month": {
-        "date": "6/15",
-        "value": "8"
-      }
+{
+  "current_month":"06/16",
+  "data":[  
+    {  
+      "name":"New Players Added",
+      "current_month_value":"0",
+      "best_month":"04/2016",
+      "best_month_value":"5"
     },
-    "Pirate Pike": {
-      "current_month": "23,421",
-      "best_month": {
-        "date": "10/15",
-        "value": "46,872"
-      }
+    {  
+      "name":"Revenue",
+      "current_month_value":"0",
+      "best_month":"01/2016",
+      "best_month_value":"$0.00"
     },
-    "Kubed": {
-      "current_month": "143",
-      "best_month": {
-        "date": "1/16",
-        "value": "321"
-      }
+    {  
+      "name":"Pirate Pike",
+      "current_month_value":"0",
+      "best_month":"02/2016",
+      "best_month_value":"20,143"
+    },
+    {  
+      "name":"Kubed",
+      "current_month_value":"0",
+      "best_month":"05/2016",
+      "best_month_value":"828"
     }
   ]
-]
+}
 ```
 
 Type | Key | Success? | Description
@@ -308,11 +311,10 @@ header | `Error-Message` | false | Same message as json-error, passed as a Heade
 json | `error` | false | Description of why a failure resulted - Displayable to user
 json | `current_month` (top) | true | The currently scoped month as a String for display
 json | `data` | true | Array of 'data rows' containing values for each section.
-json | "data row" | true | Key: Value pair. Key is name of the row (Game name, description, etc). Value is JSON
+json | `name` | true | The name of either the game or the type of data the row contains
 json | `current_month` (nested) | true | String value of row at selected month
-json | `best_month` | true | String value of row at best month
-json | `date` | true | String value of date the relevant value occurred
-json | `value` | true | String of relevant value
+json | `best_month` | true | String value of date the `best_month_value` occurred.
+json | `best_month_value` | true | String value of row at best month
 
 # News Feed
 

@@ -1,3 +1,10 @@
+<!--
+Hi Rocco! Do this:
+
+bundle install
+bundle exec middleman server
+-->
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/lord/img/master/logo-slate.png" alt="Slate: API Documentation Generator" width="226">
   <br>
