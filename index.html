@@ -567,32 +567,35 @@ curl -X GET <span class="s2">"https://zygygames.com/api/zygy_now"</span>
 </blockquote>
 <pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">true</span>
 
-<span class="o">[</span>
-  <span class="s2">"current_month"</span>: <span class="s2">"04/16"</span>
-  <span class="s2">"data"</span>: <span class="o">[</span>
-    <span class="s2">"New Players Added"</span>: <span class="o">{</span>
-      <span class="s2">"current_month"</span>: <span class="s2">"2"</span>,
-      <span class="s2">"best_month"</span>: <span class="o">{</span>
-        <span class="s2">"date"</span>: <span class="s2">"6/15"</span>,
-        <span class="s2">"value"</span>: <span class="s2">"8"</span>
-      <span class="o">}</span>
+<span class="o">{</span>
+  <span class="s2">"current_month"</span>:<span class="s2">"06/16"</span>,
+  <span class="s2">"data"</span>:[  
+    <span class="o">{</span>  
+      <span class="s2">"name"</span>:<span class="s2">"New Players Added"</span>,
+      <span class="s2">"current_month_value"</span>:<span class="s2">"0"</span>,
+      <span class="s2">"best_month"</span>:<span class="s2">"04/2016"</span>,
+      <span class="s2">"best_month_value"</span>:<span class="s2">"5"</span>
     <span class="o">}</span>,
-    <span class="s2">"Pirate Pike"</span>: <span class="o">{</span>
-      <span class="s2">"current_month"</span>: <span class="s2">"23,421"</span>,
-      <span class="s2">"best_month"</span>: <span class="o">{</span>
-        <span class="s2">"date"</span>: <span class="s2">"10/15"</span>,
-        <span class="s2">"value"</span>: <span class="s2">"46,872"</span>
-      <span class="o">}</span>
+    <span class="o">{</span>  
+      <span class="s2">"name"</span>:<span class="s2">"Revenue"</span>,
+      <span class="s2">"current_month_value"</span>:<span class="s2">"0"</span>,
+      <span class="s2">"best_month"</span>:<span class="s2">"01/2016"</span>,
+      <span class="s2">"best_month_value"</span>:<span class="s2">"</span><span class="nv">$0</span><span class="s2">.00"</span>
     <span class="o">}</span>,
-    <span class="s2">"Kubed"</span>: <span class="o">{</span>
-      <span class="s2">"current_month"</span>: <span class="s2">"143"</span>,
-      <span class="s2">"best_month"</span>: <span class="o">{</span>
-        <span class="s2">"date"</span>: <span class="s2">"1/16"</span>,
-        <span class="s2">"value"</span>: <span class="s2">"321"</span>
-      <span class="o">}</span>
+    <span class="o">{</span>  
+      <span class="s2">"name"</span>:<span class="s2">"Pirate Pike"</span>,
+      <span class="s2">"current_month_value"</span>:<span class="s2">"0"</span>,
+      <span class="s2">"best_month"</span>:<span class="s2">"02/2016"</span>,
+      <span class="s2">"best_month_value"</span>:<span class="s2">"20,143"</span>
+    <span class="o">}</span>,
+    <span class="o">{</span>  
+      <span class="s2">"name"</span>:<span class="s2">"Kubed"</span>,
+      <span class="s2">"current_month_value"</span>:<span class="s2">"0"</span>,
+      <span class="s2">"best_month"</span>:<span class="s2">"05/2016"</span>,
+      <span class="s2">"best_month_value"</span>:<span class="s2">"828"</span>
     <span class="o">}</span>
   <span class="o">]</span>
-<span class="o">]</span>
+<span class="o">}</span>
 </code></pre>
 
 <table><thead>
@@ -635,9 +638,9 @@ curl -X GET <span class="s2">"https://zygygames.com/api/zygy_now"</span>
 </tr>
 <tr>
 <td>json</td>
-<td>&ldquo;data row&rdquo;</td>
+<td><code class="prettyprint">name</code></td>
 <td>true</td>
-<td>Key: Value pair. Key is name of the row (Game name, description, etc). Value is JSON</td>
+<td>The name of either the game or the type of data the row contains</td>
 </tr>
 <tr>
 <td>json</td>
@@ -649,19 +652,13 @@ curl -X GET <span class="s2">"https://zygygames.com/api/zygy_now"</span>
 <td>json</td>
 <td><code class="prettyprint">best_month</code></td>
 <td>true</td>
+<td>String value of date the <code class="prettyprint">best_month_value</code> occurred.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">best_month_value</code></td>
+<td>true</td>
 <td>String value of row at best month</td>
-</tr>
-<tr>
-<td>json</td>
-<td><code class="prettyprint">date</code></td>
-<td>true</td>
-<td>String value of date the relevant value occurred</td>
-</tr>
-<tr>
-<td>json</td>
-<td><code class="prettyprint">value</code></td>
-<td>true</td>
-<td>String of relevant value</td>
 </tr>
 </tbody></table>
 
