@@ -3,6 +3,7 @@ Hi Rocco! Do this:
 
 bundle install
 bundle exec middleman server
+And then: ./deploy.rb
 -->
 
 <p align="center">

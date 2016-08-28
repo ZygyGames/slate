@@ -11,6 +11,14 @@ includes:
 search: true
 ---
 
+<!--
+Hi Rocco! Do this:
+
+bundle install
+bundle exec middleman server
+And then: ./deploy.rb
+-->
+
 # Introduction
 
 Welcome to the Zygy Games API Documentation. This will include basic information for each endpoint as well as possible responses.
@@ -94,6 +102,7 @@ This endpoint authorizes a user.
 ### HTTP Request
 
 `GET https://zygygames.com/api/login`
+`GET http://staging.zygygames.com/api/login`
 
 ### Request expectations:
 
@@ -101,6 +110,7 @@ This endpoint authorizes a user.
 
 ```shell
 curl -X GET "https://zygygames.com/api/login"
+curl -X GET "http://staging.zygygames.com/api/login"
   -H "App-Identifier: 123456789-987654321"
   -d "identifier_field=xxxxx&password_field=xxxxx"
 ```
@@ -158,6 +168,7 @@ This endpoint authorizes a new user. All fields are required.
 ### HTTP Request
 
 `GET https://zygygames.com/api/register`
+`GET http://staging.zygygames.com/api/register`
 
 ### Request expectations:
 
@@ -165,6 +176,7 @@ This endpoint authorizes a new user. All fields are required.
 
 ```shell
 curl -X GET "https://zygygames.com/api/register"
+curl -X GET "http://staging.zygygames.com/api/register"
   -H "App-Identifier: 123456789-987654321"
   -d "username=xxxxx&referral_code=xxxxxx&first_name=xxxxx&last_name=xxxxx&email=xxxxx@xxx.com&confirm_email=xxxxx@xxx.com&birthday=xx/xx/xx&password=xxxxxxxx&confirm_password=xxxxxxxx&accepted_tos=true"
 ```
@@ -223,6 +235,75 @@ json | `zygy_id` | true |  6 digit Zygy ID of user. Commonly used and displayabl
 Remember — Store the `Authorization-Code` in-app and over-write it every time a user logs in!
 </aside>
 
+# Games
+
+Returns a json array of every game.
+
+Only display the games with `published: true` to the user.
+
+The `Games` endpoint does not require authorization.
+
+## Endpoint
+
+`GET https://zygygames.com/api/games`
+`GET http://staging.zygygames.com/api/games`
+
+### Request Expectations
+
+> Example request
+
+```shell
+curl -X GET "https://zygygames.com/api/games"
+curl -X GET "http://staging.zygygames.com/api/games"
+```
+
+### Response Expectations
+
+> Response
+
+```shell
+
+[
+  {
+    "name":"Zygy App",
+    "updated_at":"2016-06-15T04:15:33.062Z",
+    "how_to_description":null,
+    "game_description":null,
+    "app_store_id":null,
+    "published":false,
+    "app_icon":"/system/games/app_icons/missing.png"
+  },
+  {
+    "name":"Stack Em",
+    "updated_at":"2016-06-15T04:21:35.661Z",
+    "how_to_description":"",
+    "game_description":"Build them as high as you can.",
+    "app_store_id":null,
+    "published":false,
+    "app_icon":"http://s3.amazonaws.com/zygy-user-image-uploads/games/app_icons/000/000/004/original/Stack-Em_Icon-20.png?1465950356"
+  },
+  {
+    "name":"Pirate Pike",
+    "updated_at":"2016-06-15T04:38:01.771Z",
+    "how_to_description":"User your finger to trace \u0026 create bungee bridges. Collect coins and magical boosters and beware of cannon balls!",
+    "game_description":"Help Pike the Pirate on his adventurous journey collecting loot across the skies of the Isles of Bounty.",
+    "app_store_id":null,
+    "published":true,
+    "app_icon":"/system/games/app_icons/missing.png"
+  }
+]
+```
+
+Type | Key  | Description
+---- | ---  | -----------
+json | `name` | Name of the game
+json | `updated_at` | The last time the game was updated
+json | `game_description` | Description of what the game is
+json | `how_to_description` | How to play the game
+json | `app_store_id` | If the game is available on the App Store, the ID used to identify it.
+json | `published` | Whether or not the game is published and should be shown to the user.
+json | `app_icon` | The url to the app's icon
+
 # Zygy Now
 
 Zygy Now is a a Scoreboard based tracker that allows a User to track their information. It contains information for the selected month, as well as an 'all-time best'.
@@ -234,6 +315,7 @@ All values and dates sent as a response from the server will be pre-formatted fo
 ## Endpoint
 
 `GET https://zygygames.com/api/zygy_now`
+`GET http://staging.zygygames.com/api/zygy_now`
 
 ### Request Expectations
 
@@ -242,6 +324,7 @@ All values and dates sent as a response from the server will be pre-formatted fo
 ```shell
 # params are optional
 curl -X GET "https://zygygames.com/api/zygy_now"
+curl -X GET "http://staging.zygygames.com/api/zygy_now"
   -H "App-Identifier: 123456789-987654321"
   -H "Authorization-Code: OUKdeYQf1qiEoTF8clnk"
   -d "user_identification=rockster160&month=4&year=2016"
@@ -309,10 +392,10 @@ Type | Key | Success? | Description
 header | `Authorization-Success` | N/A | Stringified boolean representing whether or not the request was successful.
 header | `Error-Message` | false | Same message as json-error, passed as a Header.
 json | `error` | false | Description of why a failure resulted - Displayable to user
-json | `current_month` (top) | true | The currently scoped month as a String for display
+json | `current_month` | true | The currently scoped month as a String for display
 json | `data` | true | Array of 'data rows' containing values for each section.
 json | `name` | true | The name of either the game or the type of data the row contains
-json | `current_month` (nested) | true | String value of row at selected month
+json | `current_month_value` | true | String value of row at selected month
 json | `best_month` | true | String value of date the `best_month_value` occurred.
 json | `best_month_value` | true | String value of row at best month
 
@@ -340,6 +423,7 @@ Request | Article IDs
 ## Endpoint
 
 `GET https://zygygames.com/api/news_feed`
+`GET http://staging.zygygames.com/api/news_feed`
 
 ### Request Expectations
 
@@ -348,6 +432,7 @@ Request | Article IDs
 ```shell
 # params are optional
 curl -X GET "https://zygygames.com/api/news_feed"
+curl -X GET "http://staging.zygygames.com/api/news_feed"
   -H "App-Identifier: 123456789-987654321"
   -H "Authorization-Code: OUKdeYQf1qiEoTF8clnk"
   -d "page=4&per=2"
