@@ -195,7 +195,8 @@ Not sure what to use for the App-Identifier? Contact Rocco. For security reasons
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/login</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/api/login</code>
+<code class="prettyprint">GET http://staging.zygygames.com/api/login</code></p>
 
 <h3 id="request-expectations">Request expectations:</h3>
 
@@ -203,6 +204,7 @@ Not sure what to use for the App-Identifier? Contact Rocco. For security reasons
 <p>Example request</p>
 </blockquote>
 <pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/login"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/login"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
   -d <span class="s2">"identifier_field=xxxxx&amp;password_field=xxxxx"</span>
 </code></pre>
@@ -323,7 +325,8 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/register</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/api/register</code>
+<code class="prettyprint">GET http://staging.zygygames.com/api/register</code></p>
 
 <h3 id="request-expectations">Request expectations:</h3>
 
@@ -331,6 +334,7 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 <p>Example request</p>
 </blockquote>
 <pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/register"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/register"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
   -d <span class="s2">"username=xxxxx&amp;referral_code=xxxxxx&amp;first_name=xxxxx&amp;last_name=xxxxx&amp;email=xxxxx@xxx.com&amp;confirm_email=xxxxx@xxx.com&amp;birthday=xx/xx/xx&amp;password=xxxxxxxx&amp;confirm_password=xxxxxxxx&amp;accepted_tos=true"</span>
 </code></pre>
@@ -493,6 +497,109 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 Remember — Store the `Authorization-Code` in-app and over-write it every time a user logs in!
 </aside>
 
+<h1 id="games">Games</h1>
+
+<p>Returns a json array of every game.</p>
+
+<p>Only display the games with <code class="prettyprint">published: true</code> to the user.</p>
+
+<p>The <code class="prettyprint">Games</code> endpoint does not require authorization.</p>
+
+<h2 id="endpoint">Endpoint</h2>
+
+<p><code class="prettyprint">GET https://zygygames.com/api/games</code>
+<code class="prettyprint">GET http://staging.zygygames.com/api/games</code></p>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/games"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight shell"><code>
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"name"</span>:<span class="s2">"Zygy App"</span>,
+    <span class="s2">"updated_at"</span>:<span class="s2">"2016-06-15T04:15:33.062Z"</span>,
+    <span class="s2">"how_to_description"</span>:null,
+    <span class="s2">"game_description"</span>:null,
+    <span class="s2">"app_store_id"</span>:null,
+    <span class="s2">"published"</span>:false,
+    <span class="s2">"app_icon"</span>:<span class="s2">"system/games/app_icons/missing.png"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"name"</span>:<span class="s2">"Stack Em"</span>,
+    <span class="s2">"updated_at"</span>:<span class="s2">"2016-06-15T04:21:35.661Z"</span>,
+    <span class="s2">"how_to_description"</span>:<span class="s2">""</span>,
+    <span class="s2">"game_description"</span>:<span class="s2">"Build them as high as you can."</span>,
+    <span class="s2">"app_store_id"</span>:null,
+    <span class="s2">"published"</span>:false,
+    <span class="s2">"app_icon"</span>:<span class="s2">"http://s3.amazonaws.com/zygy-user-image-uploads/games/app_icons/000/000/004/original/Stack-Em_Icon-20.png?1465950356"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"name"</span>:<span class="s2">"Pirate Pike"</span>,
+    <span class="s2">"updated_at"</span>:<span class="s2">"2016-06-15T04:38:01.771Z"</span>,
+    <span class="s2">"how_to_description"</span>:<span class="s2">"User your finger to trace </span><span class="se">\u</span><span class="s2">0026 create bungee bridges. Collect coins and magical boosters and beware of cannon balls!"</span>,
+    <span class="s2">"game_description"</span>:<span class="s2">"Help Pike the Pirate on his adventurous journey collecting loot across the skies of the Isles of Bounty."</span>,
+    <span class="s2">"app_store_id"</span>:null,
+    <span class="s2">"published"</span>:true,
+    <span class="s2">"app_icon"</span>:<span class="s2">"system/games/app_icons/missing.png"</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">name</code></td>
+<td>Name of the game</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">updated_at</code></td>
+<td>The last time the game was updated</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">game_description</code></td>
+<td>Description of what the game is</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">how_to_description</code></td>
+<td>How to play the game</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">app_store_id</code></td>
+<td>If the game is available on the App Store, the ID used to identify it.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">published</code></td>
+<td>Whether or not the game is published and should be shown to the user.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">app_icon</code></td>
+<td>The url to the app&rsquo;s icon</td>
+</tr>
+</tbody></table>
+
 <h1 id="zygy-now">Zygy Now</h1>
 
 <p>Zygy Now is a a Scoreboard based tracker that allows a User to track their information. It contains information for the selected month, as well as an &lsquo;all-time best&rsquo;.</p>
@@ -503,7 +610,8 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 
 <h2 id="endpoint">Endpoint</h2>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/zygy_now</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/api/zygy_now</code>
+<code class="prettyprint">GET http://staging.zygygames.com/api/zygy_now</code></p>
 
 <h3 id="request-expectations">Request Expectations</h3>
 
@@ -512,6 +620,7 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 </blockquote>
 <pre class="highlight shell"><code><span class="c"># params are optional</span>
 curl -X GET <span class="s2">"https://zygygames.com/api/zygy_now"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/zygy_now"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
   -H <span class="s2">"Authorization-Code: OUKdeYQf1qiEoTF8clnk"</span>
   -d <span class="s2">"user_identification=rockster160&amp;month=4&amp;year=2016"</span>
@@ -634,7 +743,7 @@ curl -X GET <span class="s2">"https://zygygames.com/api/zygy_now"</span>
 </tr>
 <tr>
 <td>json</td>
-<td><code class="prettyprint">current_month</code> (top)</td>
+<td><code class="prettyprint">current_month</code></td>
 <td>true</td>
 <td>The currently scoped month as a String for display</td>
 </tr>
@@ -652,7 +761,7 @@ curl -X GET <span class="s2">"https://zygygames.com/api/zygy_now"</span>
 </tr>
 <tr>
 <td>json</td>
-<td><code class="prettyprint">current_month</code> (nested)</td>
+<td><code class="prettyprint">current_month_value</code></td>
 <td>true</td>
 <td>String value of row at selected month</td>
 </tr>
@@ -710,7 +819,8 @@ curl -X GET <span class="s2">"https://zygygames.com/api/zygy_now"</span>
 
 <h2 id="endpoint">Endpoint</h2>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/news_feed</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/api/news_feed</code>
+<code class="prettyprint">GET http://staging.zygygames.com/api/news_feed</code></p>
 
 <h3 id="request-expectations">Request Expectations</h3>
 
@@ -719,6 +829,7 @@ curl -X GET <span class="s2">"https://zygygames.com/api/zygy_now"</span>
 </blockquote>
 <pre class="highlight shell"><code><span class="c"># params are optional</span>
 curl -X GET <span class="s2">"https://zygygames.com/api/news_feed"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/news_feed"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
   -H <span class="s2">"Authorization-Code: OUKdeYQf1qiEoTF8clnk"</span>
   -d <span class="s2">"page=4&amp;per=2"</span>
