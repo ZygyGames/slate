@@ -401,24 +401,11 @@ json | `best_month_value` | true | String value of row at best month
 
 # News Feed
 
-News Feed is a list of articles that contain basic information shown to users. It's an extensive list, so it is paginated.
+News Feed is a list of articles that contain basic information shown to users.
 
-Pagination options are `page` and `per`. Both optional.
+The News Feed will return a Webview, and should be rendered as is, using the standard App's Navigation.
 
-`per` defines how many you would like to receive per page. This number defaults to 5. If changed, should be consistent on each request to avoid skipping or duplicating articles.
-
-`page` defines which 'page' of articles you want. Default is 1. Articles are ordered most recent first.
-
-### Example
-
-Assuming articles are numbered starting at 1, 1 being the most recent article:
-
-Request | Article IDs
-------- | -----------
-`page 1 per 5` | 1-6
-`page 2 per 5` | 7-11
-`page 2 per 6` | 8-14
-`page 5 per 10` | 41-51
+That means showing a back button and the normal tab view that is displayed on other pages.
 
 ## Endpoint
 
@@ -442,8 +429,6 @@ Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `App-Identifier` | true | App Identification String
 header | `Authorization-Code` | true | User Authorization Code
-params | `page` | false | `Default: 1` If supplied, retrieves articles at specified page.
-params | `per` | false | `Default: 5` If supplied, sets the 'number per page'
 
 ### Response Expectations
 
@@ -461,30 +446,8 @@ params | `per` | false | `Default: 5` If supplied, sets the 'number per page'
 > Response - Success
 
 ```shell
--H Authorization-Success : true
-
-[
-  {
-    "main_header": "Breaking News!",
-    "image": "http://s3.amazonaws.com/zygy-news-uploads/news_articles/images/000/000/004/original/Pirate_Pike_Pro_Player_April_Challenge_Header.png?1460654941",
-    "second_header": "Don't miss out on the competition!",
-    "body": "The prize rules are listed somewhere and you should go read them so you know. Scores are based on how well your team does, not just you."
-  },
-  {
-    "main_header": "Winners!",
-    "image": "http://s3.amazonaws.com/zygy-news-uploads/news_articles/images/000/000/008/original/March_Pro_Player_Winners-01.jpg?1460654882",
-    "second_header": "All of these guys won cash prizes!",
-    "body": "Est occaecati temporibus itaque neque omnis in et. Consequatur doloremque et fugiat quo autem illum. Explicabo commodi ut distinctio sit quas laudantium voluptate."
-  },
-]
+<!DOCTYPE html>
+<html>
+ <!-- The News feed with associated styles should be here. -->
+</html>
 ```
-
-Type | Key | Success? | Description
----- | --- | -------- | -----------
-header | `Authorization-Success` | N/A | Stringified boolean representing whether or not the request was successful.
-header | `Error-Message` | false | Same message as json-error, passed as a Header.
-json | `error` | false | Description of why a failure resulted - Displayable to user
-json | `main_header` | true | Main Header text of Article- to be displayed first
-json | `image` | true | Url for image in article
-json | `second_header` | true | Sub-header
-json | `body` | true | Body of text. Uses `\n` to report new lines.
