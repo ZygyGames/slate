@@ -781,41 +781,11 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/zygy_now"</span>
 
 <h1 id="news-feed">News Feed</h1>
 
-<p>News Feed is a list of articles that contain basic information shown to users. It&rsquo;s an extensive list, so it is paginated.</p>
+<p>News Feed is a list of articles that contain basic information shown to users.</p>
 
-<p>Pagination options are <code class="prettyprint">page</code> and <code class="prettyprint">per</code>. Both optional.</p>
+<p>The News Feed will return a Webview, and should be rendered as is, using the standard App&rsquo;s Navigation.</p>
 
-<p><code class="prettyprint">per</code> defines how many you would like to receive per page. This number defaults to 5. If changed, should be consistent on each request to avoid skipping or duplicating articles.</p>
-
-<p><code class="prettyprint">page</code> defines which &#39;page&rsquo; of articles you want. Default is 1. Articles are ordered most recent first.</p>
-
-<h3 id="example">Example</h3>
-
-<p>Assuming articles are numbered starting at 1, 1 being the most recent article:</p>
-
-<table><thead>
-<tr>
-<th>Request</th>
-<th>Article IDs</th>
-</tr>
-</thead><tbody>
-<tr>
-<td><code class="prettyprint">page 1 per 5</code></td>
-<td>1-6</td>
-</tr>
-<tr>
-<td><code class="prettyprint">page 2 per 5</code></td>
-<td>7-11</td>
-</tr>
-<tr>
-<td><code class="prettyprint">page 2 per 6</code></td>
-<td>8-14</td>
-</tr>
-<tr>
-<td><code class="prettyprint">page 5 per 10</code></td>
-<td>41-51</td>
-</tr>
-</tbody></table>
+<p>That means showing a back button and the normal tab view that is displayed on other pages.</p>
 
 <h2 id="endpoint">Endpoint</h2>
 
@@ -855,18 +825,6 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/news_feed"</span>
 <td>true</td>
 <td>User Authorization Code</td>
 </tr>
-<tr>
-<td>params</td>
-<td><code class="prettyprint">page</code></td>
-<td>false</td>
-<td><code class="prettyprint">Default: 1</code> If supplied, retrieves articles at specified page.</td>
-</tr>
-<tr>
-<td>params</td>
-<td><code class="prettyprint">per</code></td>
-<td>false</td>
-<td><code class="prettyprint">Default: 5</code> If supplied, sets the &#39;number per page&rsquo;</td>
-</tr>
 </tbody></table>
 
 <h3 id="response-expectations">Response Expectations</h3>
@@ -885,75 +843,11 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/news_feed"</span>
 <blockquote>
 <p>Response - Success</p>
 </blockquote>
-<pre class="highlight shell"><code>-H Authorization-Success : <span class="nb">true</span>
-
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"main_header"</span>: <span class="s2">"Breaking News!"</span>,
-    <span class="s2">"image"</span>: <span class="s2">"http://s3.amazonaws.com/zygy-news-uploads/news_articles/images/000/000/004/original/Pirate_Pike_Pro_Player_April_Challenge_Header.png?1460654941"</span>,
-    <span class="s2">"second_header"</span>: <span class="s2">"Don't miss out on the competition!"</span>,
-    <span class="s2">"body"</span>: <span class="s2">"The prize rules are listed somewhere and you should go read them so you know. Scores are based on how well your team does, not just you."</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"main_header"</span>: <span class="s2">"Winners!"</span>,
-    <span class="s2">"image"</span>: <span class="s2">"http://s3.amazonaws.com/zygy-news-uploads/news_articles/images/000/000/008/original/March_Pro_Player_Winners-01.jpg?1460654882"</span>,
-    <span class="s2">"second_header"</span>: <span class="s2">"All of these guys won cash prizes!"</span>,
-    <span class="s2">"body"</span>: <span class="s2">"Est occaecati temporibus itaque neque omnis in et. Consequatur doloremque et fugiat quo autem illum. Explicabo commodi ut distinctio sit quas laudantium voluptate."</span>
-  <span class="o">}</span>,
-<span class="o">]</span>
+<pre class="highlight shell"><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+ &lt;!-- The News feed with associated styles should be here. --&gt;
+&lt;/html&gt;
 </code></pre>
-
-<table><thead>
-<tr>
-<th>Type</th>
-<th>Key</th>
-<th>Success?</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>header</td>
-<td><code class="prettyprint">Authorization-Success</code></td>
-<td>N/A</td>
-<td>Stringified boolean representing whether or not the request was successful.</td>
-</tr>
-<tr>
-<td>header</td>
-<td><code class="prettyprint">Error-Message</code></td>
-<td>false</td>
-<td>Same message as json-error, passed as a Header.</td>
-</tr>
-<tr>
-<td>json</td>
-<td><code class="prettyprint">error</code></td>
-<td>false</td>
-<td>Description of why a failure resulted - Displayable to user</td>
-</tr>
-<tr>
-<td>json</td>
-<td><code class="prettyprint">main_header</code></td>
-<td>true</td>
-<td>Main Header text of Article- to be displayed first</td>
-</tr>
-<tr>
-<td>json</td>
-<td><code class="prettyprint">image</code></td>
-<td>true</td>
-<td>Url for image in article</td>
-</tr>
-<tr>
-<td>json</td>
-<td><code class="prettyprint">second_header</code></td>
-<td>true</td>
-<td>Sub-header</td>
-</tr>
-<tr>
-<td>json</td>
-<td><code class="prettyprint">body</code></td>
-<td>true</td>
-<td>Body of text. Uses <code class="prettyprint">\n</code> to report new lines.</td>
-</tr>
-</tbody></table>
 
       </div>
       <div class="dark-box">
