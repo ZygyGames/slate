@@ -534,3 +534,11 @@ param | `filter_user_date` | false | Date in the form of MM-DD-YYYY, when provid
   }
 ]
 ```
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `place` | true | Rank on the current Leaderboard
+json | `username_display` | true | String value including the User\'s Username followed by their Zygy ID in parentheses.
+json | `personal_value` | true | The value representing the individual score for the User (Will show the Current User\'s high score whether or not the filter is set to `thru` any level)
+json | `filtered_value` | true | The value the current Leaderboards are sorted by.
+json | `upline_display` | true | String value displaying the User\'s upline\'s identification.
