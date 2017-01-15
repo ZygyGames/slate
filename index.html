@@ -968,6 +968,46 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/leaderboards.json"</s
 <span class="o">]</span>
 </code></pre>
 
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">place</code></td>
+<td>true</td>
+<td>Rank on the current Leaderboard</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">username_display</code></td>
+<td>true</td>
+<td>String value including the User\&rsquo;s Username followed by their Zygy ID in parentheses.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">personal_value</code></td>
+<td>true</td>
+<td>The value representing the individual score for the User (Will show the Current User\&rsquo;s high score whether or not the filter is set to <code class="prettyprint">thru</code> any level)</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">filtered_value</code></td>
+<td>true</td>
+<td>The value the current Leaderboards are sorted by.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">upline_display</code></td>
+<td>true</td>
+<td>String value displaying the User\&rsquo;s upline\&rsquo;s identification.</td>
+</tr>
+</tbody></table>
+
       </div>
       <div class="dark-box">
           <div class="lang-selector">
