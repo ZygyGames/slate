@@ -265,6 +265,7 @@ curl -X GET "http://staging.zygygames.com/api/games"
 
 [
   {
+    "server_id":"1",
     "name":"Zygy App",
     "updated_at":"2016-06-15T04:15:33.062Z",
     "how_to_description":null,
@@ -274,6 +275,7 @@ curl -X GET "http://staging.zygygames.com/api/games"
     "app_icon":"/system/games/app_icons/missing.png"
   },
   {
+    "server_id":"2",
     "name":"Stack Em",
     "updated_at":"2016-06-15T04:21:35.661Z",
     "how_to_description":"",
@@ -283,6 +285,7 @@ curl -X GET "http://staging.zygygames.com/api/games"
     "app_icon":"http://s3.amazonaws.com/zygy-user-image-uploads/games/app_icons/000/000/004/original/Stack-Em_Icon-20.png?1465950356"
   },
   {
+    "server_id":"3",
     "name":"Pirate Pike",
     "updated_at":"2016-06-15T04:38:01.771Z",
     "how_to_description":"User your finger to trace \u0026 create bungee bridges. Collect coins and magical boosters and beware of cannon balls!",
@@ -296,6 +299,7 @@ curl -X GET "http://staging.zygygames.com/api/games"
 
 Type | Key  | Description
 ---- | ---  | -----------
+json | `server_id` | The server ID of the game used for requests for a specific game.
 json | `name` | Name of the game
 json | `updated_at` | The last time the game was updated
 json | `game_description` | Description of what the game is
@@ -450,4 +454,83 @@ header | `Authorization-Code` | true | User Authorization Code
 <html>
  <!-- The News feed with associated styles should be here. -->
 </html>
+```
+
+
+
+
+
+
+
+
+
+
+# Leaderboard
+
+The Leaderboard endpoint will return a JSON response of the current Leaderboards based on your request.
+
+Leaderboards are slow to calculate, but to make up for this, once a Leaderboard is viewed, it is cached and stored in the server so future lookups are much faster. If you notice an issue with a slow response from a Leaderboard, try again and it should respond very quickly since it doesn\'t have to regenerate the information.
+
+The Leaderboard endpoint is currently unauthenticated, so you do not have to send the App Identifier and Authorization Code with your request. (Although it is recommended, when possible.)
+
+## Endpoint
+
+`GET https://zygygames.com/leaderboards.json`
+`GET http://staging.zygygames.com/leaderboards.json`
+
+### Request Expectations
+
+> Example request
+
+```shell
+curl -X GET "https://zygygames.com/leaderboards.json"
+curl -X GET "http://staging.zygygames.com/leaderboards.json"
+  -d "depth=thru&base_level=Personal&game=3&tracker_type=Scores&time_range=Current+Month&filter_since=before&filter_user_date="
+```
+
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+param | `game` | true | The server ID of the game you want the Leaderboards for. The ID is accessible via the `games` endpoint.
+param | `depth` | false | Thru/At - Determines whether the Leaderboards should be filtered 'thru' the current level or 'at' the current level. <Default: thru>
+param | `base_level` | false | Ordinalized depth value. May be a string or integer value Personal/0 for Personal, 1st/1, 2nd/2, ... Up to 8th/8 and total. Any number greater than 20 may be passed for total.
+param | `tracker_type` | false | "Scores", "Revenue", "New Players Added" - for the type of Leaderboard to show.
+param | `time_range` | false | String description of relative date range to include in the Leaderboard. Valid options: "Current Month", "Last Month", "Last 3 Months", "Last 6 Months", "Last 12 Months", "Year To Date", "Total"
+param | `filter_since` | false | Boolean value, true marks to filter users created after the `filter_user_date` below, false will show only users created before that date.
+param | `filter_user_date` | false | Date in the form of MM-DD-YYYY, when provided, will filter the Leaderboard to only include users based on this date.
+
+### Response Expectations
+
+> Response - Failure
+
+```shell
+
+{
+  "error": {
+    "required_params_not_present": [
+      "game"
+    ]
+  }
+}
+```
+
+> Response - Success
+
+```shell
+[
+  {
+    "place":1,
+    "username_display":"Chad510 (GP9ITD)",
+    "personal_value":"1,939",
+    "filtered_value":"1,939",
+    "upline_display":"Carmella453 (ZV3P7T)"
+  },
+  {
+    "place":2,
+    "username_display":"Jaron77 (8Y106M)",
+    "personal_value":"1,893",
+    "filtered_value":"1,893",
+    "upline_display":"Jess52 (62XFC1)"
+  }
+]
 ```
