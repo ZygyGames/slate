@@ -527,6 +527,7 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
 <pre class="highlight shell"><code>
 <span class="o">[</span>
   <span class="o">{</span>
+    <span class="s2">"server_id"</span>:<span class="s2">"1"</span>,
     <span class="s2">"name"</span>:<span class="s2">"Zygy App"</span>,
     <span class="s2">"updated_at"</span>:<span class="s2">"2016-06-15T04:15:33.062Z"</span>,
     <span class="s2">"how_to_description"</span>:null,
@@ -536,6 +537,7 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
     <span class="s2">"app_icon"</span>:<span class="s2">"system/games/app_icons/missing.png"</span>
   <span class="o">}</span>,
   <span class="o">{</span>
+    <span class="s2">"server_id"</span>:<span class="s2">"2"</span>,
     <span class="s2">"name"</span>:<span class="s2">"Stack Em"</span>,
     <span class="s2">"updated_at"</span>:<span class="s2">"2016-06-15T04:21:35.661Z"</span>,
     <span class="s2">"how_to_description"</span>:<span class="s2">""</span>,
@@ -545,6 +547,7 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
     <span class="s2">"app_icon"</span>:<span class="s2">"http://s3.amazonaws.com/zygy-user-image-uploads/games/app_icons/000/000/004/original/Stack-Em_Icon-20.png?1465950356"</span>
   <span class="o">}</span>,
   <span class="o">{</span>
+    <span class="s2">"server_id"</span>:<span class="s2">"3"</span>,
     <span class="s2">"name"</span>:<span class="s2">"Pirate Pike"</span>,
     <span class="s2">"updated_at"</span>:<span class="s2">"2016-06-15T04:38:01.771Z"</span>,
     <span class="s2">"how_to_description"</span>:<span class="s2">"User your finger to trace </span><span class="se">\u</span><span class="s2">0026 create bungee bridges. Collect coins and magical boosters and beware of cannon balls!"</span>,
@@ -563,6 +566,11 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
 <th>Description</th>
 </tr>
 </thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">server_id</code></td>
+<td>The server ID of the game used for requests for a specific game.</td>
+</tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">name</code></td>
@@ -847,6 +855,117 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/news_feed"</span>
 &lt;html&gt;
  &lt;!-- The News feed with associated styles should be here. --&gt;
 &lt;/html&gt;
+</code></pre>
+
+<h1 id="leaderboard">Leaderboard</h1>
+
+<p>The Leaderboard endpoint will return a JSON response of the current Leaderboards based on your request.</p>
+
+<p>Leaderboards are slow to calculate, but to make up for this, once a Leaderboard is viewed, it is cached and stored in the server so future lookups are much faster. If you notice an issue with a slow response from a Leaderboard, try again and it should respond very quickly since it doesn\&rsquo;t have to regenerate the information.</p>
+
+<p>The Leaderboard endpoint is currently unauthenticated, so you do not have to send the App Identifier and Authorization Code with your request. (Although it is recommended, when possible.)</p>
+
+<h2 id="endpoint">Endpoint</h2>
+
+<p><code class="prettyprint">GET https://zygygames.com/leaderboards.json</code>
+<code class="prettyprint">GET http://staging.zygygames.com/leaderboards.json</code></p>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/leaderboards.json"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/leaderboards.json"</span>
+  -d <span class="s2">"depth=thru&amp;base_level=Personal&amp;game=3&amp;tracker_type=Scores&amp;time_range=Current+Month&amp;filter_since=before&amp;filter_user_date="</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">game</code></td>
+<td>true</td>
+<td>The server ID of the game you want the Leaderboards for. The ID is accessible via the <code class="prettyprint">games</code> endpoint.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">depth</code></td>
+<td>false</td>
+<td>Thru/At - Determines whether the Leaderboards should be filtered &#39;thru&rsquo; the current level or &#39;at&rsquo; the current level. <Default: thru></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">base_level</code></td>
+<td>false</td>
+<td>Ordinalized depth value. May be a string or integer value Personal/0 for Personal, 1st/1, 2nd/2, &hellip; Up to 8th/8 and total. Any number greater than 20 may be passed for total.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">tracker_type</code></td>
+<td>false</td>
+<td>&ldquo;Scores&rdquo;, &ldquo;Revenue&rdquo;, &ldquo;New Players Added&rdquo; - for the type of Leaderboard to show.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">time_range</code></td>
+<td>false</td>
+<td>String description of relative date range to include in the Leaderboard. Valid options: &ldquo;Current Month&rdquo;, &ldquo;Last Month&rdquo;, &ldquo;Last 3 Months&rdquo;, &ldquo;Last 6 Months&rdquo;, &ldquo;Last 12 Months&rdquo;, &ldquo;Year To Date&rdquo;, &ldquo;Total&rdquo;</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">filter_since</code></td>
+<td>false</td>
+<td>Boolean value, true marks to filter users created after the <code class="prettyprint">filter_user_date</code> below, false will show only users created before that date.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">filter_user_date</code></td>
+<td>false</td>
+<td>Date in the form of MM-DD-YYYY, when provided, will filter the Leaderboard to only include users based on this date.</td>
+</tr>
+</tbody></table>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<blockquote>
+<p>Response - Failure</p>
+</blockquote>
+<pre class="highlight shell"><code>
+<span class="o">{</span>
+  <span class="s2">"error"</span>: <span class="o">{</span>
+    <span class="s2">"required_params_not_present"</span>: <span class="o">[</span>
+      <span class="s2">"game"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"place"</span>:1,
+    <span class="s2">"username_display"</span>:<span class="s2">"Chad510 (GP9ITD)"</span>,
+    <span class="s2">"personal_value"</span>:<span class="s2">"1,939"</span>,
+    <span class="s2">"filtered_value"</span>:<span class="s2">"1,939"</span>,
+    <span class="s2">"upline_display"</span>:<span class="s2">"Carmella453 (ZV3P7T)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>:2,
+    <span class="s2">"username_display"</span>:<span class="s2">"Jaron77 (8Y106M)"</span>,
+    <span class="s2">"personal_value"</span>:<span class="s2">"1,893"</span>,
+    <span class="s2">"filtered_value"</span>:<span class="s2">"1,893"</span>,
+    <span class="s2">"upline_display"</span>:<span class="s2">"Jess52 (62XFC1)"</span>
+  <span class="o">}</span>
+<span class="o">]</span>
 </code></pre>
 
       </div>
