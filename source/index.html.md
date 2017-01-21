@@ -69,12 +69,12 @@ curl -X GET www.google.com?search=What+is+this
 
 # Request by using data/param flag
 curl -X GET www.google.com
--d "search=What+is+this'
+-d "search=What+is+this"
 
 # Multiple parameters in single request separated by `&`. No spaces are used in parameters.
 # Spaces, where necessary, are replaced with `+`
 curl -X GET www.google.com
--d "username=myusername&password=my+super+secure+password'
+-d "username=myusername&password=my+super+secure+password"
 ```
 
 `-d` contains the params. Unlike the Headers, params are all shown together in URL Parameter format. Normally, params are attached to the url by appending the parameterized string onto the end of the url request with a `?`
@@ -102,9 +102,8 @@ This endpoint authorizes a user.
 ### HTTP Request
 
 `GET https://zygygames.com/api/login`
-`GET http://staging.zygygames.com/api/login`
 
-### Request expectations:
+`GET http://staging.zygygames.com/api/login`
 
 > Example request
 
@@ -115,13 +114,13 @@ curl -X GET "http://staging.zygygames.com/api/login"
   -d "identifier_field=xxxxx&password_field=xxxxx"
 ```
 
+### Request Expectations:
+
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `App-Identifier` | true | App Identification String
 param | `identifier_field` | true | Username, Email Address, or Zygy ID supplied by user
 param | `password_field` | true | Password supplied by user
-
-### Response Expectations
 
 > Response - Failure
 
@@ -147,6 +146,8 @@ param | `password_field` | true | Password supplied by user
 }
 ```
 
+### Response Expectations
+
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
 header | `Authorization-Success` | N/A | Stringified boolean representing whether or not the request was successful.
@@ -168,9 +169,8 @@ This endpoint authorizes a new user. All fields are required.
 ### HTTP Request
 
 `GET https://zygygames.com/api/register`
-`GET http://staging.zygygames.com/api/register`
 
-### Request expectations:
+`GET http://staging.zygygames.com/api/register`
 
 > Example request
 
@@ -180,6 +180,8 @@ curl -X GET "http://staging.zygygames.com/api/register"
   -H "App-Identifier: 123456789-987654321"
   -d "username=xxxxx&referral_code=xxxxxx&first_name=xxxxx&last_name=xxxxx&email=xxxxx@xxx.com&confirm_email=xxxxx@xxx.com&birthday=xx/xx/xx&password=xxxxxxxx&confirm_password=xxxxxxxx&accepted_tos=true"
 ```
+
+### Request Expectations:
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
@@ -194,8 +196,6 @@ param | `birthday` | true | Birthday in the format MM/DD/YYYY
 param | `password` | true | Desired password. Must be 8 characters or more.
 param | `confirm_password` | true | Confirm password - Must match `password` field
 param | `accepted_tos` | true | Checkbox confirming user agrees to TOS and Privacy Policy
-
-### Response Expectations
 
 > Response - Failure
 
@@ -221,6 +221,8 @@ param | `accepted_tos` | true | Checkbox confirming user agrees to TOS and Priva
 }
 ```
 
+### Response Expectations
+
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
 header | `Authorization-Success` | N/A | Stringified boolean representing whether or not the request was successful.
@@ -237,18 +239,17 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 
 # Games
 
+## Index
+
 Returns a json array of every game.
 
 Only display the games with `published: true` to the user.
 
-The `Games` endpoint does not require authorization.
-
-## Endpoint
+### HTTP Request
 
 `GET https://zygygames.com/api/games`
-`GET http://staging.zygygames.com/api/games`
 
-### Request Expectations
+`GET http://staging.zygygames.com/api/games`
 
 > Example request
 
@@ -257,7 +258,7 @@ curl -X GET "https://zygygames.com/api/games"
 curl -X GET "http://staging.zygygames.com/api/games"
 ```
 
-### Response Expectations
+### Request Expectations
 
 > Response
 
@@ -297,6 +298,8 @@ curl -X GET "http://staging.zygygames.com/api/games"
 ]
 ```
 
+### Response Expectations
+
 Type | Key  | Description
 ---- | ---  | -----------
 json | `server_id` | The server ID of the game used for requests for a specific game.
@@ -308,6 +311,69 @@ json | `app_store_id` | If the game is available on the App Store, the ID used t
 json | `published` | Whether or not the game is published and should be shown to the user.
 json | `app_icon` | The url to the app's icon
 
+## Check Rewards
+
+Returns a boolean on whether or not the current user has any pending rewards for a the current game.
+
+Current game is determined using App-Identifier
+
+### HTTP Request
+
+`GET https://zygygames.com/api/games/check_rewards`
+
+`GET http://staging.zygygames.com/api/games/check_rewards`
+
+> Example request
+
+```shell
+curl -X GET "https://zygygames.com/api/games/check_rewards"
+curl -X GET "http://staging.zygygames.com/api/games/check_rewards"
+```
+
+### Request Expectations
+
+> Response
+
+```shell
+true
+```
+
+### Response Expectations
+
+## Collect Rewards
+
+Returns a hash of data including all of the rewards to give to a player for the current game.
+
+### HTTP Request
+
+`GET https://zygygames.com/api/games/collect_rewards`
+
+`GET http://staging.zygygames.com/api/games/collect_rewards`
+
+> Example request
+
+```shell
+curl -X GET "https://zygygames.com/api/games/collect_rewards"
+curl -X GET "http://staging.zygygames.com/api/games/collect_rewards"
+```
+
+### Request Expectations
+
+> Response
+
+```shell
+{
+  "coins": 100,
+  "gems": 15
+}
+```
+
+### Response Expectations
+
+Keys are mapped to the string value of the type of reward to receive. (Usually coins)
+
+Values are mapped to the amount of that reward to increment.
+
 # Zygy Now
 
 Zygy Now is a a Scoreboard based tracker that allows a User to track their information. It contains information for the selected month, as well as an 'all-time best'.
@@ -316,9 +382,10 @@ A user can select which month to view, and can also change the user in which inf
 
 All values and dates sent as a response from the server will be pre-formatted for display.
 
-## Endpoint
+### HTTP Request
 
 `GET https://zygygames.com/api/zygy_now`
+
 `GET http://staging.zygygames.com/api/zygy_now`
 
 ### Request Expectations
@@ -414,6 +481,7 @@ That means showing a back button and the normal tab view that is displayed on ot
 ## Endpoint
 
 `GET https://zygygames.com/api/news_feed`
+
 `GET http://staging.zygygames.com/api/news_feed`
 
 ### Request Expectations
@@ -456,15 +524,6 @@ header | `Authorization-Code` | true | User Authorization Code
 </html>
 ```
 
-
-
-
-
-
-
-
-
-
 # Leaderboard
 
 The Leaderboard endpoint will return a JSON response of the current Leaderboards based on your request.
@@ -476,6 +535,7 @@ The Leaderboard endpoint is currently unauthenticated, so you do not have to sen
 ## Endpoint
 
 `GET https://zygygames.com/leaderboards.json`
+
 `GET http://staging.zygygames.com/leaderboards.json`
 
 ### Request Expectations
