@@ -163,13 +163,13 @@ curl -X GET www.google.com?search<span class="o">=</span>What+is+this
 
 <span class="c"># Request by using data/param flag</span>
 curl -X GET www.google.com
--d <span class="s2">"search=What+is+this'
+-d <span class="s2">"search=What+is+this"</span>
 
-# Multiple parameters in single request separated by </span><span class="sb">`</span>&amp;<span class="sb">`</span><span class="s2">. No spaces are used in parameters.
-# Spaces, where necessary, are replaced with </span><span class="sb">`</span>+<span class="sb">`</span><span class="s2">
+<span class="c"># Multiple parameters in single request separated by `&amp;`. No spaces are used in parameters.</span>
+<span class="c"># Spaces, where necessary, are replaced with `+`</span>
 curl -X GET www.google.com
--d "</span><span class="nv">username</span><span class="o">=</span>myusername&amp;password<span class="o">=</span>my+super+secure+password<span class="s1">'
-</span></code></pre>
+-d <span class="s2">"username=myusername&amp;password=my+super+secure+password"</span>
+</code></pre>
 
 <p><code class="prettyprint">-d</code> contains the params. Unlike the Headers, params are all shown together in URL Parameter format. Normally, params are attached to the url by appending the parameterized string onto the end of the url request with a <code class="prettyprint">?</code></p>
 
@@ -195,10 +195,9 @@ Not sure what to use for the App-Identifier? Contact Rocco. For security reasons
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/login</code>
-<code class="prettyprint">GET http://staging.zygygames.com/api/login</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/api/login</code></p>
 
-<h3 id="request-expectations">Request expectations:</h3>
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/login</code></p>
 
 <blockquote>
 <p>Example request</p>
@@ -208,6 +207,8 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/login"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
   -d <span class="s2">"identifier_field=xxxxx&amp;password_field=xxxxx"</span>
 </code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
 
 <table><thead>
 <tr>
@@ -237,8 +238,6 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/login"</span>
 </tr>
 </tbody></table>
 
-<h3 id="response-expectations">Response Expectations</h3>
-
 <blockquote>
 <p>Response - Failure</p>
 </blockquote>
@@ -262,6 +261,8 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/login"</span>
   <span class="s2">"zygy_id"</span>: <span class="s2">"XUPR71"</span>
 <span class="o">}</span>
 </code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
 
 <table><thead>
 <tr>
@@ -325,10 +326,9 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/register</code>
-<code class="prettyprint">GET http://staging.zygygames.com/api/register</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/api/register</code></p>
 
-<h3 id="request-expectations">Request expectations:</h3>
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/register</code></p>
 
 <blockquote>
 <p>Example request</p>
@@ -338,6 +338,8 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/register"</span>
   -H <span class="s2">"App-Identifier: 123456789-987654321"</span>
   -d <span class="s2">"username=xxxxx&amp;referral_code=xxxxxx&amp;first_name=xxxxx&amp;last_name=xxxxx&amp;email=xxxxx@xxx.com&amp;confirm_email=xxxxx@xxx.com&amp;birthday=xx/xx/xx&amp;password=xxxxxxxx&amp;confirm_password=xxxxxxxx&amp;accepted_tos=true"</span>
 </code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
 
 <table><thead>
 <tr>
@@ -415,8 +417,6 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/register"</span>
 </tr>
 </tbody></table>
 
-<h3 id="response-expectations">Response Expectations</h3>
-
 <blockquote>
 <p>Response - Failure</p>
 </blockquote>
@@ -440,6 +440,8 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/register"</span>
   <span class="s2">"zygy_id"</span>: <span class="s2">"XUPR71"</span>
 <span class="o">}</span>
 </code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
 
 <table><thead>
 <tr>
@@ -499,18 +501,17 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 
 <h1 id="games">Games</h1>
 
+<h2 id="index">Index</h2>
+
 <p>Returns a json array of every game.</p>
 
 <p>Only display the games with <code class="prettyprint">published: true</code> to the user.</p>
 
-<p>The <code class="prettyprint">Games</code> endpoint does not require authorization.</p>
+<h3 id="http-request">HTTP Request</h3>
 
-<h2 id="endpoint">Endpoint</h2>
+<p><code class="prettyprint">GET https://zygygames.com/api/games</code></p>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/games</code>
-<code class="prettyprint">GET http://staging.zygygames.com/api/games</code></p>
-
-<h3 id="request-expectations">Request Expectations</h3>
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/games</code></p>
 
 <blockquote>
 <p>Example request</p>
@@ -519,7 +520,7 @@ Remember — Store the `Authorization-Code` in-app and over-write it every time 
 curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
 </code></pre>
 
-<h3 id="response-expectations">Response Expectations</h3>
+<h3 id="request-expectations">Request Expectations</h3>
 
 <blockquote>
 <p>Response</p>
@@ -558,6 +559,8 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
   <span class="o">}</span>
 <span class="o">]</span>
 </code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
 
 <table><thead>
 <tr>
@@ -608,6 +611,69 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
 </tr>
 </tbody></table>
 
+<h2 id="check-rewards">Check Rewards</h2>
+
+<p>Returns a boolean on whether or not the current user has any pending rewards for a the current game.</p>
+
+<p>Current game is determined using App-Identifier</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://zygygames.com/api/games/check_rewards</code></p>
+
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/games/check_rewards</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/games/check_rewards"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/games/check_rewards"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="nb">true</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<h2 id="collect-rewards">Collect Rewards</h2>
+
+<p>Returns a hash of data including all of the rewards to give to a player for the current game.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://zygygames.com/api/games/collect_rewards</code></p>
+
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/games/collect_rewards</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/games/collect_rewards"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/games/collect_rewards"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"coins"</span>: 100,
+  <span class="s2">"gems"</span>: 15
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<p>Keys are mapped to the string value of the type of reward to receive. (Usually coins)</p>
+
+<p>Values are mapped to the amount of that reward to increment.</p>
+
 <h1 id="zygy-now">Zygy Now</h1>
 
 <p>Zygy Now is a a Scoreboard based tracker that allows a User to track their information. It contains information for the selected month, as well as an &lsquo;all-time best&rsquo;.</p>
@@ -616,10 +682,11 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/games"</span>
 
 <p>All values and dates sent as a response from the server will be pre-formatted for display.</p>
 
-<h2 id="endpoint">Endpoint</h2>
+<h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/zygy_now</code>
-<code class="prettyprint">GET http://staging.zygygames.com/api/zygy_now</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/api/zygy_now</code></p>
+
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/zygy_now</code></p>
 
 <h3 id="request-expectations">Request Expectations</h3>
 
@@ -797,8 +864,9 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/zygy_now"</span>
 
 <h2 id="endpoint">Endpoint</h2>
 
-<p><code class="prettyprint">GET https://zygygames.com/api/news_feed</code>
-<code class="prettyprint">GET http://staging.zygygames.com/api/news_feed</code></p>
+<p><code class="prettyprint">GET https://zygygames.com/api/news_feed</code></p>
+
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/news_feed</code></p>
 
 <h3 id="request-expectations">Request Expectations</h3>
 
@@ -865,20 +933,25 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/api/news_feed"</span>
 
 <p>The Leaderboard endpoint is currently unauthenticated, so you do not have to send the App Identifier and Authorization Code with your request. (Although it is recommended, when possible.)</p>
 
-<h2 id="endpoint">Endpoint</h2>
+<h2 id="rankings-for-game">Rankings for Game</h2>
 
-<p><code class="prettyprint">GET https://zygygames.com/leaderboards.json</code>
-<code class="prettyprint">GET http://staging.zygygames.com/leaderboards.json</code></p>
+<p>Returns an array of users with their current rankings in the selected Leaderboard</p>
 
-<h3 id="request-expectations">Request Expectations</h3>
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://zygygames.com/api/leaderboards/games/:game_server_id</code></p>
+
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/leaderboards/games/:game_server_id</code></p>
 
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/leaderboards.json"</span>
-curl -X GET <span class="s2">"http://staging.zygygames.com/leaderboards.json"</span>
-  -d <span class="s2">"depth=thru&amp;base_level=Personal&amp;game=3&amp;tracker_type=Scores&amp;time_range=Current+Month&amp;filter_since=before&amp;filter_user_date="</span>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/leaderboards/games/2"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/leaderboards/games/2"</span>
+  -d <span class="s2">"depth=thru&amp;base_level=Personal&amp;tracker_type=Scores&amp;time_range=Current+Month&amp;filter_since=before&amp;filter_user_date=01-17-2017"</span>
 </code></pre>
+
+<h3 id="request-expectations">Request Expectations</h3>
 
 <table><thead>
 <tr>
@@ -890,9 +963,9 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/leaderboards.json"</s
 </thead><tbody>
 <tr>
 <td>param</td>
-<td><code class="prettyprint">game</code></td>
+<td><code class="prettyprint">game_server_id</code></td>
 <td>true</td>
-<td>The server ID of the game you want the Leaderboards for. The ID is accessible via the <code class="prettyprint">games</code> endpoint.</td>
+<td><This value should be passed inside the URL> The server ID of the game you want the Leaderboards for. The ID is accessible via the <code class="prettyprint">games</code> endpoint.</td>
 </tr>
 <tr>
 <td>param</td>
@@ -932,8 +1005,6 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/leaderboards.json"</s
 </tr>
 </tbody></table>
 
-<h3 id="response-expectations">Response Expectations</h3>
-
 <blockquote>
 <p>Response - Failure</p>
 </blockquote>
@@ -964,9 +1035,468 @@ curl -X GET <span class="s2">"http://staging.zygygames.com/leaderboards.json"</s
     <span class="s2">"personal_value"</span>:<span class="s2">"1,893"</span>,
     <span class="s2">"filtered_value"</span>:<span class="s2">"1,893"</span>,
     <span class="s2">"upline_display"</span>:<span class="s2">"Jess52 (62XFC1)"</span>
+  <span class="o">}</span>,
+  ...
+<span class="o">]</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">place</code></td>
+<td>true</td>
+<td>Rank on the current Leaderboard</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">username_display</code></td>
+<td>true</td>
+<td>String value including the User\&rsquo;s Username followed by their Zygy ID in parentheses.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">personal_value</code></td>
+<td>true</td>
+<td>The value representing the individual score for the User (Will show the Current User\&rsquo;s high score whether or not the filter is set to <code class="prettyprint">thru</code> any level)</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">filtered_value</code></td>
+<td>true</td>
+<td>The value the current Leaderboards are sorted by.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">upline_display</code></td>
+<td>true</td>
+<td>String value displaying the User\&rsquo;s upline\&rsquo;s identification.</td>
+</tr>
+</tbody></table>
+
+<h2 id="rankings-for-user">Rankings for User</h2>
+
+<p>Returns an array of users with their current rankings in the selected Leaderboard</p>
+
+<p>If no parameters are passed in, will return only the selected user.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://zygygames.com/api/leaderboards/games/:game_server_id/users/:user_server_id</code></p>
+
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/leaderboards/games/:game_server_id/users/:user_server_id</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/leaderboards/games/2/users/174"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/leaderboards/games/2/users/174"</span>
+  -d <span class="s2">"padding=3"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">game_server_id</code></td>
+<td>true</td>
+<td><This value should be passed inside the URL> The server ID of the game you want the Leaderboards for. The ID is accessible via the <code class="prettyprint">games</code> endpoint.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_server_id</code></td>
+<td>true</td>
+<td><This value should be passed inside the URL> The server ID of the User you want the rankings for. This ID is returned in the authentication request.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">padding</code></td>
+<td>false</td>
+<td>Integer - Sets the values of <code class="prettyprint">padding_top</code> and <code class="prettyprint">padding_bottom</code> both to this value.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">padding_top</code></td>
+<td>false</td>
+<td>Integer - When passed, includes the given number of users ranking HIGHER than the selected user.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">padding_bottom</code></td>
+<td>false</td>
+<td>Integer - When passed, includes the given number of users ranking LOWER than the selected user.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Failure</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"error"</span>: <span class="s2">"Authorization Failure"</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="c"># No padding:</span>
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 359,
+    <span class="s2">"username_display"</span>: <span class="s2">"Pearlie174 (XZRC8I)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"1,423"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"1,423"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Sandra162 (YW7GQR)"</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+
+<span class="c"># Padding = 2 (top: 2, bottom: 2)</span>
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 356,
+    <span class="s2">"username_display"</span>: <span class="s2">"Rogelio775 (Z6PKYW)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"1,425"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"1,425"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Lelia531 (VRF375)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 357,
+    <span class="s2">"username_display"</span>: <span class="s2">"Rachel730 (95P8RW)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"1,424"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"1,424"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Linnie643 (0ALK6Q)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 359,
+    <span class="s2">"username_display"</span>: <span class="s2">"Pearlie174 (XZRC8I)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"1,423"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"1,423"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Sandra162 (YW7GQR)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 359,
+    <span class="s2">"username_display"</span>: <span class="s2">"Milford183 (EWD934)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"1,422"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"1,422"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Bud43 (4DQGI1)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 360,
+    <span class="s2">"username_display"</span>: <span class="s2">"Eloy391 (U90DAK)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"1,421"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"1,421"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Brennan251 (3F60NM)"</span>
   <span class="o">}</span>
 <span class="o">]</span>
 </code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">place</code></td>
+<td>true</td>
+<td>Rank on the current Leaderboard</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">username_display</code></td>
+<td>true</td>
+<td>String value including the User\&rsquo;s Username followed by their Zygy ID in parentheses.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">personal_value</code></td>
+<td>true</td>
+<td>The value representing the individual score for the User (Will show the Current User\&rsquo;s high score whether or not the filter is set to <code class="prettyprint">thru</code> any level)</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">filtered_value</code></td>
+<td>true</td>
+<td>The value the current Leaderboards are sorted by.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">upline_display</code></td>
+<td>true</td>
+<td>String value displaying the User\&rsquo;s upline\&rsquo;s identification.</td>
+</tr>
+</tbody></table>
+
+<h2 id="golf-scores-leaderboard">Golf Scores Leaderboard</h2>
+
+<p>Returns an array of users with their current rankings in golf scores</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://zygygames.com/api/leaderboards/golf</code></p>
+
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/leaderboards/golf</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/leaderboards/golf"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/leaderboards/golf"</span>
+  -d <span class="s2">"depth=thru&amp;base_level=Personal&amp;tracker_type=Scores&amp;time_range=Current+Month&amp;filter_since=before&amp;filter_user_date=01-17-2017"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">depth</code></td>
+<td>false</td>
+<td>Thru/At - Determines whether the Leaderboards should be filtered &#39;thru&rsquo; the current level or &#39;at&rsquo; the current level. <Default: thru></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">base_level</code></td>
+<td>false</td>
+<td>Ordinalized depth value. May be a string or integer value Personal/0 for Personal, 1st/1, 2nd/2, &hellip; Up to 8th/8 and total. Any number greater than 20 may be passed for total.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">tracker_type</code></td>
+<td>false</td>
+<td>&ldquo;Scores&rdquo;, &ldquo;Revenue&rdquo;, &ldquo;New Players Added&rdquo; - for the type of Leaderboard to show.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">time_range</code></td>
+<td>false</td>
+<td>String description of relative date range to include in the Leaderboard. Valid options: &ldquo;Current Month&rdquo;, &ldquo;Last Month&rdquo;, &ldquo;Last 3 Months&rdquo;, &ldquo;Last 6 Months&rdquo;, &ldquo;Last 12 Months&rdquo;, &ldquo;Year To Date&rdquo;, &ldquo;Total&rdquo;</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">filter_since</code></td>
+<td>false</td>
+<td>Boolean value, true marks to filter users created after the <code class="prettyprint">filter_user_date</code> below, false will show only users created before that date.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">filter_user_date</code></td>
+<td>false</td>
+<td>Date in the form of MM-DD-YYYY, when provided, will filter the Leaderboard to only include users based on this date.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"place"</span>:1,
+    <span class="s2">"username_display"</span>:<span class="s2">"Chad510 (GP9ITD)"</span>,
+    <span class="s2">"personal_value"</span>:<span class="s2">"6"</span>,
+    <span class="s2">"filtered_value"</span>:<span class="s2">"6"</span>,
+    <span class="s2">"upline_display"</span>:<span class="s2">"Carmella453 (ZV3P7T)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>:2,
+    <span class="s2">"username_display"</span>:<span class="s2">"Jaron77 (8Y106M)"</span>,
+    <span class="s2">"personal_value"</span>:<span class="s2">"9"</span>,
+    <span class="s2">"filtered_value"</span>:<span class="s2">"9"</span>,
+    <span class="s2">"upline_display"</span>:<span class="s2">"Jess52 (62XFC1)"</span>
+  <span class="o">}</span>,
+  ...
+<span class="o">]</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">place</code></td>
+<td>true</td>
+<td>Rank on the current Leaderboard</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">username_display</code></td>
+<td>true</td>
+<td>String value including the User\&rsquo;s Username followed by their Zygy ID in parentheses.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">personal_value</code></td>
+<td>true</td>
+<td>The value representing the individual score for the User (Will show the Current User\&rsquo;s high score whether or not the filter is set to <code class="prettyprint">thru</code> any level)</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">filtered_value</code></td>
+<td>true</td>
+<td>The value the current Leaderboards are sorted by.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">upline_display</code></td>
+<td>true</td>
+<td>String value displaying the User\&rsquo;s upline\&rsquo;s identification.</td>
+</tr>
+</tbody></table>
+
+<h2 id="golf-rankings-for-user">Golf Rankings for User</h2>
+
+<p>Returns an array of users with their current rankings in the selected Leaderboard</p>
+
+<p>If no parameters are passed in, will return only the selected user.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://zygygames.com/api/leaderboards/golf/users/:user_server_id</code></p>
+
+<p><code class="prettyprint">GET http://staging.zygygames.com/api/leaderboards/golf/users/:user_server_id</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://zygygames.com/api/leaderboards/golf/users/174"</span>
+curl -X GET <span class="s2">"http://staging.zygygames.com/api/leaderboards/golf/users/174"</span>
+  -d <span class="s2">"padding=3"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_server_id</code></td>
+<td>true</td>
+<td><This value should be passed inside the URL> The server ID of the User you want the rankings for. This ID is returned in the authentication request.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">padding</code></td>
+<td>false</td>
+<td>Integer - Sets the values of <code class="prettyprint">padding_top</code> and <code class="prettyprint">padding_bottom</code> both to this value.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">padding_top</code></td>
+<td>false</td>
+<td>Integer - When passed, includes the given number of users ranking HIGHER than the selected user.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">padding_bottom</code></td>
+<td>false</td>
+<td>Integer - When passed, includes the given number of users ranking LOWER than the selected user.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Failure</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"error"</span>: <span class="s2">"Authorization Failure"</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="c"># No padding:</span>
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 359,
+    <span class="s2">"username_display"</span>: <span class="s2">"Pearlie174 (XZRC8I)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"456"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"456"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Sandra162 (YW7GQR)"</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+
+<span class="c"># Padding = 2 (top: 2, bottom: 2)</span>
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 356,
+    <span class="s2">"username_display"</span>: <span class="s2">"Rogelio775 (Z6PKYW)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"403"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"403"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Lelia531 (VRF375)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 357,
+    <span class="s2">"username_display"</span>: <span class="s2">"Rachel730 (95P8RW)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"437"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"437"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Linnie643 (0ALK6Q)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 359,
+    <span class="s2">"username_display"</span>: <span class="s2">"Pearlie174 (XZRC8I)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"456"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"456"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Sandra162 (YW7GQR)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 359,
+    <span class="s2">"username_display"</span>: <span class="s2">"Milford183 (EWD934)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"480"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"480"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Bud43 (4DQGI1)"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"place"</span>: 360,
+    <span class="s2">"username_display"</span>: <span class="s2">"Eloy391 (U90DAK)"</span>,
+    <span class="s2">"personal_value"</span>: <span class="s2">"502"</span>,
+    <span class="s2">"filtered_value"</span>: <span class="s2">"502"</span>,
+    <span class="s2">"upline_display"</span>: <span class="s2">"Brennan251 (3F60NM)"</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
 
 <table><thead>
 <tr>
