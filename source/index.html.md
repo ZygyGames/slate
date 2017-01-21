@@ -532,34 +532,35 @@ Leaderboards are slow to calculate, but to make up for this, once a Leaderboard 
 
 The Leaderboard endpoint is currently unauthenticated, so you do not have to send the App Identifier and Authorization Code with your request. (Although it is recommended, when possible.)
 
-## Endpoint
+## Rankings for Game
 
-`GET https://zygygames.com/leaderboards.json`
+Returns an array of users with their current rankings in the selected Leaderboard
 
-`GET http://staging.zygygames.com/leaderboards.json`
+### HTTP Request
 
-### Request Expectations
+`GET https://zygygames.com/api/leaderboards/games/:game_server_id`
+
+`GET http://staging.zygygames.com/api/leaderboards/games/:game_server_id`
 
 > Example request
 
 ```shell
-curl -X GET "https://zygygames.com/leaderboards.json"
-curl -X GET "http://staging.zygygames.com/leaderboards.json"
-  -d "depth=thru&base_level=Personal&game=3&tracker_type=Scores&time_range=Current+Month&filter_since=before&filter_user_date="
+curl -X GET "https://zygygames.com/api/leaderboards/games/2"
+curl -X GET "http://staging.zygygames.com/api/leaderboards/games/2"
+  -d "depth=thru&base_level=Personal&tracker_type=Scores&time_range=Current+Month&filter_since=before&filter_user_date=01-17-2017"
 ```
 
+### Request Expectations
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-param | `game` | true | The server ID of the game you want the Leaderboards for. The ID is accessible via the `games` endpoint.
+param | `game_server_id` | true | <This value should be passed inside the URL> The server ID of the game you want the Leaderboards for. The ID is accessible via the `games` endpoint.
 param | `depth` | false | Thru/At - Determines whether the Leaderboards should be filtered 'thru' the current level or 'at' the current level. <Default: thru>
 param | `base_level` | false | Ordinalized depth value. May be a string or integer value Personal/0 for Personal, 1st/1, 2nd/2, ... Up to 8th/8 and total. Any number greater than 20 may be passed for total.
 param | `tracker_type` | false | "Scores", "Revenue", "New Players Added" - for the type of Leaderboard to show.
 param | `time_range` | false | String description of relative date range to include in the Leaderboard. Valid options: "Current Month", "Last Month", "Last 3 Months", "Last 6 Months", "Last 12 Months", "Year To Date", "Total"
 param | `filter_since` | false | Boolean value, true marks to filter users created after the `filter_user_date` below, false will show only users created before that date.
 param | `filter_user_date` | false | Date in the form of MM-DD-YYYY, when provided, will filter the Leaderboard to only include users based on this date.
-
-### Response Expectations
 
 > Response - Failure
 
@@ -591,9 +592,276 @@ param | `filter_user_date` | false | Date in the form of MM-DD-YYYY, when provid
     "personal_value":"1,893",
     "filtered_value":"1,893",
     "upline_display":"Jess52 (62XFC1)"
+  },
+  ...
+]
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `place` | true | Rank on the current Leaderboard
+json | `username_display` | true | String value including the User\'s Username followed by their Zygy ID in parentheses.
+json | `personal_value` | true | The value representing the individual score for the User (Will show the Current User\'s high score whether or not the filter is set to `thru` any level)
+json | `filtered_value` | true | The value the current Leaderboards are sorted by.
+json | `upline_display` | true | String value displaying the User\'s upline\'s identification.
+
+## Rankings for User
+
+Returns an array of users with their current rankings in the selected Leaderboard
+
+If no parameters are passed in, will return only the selected user.
+
+### HTTP Request
+
+`GET https://zygygames.com/api/leaderboards/games/:game_server_id/users/:user_server_id`
+
+`GET http://staging.zygygames.com/api/leaderboards/games/:game_server_id/users/:user_server_id`
+
+> Example request
+
+```shell
+curl -X GET "https://zygygames.com/api/leaderboards/games/2/users/174"
+curl -X GET "http://staging.zygygames.com/api/leaderboards/games/2/users/174"
+  -d "padding=3"
+```
+
+### Request Expectations
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+param | `game_server_id` | true | <This value should be passed inside the URL> The server ID of the game you want the Leaderboards for. The ID is accessible via the `games` endpoint.
+param | `user_server_id` | true | <This value should be passed inside the URL> The server ID of the User you want the rankings for. This ID is returned in the authentication request.
+param | `padding` | false | Integer - Sets the values of `padding_top` and `padding_bottom` both to this value.
+param | `padding_top` | false | Integer - When passed, includes the given number of users ranking HIGHER than the selected user.
+param | `padding_bottom` | false | Integer - When passed, includes the given number of users ranking LOWER than the selected user.
+
+> Response - Failure
+
+```shell
+{
+  "error": "Authorization Failure"
+}
+```
+
+> Response - Success
+
+```shell
+# No padding:
+[
+  {
+    "place": 359,
+    "username_display": "Pearlie174 (XZRC8I)",
+    "personal_value": "1,423",
+    "filtered_value": "1,423",
+    "upline_display": "Sandra162 (YW7GQR)"
+  }
+]
+
+# Padding = 2 (top: 2, bottom: 2)
+[
+  {
+    "place": 356,
+    "username_display": "Rogelio775 (Z6PKYW)",
+    "personal_value": "1,425",
+    "filtered_value": "1,425",
+    "upline_display": "Lelia531 (VRF375)"
+  },
+  {
+    "place": 357,
+    "username_display": "Rachel730 (95P8RW)",
+    "personal_value": "1,424",
+    "filtered_value": "1,424",
+    "upline_display": "Linnie643 (0ALK6Q)"
+  },
+  {
+    "place": 359,
+    "username_display": "Pearlie174 (XZRC8I)",
+    "personal_value": "1,423",
+    "filtered_value": "1,423",
+    "upline_display": "Sandra162 (YW7GQR)"
+  },
+  {
+    "place": 359,
+    "username_display": "Milford183 (EWD934)",
+    "personal_value": "1,422",
+    "filtered_value": "1,422",
+    "upline_display": "Bud43 (4DQGI1)"
+  },
+  {
+    "place": 360,
+    "username_display": "Eloy391 (U90DAK)",
+    "personal_value": "1,421",
+    "filtered_value": "1,421",
+    "upline_display": "Brennan251 (3F60NM)"
   }
 ]
 ```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `place` | true | Rank on the current Leaderboard
+json | `username_display` | true | String value including the User\'s Username followed by their Zygy ID in parentheses.
+json | `personal_value` | true | The value representing the individual score for the User (Will show the Current User\'s high score whether or not the filter is set to `thru` any level)
+json | `filtered_value` | true | The value the current Leaderboards are sorted by.
+json | `upline_display` | true | String value displaying the User\'s upline\'s identification.
+
+## Golf Scores Leaderboard
+
+Returns an array of users with their current rankings in golf scores
+
+### HTTP Request
+
+`GET https://zygygames.com/api/leaderboards/golf`
+
+`GET http://staging.zygygames.com/api/leaderboards/golf`
+
+> Example request
+
+```shell
+curl -X GET "https://zygygames.com/api/leaderboards/golf"
+curl -X GET "http://staging.zygygames.com/api/leaderboards/golf"
+  -d "depth=thru&base_level=Personal&tracker_type=Scores&time_range=Current+Month&filter_since=before&filter_user_date=01-17-2017"
+```
+
+### Request Expectations
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+param | `depth` | false | Thru/At - Determines whether the Leaderboards should be filtered 'thru' the current level or 'at' the current level. <Default: thru>
+param | `base_level` | false | Ordinalized depth value. May be a string or integer value Personal/0 for Personal, 1st/1, 2nd/2, ... Up to 8th/8 and total. Any number greater than 20 may be passed for total.
+param | `tracker_type` | false | "Scores", "Revenue", "New Players Added" - for the type of Leaderboard to show.
+param | `time_range` | false | String description of relative date range to include in the Leaderboard. Valid options: "Current Month", "Last Month", "Last 3 Months", "Last 6 Months", "Last 12 Months", "Year To Date", "Total"
+param | `filter_since` | false | Boolean value, true marks to filter users created after the `filter_user_date` below, false will show only users created before that date.
+param | `filter_user_date` | false | Date in the form of MM-DD-YYYY, when provided, will filter the Leaderboard to only include users based on this date.
+
+> Response - Success
+
+```shell
+[
+  {
+    "place":1,
+    "username_display":"Chad510 (GP9ITD)",
+    "personal_value":"6",
+    "filtered_value":"6",
+    "upline_display":"Carmella453 (ZV3P7T)"
+  },
+  {
+    "place":2,
+    "username_display":"Jaron77 (8Y106M)",
+    "personal_value":"9",
+    "filtered_value":"9",
+    "upline_display":"Jess52 (62XFC1)"
+  },
+  ...
+]
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `place` | true | Rank on the current Leaderboard
+json | `username_display` | true | String value including the User\'s Username followed by their Zygy ID in parentheses.
+json | `personal_value` | true | The value representing the individual score for the User (Will show the Current User\'s high score whether or not the filter is set to `thru` any level)
+json | `filtered_value` | true | The value the current Leaderboards are sorted by.
+json | `upline_display` | true | String value displaying the User\'s upline\'s identification.
+
+## Golf Rankings for User
+
+Returns an array of users with their current rankings in the selected Leaderboard
+
+If no parameters are passed in, will return only the selected user.
+
+### HTTP Request
+
+`GET https://zygygames.com/api/leaderboards/golf/users/:user_server_id`
+
+`GET http://staging.zygygames.com/api/leaderboards/golf/users/:user_server_id`
+
+> Example request
+
+```shell
+curl -X GET "https://zygygames.com/api/leaderboards/golf/users/174"
+curl -X GET "http://staging.zygygames.com/api/leaderboards/golf/users/174"
+  -d "padding=3"
+```
+
+### Request Expectations
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+param | `user_server_id` | true | <This value should be passed inside the URL> The server ID of the User you want the rankings for. This ID is returned in the authentication request.
+param | `padding` | false | Integer - Sets the values of `padding_top` and `padding_bottom` both to this value.
+param | `padding_top` | false | Integer - When passed, includes the given number of users ranking HIGHER than the selected user.
+param | `padding_bottom` | false | Integer - When passed, includes the given number of users ranking LOWER than the selected user.
+
+> Response - Failure
+
+```shell
+{
+  "error": "Authorization Failure"
+}
+```
+
+> Response - Success
+
+```shell
+# No padding:
+[
+  {
+    "place": 359,
+    "username_display": "Pearlie174 (XZRC8I)",
+    "personal_value": "456",
+    "filtered_value": "456",
+    "upline_display": "Sandra162 (YW7GQR)"
+  }
+]
+
+# Padding = 2 (top: 2, bottom: 2)
+[
+  {
+    "place": 356,
+    "username_display": "Rogelio775 (Z6PKYW)",
+    "personal_value": "403",
+    "filtered_value": "403",
+    "upline_display": "Lelia531 (VRF375)"
+  },
+  {
+    "place": 357,
+    "username_display": "Rachel730 (95P8RW)",
+    "personal_value": "437",
+    "filtered_value": "437",
+    "upline_display": "Linnie643 (0ALK6Q)"
+  },
+  {
+    "place": 359,
+    "username_display": "Pearlie174 (XZRC8I)",
+    "personal_value": "456",
+    "filtered_value": "456",
+    "upline_display": "Sandra162 (YW7GQR)"
+  },
+  {
+    "place": 359,
+    "username_display": "Milford183 (EWD934)",
+    "personal_value": "480",
+    "filtered_value": "480",
+    "upline_display": "Bud43 (4DQGI1)"
+  },
+  {
+    "place": 360,
+    "username_display": "Eloy391 (U90DAK)",
+    "personal_value": "502",
+    "filtered_value": "502",
+    "upline_display": "Brennan251 (3F60NM)"
+  }
+]
+```
+
+### Response Expectations
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
