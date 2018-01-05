@@ -16,12 +16,13 @@ Hi Rocco! Do this:
 
 bundle install
 bundle exec middleman server
+*Make changes, commit*
 And then: ./deploy.rb
 -->
 
 # Introduction
 
-Welcome to the Zygy Games API Documentation. This will include basic information for each endpoint as well as possible responses.
+Welcome to the Activity Maximizer API Documentation. This will include basic information for each endpoint as well as possible responses.
 
 All of the examples will be given in `curl` (for Requests TO the server) and `JSON` (for responses FROM the server)
 
@@ -53,8 +54,8 @@ The arguments are not order-specific, as long as the argument value immediately 
 
 ```shell
 curl -X GET www.google.com
--H "MyHeader: ThisIsMyHeaderData"
--H "MyOtherHeader: ThisIsMyOtherHeaderData"
+  -H "MyHeader: ThisIsMyHeaderData"
+  -H "MyOtherHeader: ThisIsMyOtherHeaderData"
 ```
 
 The `-X` argument specifies the HTML Verb. (`GET`, `PUT`, `POST`, `DELETE`, etc...)
@@ -69,31 +70,28 @@ curl -X GET www.google.com?search=What+is+this
 
 # Request by using data/param flag
 curl -X GET www.google.com
--d "search=What+is+this"
+  -d "search=What+is+this"
 
 # Multiple parameters in single request separated by `&`. No spaces are used in parameters.
 # Spaces, where necessary, are replaced with `+`
 curl -X GET www.google.com
--d "username=myusername&password=my+super+secure+password"
+  -d "username=myusername&password=my+super+secure+password"
+
+curl -X GET www.google.com
+  --data-urlencode "username=myusername"
+  --data-urlencode "password=my super secure password"
+  # Notice the spaces in the password
 ```
 
 `-d` contains the params. Unlike the Headers, params are all shown together in URL Parameter format. Normally, params are attached to the url by appending the parameterized string onto the end of the url request with a `?`
 
+You can also use `--data-urlencode` to include params, but only 1 param can be added at a time. However, you do not need to escape the params with plus codes or percent codes.
+
 # Authentication
 
-Every request should include the App-Identifier. All non-authorization requests should include the App-Identifier and the Authorization-Code retrieved from Authorization.
+In order to authenticate with endpoints that require a signed in user, you must pass the authentication token that belongs to the user. You must "login" to retrieve that token using an email/password combination.
 
-Every request will respond with a `Authorization-Success` header with a value of a stringified boolean.
-
-The `Authorization-Code` contains a 20 character alpha-numeric string that should be stored on the app. Every non-authorization request will require this code in order to authorize the user.
-
-Every time a user logs in to the Zygy App, this code will be regenerated. The code will persist across sessions, but the user can only be logged in to 1 device at a time, so logging in to a different device will cause the old code to expire.
-
-In the case of an Authorization Failure because of an expired `Authorization-Code`, the user should be logged out of the app and taken back to the Login screen.
-
-<aside class="notice">
-Not sure what to use for the App-Identifier? Contact Rocco. For security reasons, the App-Identifier's will not be posted in the docs.
-</aside>
+Any time that the server responds with a `401` status code, the user should be logged out of the current session and asked to sign in again. The only time this should happen is if they change their password.
 
 ## Login
 
@@ -101,48 +99,67 @@ This endpoint authorizes a user.
 
 ### HTTP Request
 
-`GET https://zygygames.com/api/login`
-
-`GET http://staging.zygygames.com/api/login`
+`GET https://maxactivity.com/api/v1/login`
 
 > Example request
 
 ```shell
-curl -X GET "https://zygygames.com/api/login"
-curl -X GET "http://staging.zygygames.com/api/login"
-  -H "App-Identifier: 123456789-987654321"
-  -d "identifier_field=xxxxx&password_field=xxxxx"
+curl -X GET "https://maxactivity.com/api/v1/login"
+  -d "email=xxxxx&password=xxxxx"
 ```
 
 ### Request Expectations:
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-header | `App-Identifier` | true | App Identification String
-param | `identifier_field` | true | Username, Email Address, or Zygy ID supplied by user
-param | `password_field` | true | Password supplied by user
+param | `email` | YES | Email Address
+param | `password` | sometimes | Password supplied by user
 
 > Response - Failure
 
 ```shell
--H Authorization-Success : false
--H Error-Message : Invalid Username or Password
-
+status 401 - Unauthorized
 {
-  "error": "Invalid Username or Password"
+  "errors": ["Invalid email or password."]
+}
+```
+
+> Response - No Password
+
+```shell
+status 406 - Not Acceptable
+{
+  "errors": ["User must set password - Server will deliver email to entered email address."]
 }
 ```
 
 > Response - Success
 
 ```shell
--H Authorization-Success : true
--H Authorization-Code : OUKdeYQf1qiEoTF8clnk
+-H Authorization Token: asqmbvwwzymwccmbifgvqtfin3t
 
-{
-  "username": "JohnDoe67",
-  "server_id": "4",
-  "zygy_id": "XUPR71"
+{  
+  "user":{  
+    "id": 4336,
+    "upline_id": 4,
+    "trainer_id": 5,
+    "downline_ids": [  
+      1, 2, 3
+    ],
+    "email": "rocco@zygy.com",
+    "family_name": "Nicholls",
+    "given_name": "Rocco",
+    "phone_number": "3852599640",
+    "profile_picture_url": "",
+    "state": "",
+    "solution_number": "",
+    "is_rvp": false,
+    "firebase_id": "",
+    "firebase_ref": "",
+    "created_at": "2018-01-05T00:02:50.121Z",
+    "updated_at": "2018-01-05T02:07:49.512Z",
+    "current_speed": 0
+  }
 }
 ```
 
@@ -150,723 +167,26 @@ param | `password_field` | true | Password supplied by user
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-header | `Authorization-Success` | N/A | Stringified boolean representing whether or not the request was successful.
-header | `Error-Message` | false | Same message as json-error, passed as a Header.
-json | `error` | false | Description of why a failure resulted - Displayable to user
-header | `Authorization-Code` | true | Authorization Code for user. Save this within the app.
-json | `username` | true | Username of logged in user.
-json | `server_id` | true | Id for user on the server for URL requests only. (Uncommonly used)
-json | `zygy_id` | true |  6 digit Zygy ID of user. Commonly used and displayable
+json | `errors` | NO | An array of errors that caused the request to fail
+header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
+json | `id` | YES | Server id for the user.
+json | `upline_id` | YES | Server id of the user's upline - MAY BE `null`
+json | `trainer_id` | YES | Server id of the user's trainer - MAY BE `null`
+json | `downline_ids` | YES | An array of all ids of each of the user's baseshop (Recurring downlines)
+json | `email` | YES |
+json | `given_name` | YES |
+json | `family_name` | YES |
+json | `phone_number` | YES |
+json | `profile_picture_url` | YES |
+json | `state` | YES |
+json | `solution_number` | YES |
+json | `is_rvp` | YES |
+json | `firebase_id` | YES |
+json | `firebase_ref` | YES |
+json | `created_at` | YES |
+json | `updated_at` | YES |
+json | `current_speed` | YES | Calculated current speed of the user
 
 <aside class="success">
-Remember — Store the `Authorization-Code` in-app and over-write it every time a user logs in!
+Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
 </aside>
-
-## Register
-
-This endpoint authorizes a new user. All fields are required.
-
-### HTTP Request
-
-`GET https://zygygames.com/api/register`
-
-`GET http://staging.zygygames.com/api/register`
-
-> Example request
-
-```shell
-curl -X GET "https://zygygames.com/api/register"
-curl -X GET "http://staging.zygygames.com/api/register"
-  -H "App-Identifier: 123456789-987654321"
-  -d "username=xxxxx&referral_code=xxxxxx&first_name=xxxxx&last_name=xxxxx&email=xxxxx@xxx.com&confirm_email=xxxxx@xxx.com&birthday=xx/xx/xx&password=xxxxxxxx&confirm_password=xxxxxxxx&accepted_tos=true"
-```
-
-### Request Expectations:
-
-Type | Parameter | Required? | Description
----- | --------- | --------- | -----------
-header | `App-Identifier` | true | App Identification String
-param | `username` | true | Desired username. Must be between 2 and 20 characters
-param | `referral_code` | true | Zygy ID of the users friend that referred them to Zygy.
-param | `first_name` | true | User's First Name
-param | `last_name` | true | User's Last Name
-param | `email` | true | User's email address
-param | `confirm_email` | true | Confirmation email, must match `email` field.
-param | `birthday` | true | Birthday in the format MM/DD/YYYY
-param | `password` | true | Desired password. Must be 8 characters or more.
-param | `confirm_password` | true | Confirm password - Must match `password` field
-param | `accepted_tos` | true | Checkbox confirming user agrees to TOS and Privacy Policy
-
-> Response - Failure
-
-```shell
--H Authorization-Success : false
--H Error-Message : Username already taken.
-
-{
-  "error": "Username already taken."
-}
-```
-
-> Response - Success
-
-```shell
--H Authorization-Success : true
--H Authorization-Code : OUKdeYQf1qiEoTF8clnk
-
-{
-  "username": "JohnDoe67",
-  "server_id": "4",
-  "zygy_id": "XUPR71"
-}
-```
-
-### Response Expectations
-
-Type | Key | Success? | Description
----- | --- | -------- | -----------
-header | `Authorization-Success` | N/A | Stringified boolean representing whether or not the request was successful.
-header | `Error-Message` | false | Same message as json-error, passed as a Header.
-json | `error` | false | Description of why a failure resulted - Displayable to user
-header | `Authorization-Code` | true | Authorization Code for user. Save this within the app.
-json | `username` | true | Username of logged in user.
-json | `server_id` | true | Id for user on the server for URL requests only. (Uncommonly used)
-json | `zygy_id` | true |  6 digit Zygy ID of user. Commonly used and displayable
-
-<aside class="success">
-Remember — Store the `Authorization-Code` in-app and over-write it every time a user logs in!
-</aside>
-
-# Games
-
-## Index
-
-Returns a json array of every game.
-
-Only display the games with `published: true` to the user.
-
-### HTTP Request
-
-`GET https://zygygames.com/api/games`
-
-`GET http://staging.zygygames.com/api/games`
-
-> Example request
-
-```shell
-curl -X GET "https://zygygames.com/api/games"
-curl -X GET "http://staging.zygygames.com/api/games"
-```
-
-### Request Expectations
-
-> Response
-
-```shell
-
-[
-  {
-    "server_id":"1",
-    "name":"Zygy App",
-    "updated_at":"2016-06-15T04:15:33.062Z",
-    "how_to_description":null,
-    "game_description":null,
-    "app_store_id":null,
-    "published":false,
-    "app_icon":"/system/games/app_icons/missing.png"
-  },
-  {
-    "server_id":"2",
-    "name":"Stack Em",
-    "updated_at":"2016-06-15T04:21:35.661Z",
-    "how_to_description":"",
-    "game_description":"Build them as high as you can.",
-    "app_store_id":null,
-    "published":false,
-    "app_icon":"http://s3.amazonaws.com/zygy-user-image-uploads/games/app_icons/000/000/004/original/Stack-Em_Icon-20.png?1465950356"
-  },
-  {
-    "server_id":"3",
-    "name":"Pirate Pike",
-    "updated_at":"2016-06-15T04:38:01.771Z",
-    "how_to_description":"User your finger to trace \u0026 create bungee bridges. Collect coins and magical boosters and beware of cannon balls!",
-    "game_description":"Help Pike the Pirate on his adventurous journey collecting loot across the skies of the Isles of Bounty.",
-    "app_store_id":null,
-    "published":true,
-    "app_icon":"/system/games/app_icons/missing.png"
-  }
-]
-```
-
-### Response Expectations
-
-Type | Key  | Description
----- | ---  | -----------
-json | `server_id` | The server ID of the game used for requests for a specific game.
-json | `name` | Name of the game
-json | `updated_at` | The last time the game was updated
-json | `game_description` | Description of what the game is
-json | `how_to_description` | How to play the game
-json | `app_store_id` | If the game is available on the App Store, the ID used to identify it.
-json | `published` | Whether or not the game is published and should be shown to the user.
-json | `app_icon` | The url to the app's icon
-
-## Check Rewards
-
-Returns a boolean on whether or not the current user has any pending rewards for a the current game.
-
-Current game is determined using App-Identifier
-
-### HTTP Request
-
-`GET https://zygygames.com/api/games/check_rewards`
-
-`GET http://staging.zygygames.com/api/games/check_rewards`
-
-> Example request
-
-```shell
-curl -X GET "https://zygygames.com/api/games/check_rewards"
-curl -X GET "http://staging.zygygames.com/api/games/check_rewards"
-```
-
-### Request Expectations
-
-> Response
-
-```shell
-true
-```
-
-### Response Expectations
-
-## Collect Rewards
-
-Returns a hash of data including all of the rewards to give to a player for the current game.
-
-### HTTP Request
-
-`GET https://zygygames.com/api/games/collect_rewards`
-
-`GET http://staging.zygygames.com/api/games/collect_rewards`
-
-> Example request
-
-```shell
-curl -X GET "https://zygygames.com/api/games/collect_rewards"
-curl -X GET "http://staging.zygygames.com/api/games/collect_rewards"
-```
-
-### Request Expectations
-
-> Response
-
-```shell
-{
-  "coins": 100,
-  "gems": 15
-}
-```
-
-### Response Expectations
-
-Keys are mapped to the string value of the type of reward to receive. (Usually coins)
-
-Values are mapped to the amount of that reward to increment.
-
-# Zygy Now
-
-Zygy Now is a a Scoreboard based tracker that allows a User to track their information. It contains information for the selected month, as well as an 'all-time best'.
-
-A user can select which month to view, and can also change the user in which information is shown. A user can ONLY view a different user's information if the perspective user is a 'downline' of the current user.
-
-All values and dates sent as a response from the server will be pre-formatted for display.
-
-### HTTP Request
-
-`GET https://zygygames.com/api/zygy_now`
-
-`GET http://staging.zygygames.com/api/zygy_now`
-
-### Request Expectations
-
-> Example request
-
-```shell
-# params are optional
-curl -X GET "https://zygygames.com/api/zygy_now"
-curl -X GET "http://staging.zygygames.com/api/zygy_now"
-  -H "App-Identifier: 123456789-987654321"
-  -H "Authorization-Code: OUKdeYQf1qiEoTF8clnk"
-  -d "user_identification=rockster160&month=4&year=2016"
-```
-
-Type | Parameter | Required? | Description
----- | --------- | --------- | -----------
-header | `App-Identifier` | true | App Identification String
-header | `Authorization-Code` | true | User Authorization Code
-params | `user_identification` | false | `Default: current user` If supplied, looks up user by this value. (Username, Email, or Zygy ID)
-params | `month` | false | `Default: current month` If supplied, filters dates based on this integer value. (1=January, 12=December)
-params | `year` | false | `Default: current year` If supplied, filters dates based on this integer value. (YYYY)
-
-### Response Expectations
-
-> Response - Failure
-
-```shell
--H Authorization-Success : false
--H Error-Message : Cannot view a user unless they are on your team.
-
-{
-  "error": "Cannot view a user unless they are on your team."
-}
-```
-
-> Response - Success
-
-```shell
--H Authorization-Success : true
-
-{
-  "current_month":"06/16",
-  "data":[  
-    {  
-      "name":"New Players Added",
-      "current_month_value":"0",
-      "best_month":"04/2016",
-      "best_month_value":"5"
-    },
-    {  
-      "name":"Revenue",
-      "current_month_value":"0",
-      "best_month":"01/2016",
-      "best_month_value":"$0.00"
-    },
-    {  
-      "name":"Pirate Pike",
-      "current_month_value":"0",
-      "best_month":"02/2016",
-      "best_month_value":"20,143"
-    },
-    {  
-      "name":"Kubed",
-      "current_month_value":"0",
-      "best_month":"05/2016",
-      "best_month_value":"828"
-    }
-  ]
-}
-```
-
-Type | Key | Success? | Description
----- | --- | -------- | -----------
-header | `Authorization-Success` | N/A | Stringified boolean representing whether or not the request was successful.
-header | `Error-Message` | false | Same message as json-error, passed as a Header.
-json | `error` | false | Description of why a failure resulted - Displayable to user
-json | `current_month` | true | The currently scoped month as a String for display
-json | `data` | true | Array of 'data rows' containing values for each section.
-json | `name` | true | The name of either the game or the type of data the row contains
-json | `current_month_value` | true | String value of row at selected month
-json | `best_month` | true | String value of date the `best_month_value` occurred.
-json | `best_month_value` | true | String value of row at best month
-
-# News Feed
-
-News Feed is a list of articles that contain basic information shown to users.
-
-The News Feed will return a Webview, and should be rendered as is, using the standard App's Navigation.
-
-That means showing a back button and the normal tab view that is displayed on other pages.
-
-## Endpoint
-
-`GET https://zygygames.com/api/news_feed`
-
-`GET http://staging.zygygames.com/api/news_feed`
-
-### Request Expectations
-
-> Example request
-
-```shell
-# params are optional
-curl -X GET "https://zygygames.com/api/news_feed"
-curl -X GET "http://staging.zygygames.com/api/news_feed"
-  -H "App-Identifier: 123456789-987654321"
-  -H "Authorization-Code: OUKdeYQf1qiEoTF8clnk"
-  -d "page=4&per=2"
-```
-
-Type | Parameter | Required? | Description
----- | --------- | --------- | -----------
-header | `App-Identifier` | true | App Identification String
-header | `Authorization-Code` | true | User Authorization Code
-
-### Response Expectations
-
-> Response - Failure
-
-```shell
--H Authorization-Success : false
--H Error-Message : Authorization failure.
-
-{
-  "error": "Authorization failure."
-}
-```
-
-> Response - Success
-
-```shell
-<!DOCTYPE html>
-<html>
- <!-- The News feed with associated styles should be here. -->
-</html>
-```
-
-# Leaderboard
-
-The Leaderboard endpoint will return a JSON response of the current Leaderboards based on your request.
-
-Leaderboards are slow to calculate, but to make up for this, once a Leaderboard is viewed, it is cached and stored in the server so future lookups are much faster. If you notice an issue with a slow response from a Leaderboard, try again and it should respond very quickly since it doesn\'t have to regenerate the information.
-
-The Leaderboard endpoint is currently unauthenticated, so you do not have to send the App Identifier and Authorization Code with your request. (Although it is recommended, when possible.)
-
-## Rankings for Game
-
-Returns an array of users with their current rankings in the selected Leaderboard
-
-### HTTP Request
-
-`GET https://zygygames.com/api/leaderboards/games/:game_server_id`
-
-`GET http://staging.zygygames.com/api/leaderboards/games/:game_server_id`
-
-> Example request
-
-```shell
-curl -X GET "https://zygygames.com/api/leaderboards/games/2"
-curl -X GET "http://staging.zygygames.com/api/leaderboards/games/2"
-  -d "depth=thru&base_level=Personal&tracker_type=Scores&time_range=Current+Month&filter_since=before&filter_user_date=01-17-2017"
-```
-
-### Request Expectations
-
-Type | Parameter | Required? | Description
----- | --------- | --------- | -----------
-param | `game_server_id` | true | <This value should be passed inside the URL> The server ID of the game you want the Leaderboards for. The ID is accessible via the `games` endpoint.
-param | `depth` | false | Thru/At - Determines whether the Leaderboards should be filtered 'thru' the current level or 'at' the current level. <Default: thru>
-param | `base_level` | false | Ordinalized depth value. May be a string or integer value Personal/0 for Personal, 1st/1, 2nd/2, ... Up to 8th/8 and total. Any number greater than 20 may be passed for total.
-param | `tracker_type` | false | "Scores", "Revenue", "New Players Added" - for the type of Leaderboard to show.
-param | `time_range` | false | String description of relative date range to include in the Leaderboard. Valid options: "Current Month", "Last Month", "Last 3 Months", "Last 6 Months", "Last 12 Months", "Year To Date", "Total"
-param | `filter_since` | false | Boolean value, true marks to filter users created after the `filter_user_date` below, false will show only users created before that date.
-param | `filter_user_date` | false | Date in the form of MM-DD-YYYY, when provided, will filter the Leaderboard to only include users based on this date.
-
-> Response - Failure
-
-```shell
-
-{
-  "error": {
-    "required_params_not_present": [
-      "game"
-    ]
-  }
-}
-```
-
-> Response - Success
-
-```shell
-[
-  {
-    "place":1,
-    "username_display":"Chad510 (GP9ITD)",
-    "personal_value":"1,939",
-    "filtered_value":"1,939",
-    "upline_display":"Carmella453 (ZV3P7T)"
-  },
-  {
-    "place":2,
-    "username_display":"Jaron77 (8Y106M)",
-    "personal_value":"1,893",
-    "filtered_value":"1,893",
-    "upline_display":"Jess52 (62XFC1)"
-  },
-  ...
-]
-```
-
-### Response Expectations
-
-Type | Key | Success? | Description
----- | --- | -------- | -----------
-json | `place` | true | Rank on the current Leaderboard
-json | `username_display` | true | String value including the User\'s Username followed by their Zygy ID in parentheses.
-json | `personal_value` | true | The value representing the individual score for the User (Will show the Current User\'s high score whether or not the filter is set to `thru` any level)
-json | `filtered_value` | true | The value the current Leaderboards are sorted by.
-json | `upline_display` | true | String value displaying the User\'s upline\'s identification.
-
-## Rankings for User
-
-Returns an array of users with their current rankings in the selected Leaderboard
-
-If no parameters are passed in, will return only the selected user.
-
-### HTTP Request
-
-`GET https://zygygames.com/api/leaderboards/games/:game_server_id/users/:user_server_id`
-
-`GET http://staging.zygygames.com/api/leaderboards/games/:game_server_id/users/:user_server_id`
-
-> Example request
-
-```shell
-curl -X GET "https://zygygames.com/api/leaderboards/games/2/users/174"
-curl -X GET "http://staging.zygygames.com/api/leaderboards/games/2/users/174"
-  -d "padding=3"
-```
-
-### Request Expectations
-
-Type | Parameter | Required? | Description
----- | --------- | --------- | -----------
-param | `game_server_id` | true | <This value should be passed inside the URL> The server ID of the game you want the Leaderboards for. The ID is accessible via the `games` endpoint.
-param | `user_server_id` | true | <This value should be passed inside the URL> The server ID of the User you want the rankings for. This ID is returned in the authentication request.
-param | `padding` | false | Integer - Sets the values of `padding_top` and `padding_bottom` both to this value.
-param | `padding_top` | false | Integer - When passed, includes the given number of users ranking HIGHER than the selected user.
-param | `padding_bottom` | false | Integer - When passed, includes the given number of users ranking LOWER than the selected user.
-
-> Response - Failure
-
-```shell
-{
-  "error": "Authorization Failure"
-}
-```
-
-> Response - Success
-
-```shell
-# No padding:
-[
-  {
-    "place": 359,
-    "username_display": "Pearlie174 (XZRC8I)",
-    "personal_value": "1,423",
-    "filtered_value": "1,423",
-    "upline_display": "Sandra162 (YW7GQR)"
-  }
-]
-
-# Padding = 2 (top: 2, bottom: 2)
-[
-  {
-    "place": 356,
-    "username_display": "Rogelio775 (Z6PKYW)",
-    "personal_value": "1,425",
-    "filtered_value": "1,425",
-    "upline_display": "Lelia531 (VRF375)"
-  },
-  {
-    "place": 357,
-    "username_display": "Rachel730 (95P8RW)",
-    "personal_value": "1,424",
-    "filtered_value": "1,424",
-    "upline_display": "Linnie643 (0ALK6Q)"
-  },
-  {
-    "place": 359,
-    "username_display": "Pearlie174 (XZRC8I)",
-    "personal_value": "1,423",
-    "filtered_value": "1,423",
-    "upline_display": "Sandra162 (YW7GQR)"
-  },
-  {
-    "place": 359,
-    "username_display": "Milford183 (EWD934)",
-    "personal_value": "1,422",
-    "filtered_value": "1,422",
-    "upline_display": "Bud43 (4DQGI1)"
-  },
-  {
-    "place": 360,
-    "username_display": "Eloy391 (U90DAK)",
-    "personal_value": "1,421",
-    "filtered_value": "1,421",
-    "upline_display": "Brennan251 (3F60NM)"
-  }
-]
-```
-
-### Response Expectations
-
-Type | Key | Success? | Description
----- | --- | -------- | -----------
-json | `place` | true | Rank on the current Leaderboard
-json | `username_display` | true | String value including the User\'s Username followed by their Zygy ID in parentheses.
-json | `personal_value` | true | The value representing the individual score for the User (Will show the Current User\'s high score whether or not the filter is set to `thru` any level)
-json | `filtered_value` | true | The value the current Leaderboards are sorted by.
-json | `upline_display` | true | String value displaying the User\'s upline\'s identification.
-
-## Golf Scores Leaderboard
-
-Returns an array of users with their current rankings in golf scores
-
-### HTTP Request
-
-`GET https://zygygames.com/api/leaderboards/golf`
-
-`GET http://staging.zygygames.com/api/leaderboards/golf`
-
-> Example request
-
-```shell
-curl -X GET "https://zygygames.com/api/leaderboards/golf"
-curl -X GET "http://staging.zygygames.com/api/leaderboards/golf"
-  -d "depth=thru&base_level=Personal&tracker_type=Scores&time_range=Current+Month&filter_since=before&filter_user_date=01-17-2017"
-```
-
-### Request Expectations
-
-Type | Parameter | Required? | Description
----- | --------- | --------- | -----------
-param | `depth` | false | Thru/At - Determines whether the Leaderboards should be filtered 'thru' the current level or 'at' the current level. <Default: thru>
-param | `base_level` | false | Ordinalized depth value. May be a string or integer value Personal/0 for Personal, 1st/1, 2nd/2, ... Up to 8th/8 and total. Any number greater than 20 may be passed for total.
-param | `tracker_type` | false | "Scores", "Revenue", "New Players Added" - for the type of Leaderboard to show.
-param | `time_range` | false | String description of relative date range to include in the Leaderboard. Valid options: "Current Month", "Last Month", "Last 3 Months", "Last 6 Months", "Last 12 Months", "Year To Date", "Total"
-param | `filter_since` | false | Boolean value, true marks to filter users created after the `filter_user_date` below, false will show only users created before that date.
-param | `filter_user_date` | false | Date in the form of MM-DD-YYYY, when provided, will filter the Leaderboard to only include users based on this date.
-
-> Response - Success
-
-```shell
-[
-  {
-    "place":1,
-    "username_display":"Chad510 (GP9ITD)",
-    "personal_value":"6",
-    "filtered_value":"6",
-    "upline_display":"Carmella453 (ZV3P7T)"
-  },
-  {
-    "place":2,
-    "username_display":"Jaron77 (8Y106M)",
-    "personal_value":"9",
-    "filtered_value":"9",
-    "upline_display":"Jess52 (62XFC1)"
-  },
-  ...
-]
-```
-
-### Response Expectations
-
-Type | Key | Success? | Description
----- | --- | -------- | -----------
-json | `place` | true | Rank on the current Leaderboard
-json | `username_display` | true | String value including the User\'s Username followed by their Zygy ID in parentheses.
-json | `personal_value` | true | The value representing the individual score for the User (Will show the Current User\'s high score whether or not the filter is set to `thru` any level)
-json | `filtered_value` | true | The value the current Leaderboards are sorted by.
-json | `upline_display` | true | String value displaying the User\'s upline\'s identification.
-
-## Golf Rankings for User
-
-Returns an array of users with their current rankings in the selected Leaderboard
-
-If no parameters are passed in, will return only the selected user.
-
-### HTTP Request
-
-`GET https://zygygames.com/api/leaderboards/golf/users/:user_server_id`
-
-`GET http://staging.zygygames.com/api/leaderboards/golf/users/:user_server_id`
-
-> Example request
-
-```shell
-curl -X GET "https://zygygames.com/api/leaderboards/golf/users/174"
-curl -X GET "http://staging.zygygames.com/api/leaderboards/golf/users/174"
-  -d "padding=3"
-```
-
-### Request Expectations
-
-Type | Parameter | Required? | Description
----- | --------- | --------- | -----------
-param | `user_server_id` | true | <This value should be passed inside the URL> The server ID of the User you want the rankings for. This ID is returned in the authentication request.
-param | `padding` | false | Integer - Sets the values of `padding_top` and `padding_bottom` both to this value.
-param | `padding_top` | false | Integer - When passed, includes the given number of users ranking HIGHER than the selected user.
-param | `padding_bottom` | false | Integer - When passed, includes the given number of users ranking LOWER than the selected user.
-
-> Response - Failure
-
-```shell
-{
-  "error": "Authorization Failure"
-}
-```
-
-> Response - Success
-
-```shell
-# No padding:
-[
-  {
-    "place": 359,
-    "username_display": "Pearlie174 (XZRC8I)",
-    "personal_value": "456",
-    "filtered_value": "456",
-    "upline_display": "Sandra162 (YW7GQR)"
-  }
-]
-
-# Padding = 2 (top: 2, bottom: 2)
-[
-  {
-    "place": 356,
-    "username_display": "Rogelio775 (Z6PKYW)",
-    "personal_value": "403",
-    "filtered_value": "403",
-    "upline_display": "Lelia531 (VRF375)"
-  },
-  {
-    "place": 357,
-    "username_display": "Rachel730 (95P8RW)",
-    "personal_value": "437",
-    "filtered_value": "437",
-    "upline_display": "Linnie643 (0ALK6Q)"
-  },
-  {
-    "place": 359,
-    "username_display": "Pearlie174 (XZRC8I)",
-    "personal_value": "456",
-    "filtered_value": "456",
-    "upline_display": "Sandra162 (YW7GQR)"
-  },
-  {
-    "place": 359,
-    "username_display": "Milford183 (EWD934)",
-    "personal_value": "480",
-    "filtered_value": "480",
-    "upline_display": "Bud43 (4DQGI1)"
-  },
-  {
-    "place": 360,
-    "username_display": "Eloy391 (U90DAK)",
-    "personal_value": "502",
-    "filtered_value": "502",
-    "upline_display": "Brennan251 (3F60NM)"
-  }
-]
-```
-
-### Response Expectations
-
-Type | Key | Success? | Description
----- | --- | -------- | -----------
-json | `place` | true | Rank on the current Leaderboard
-json | `username_display` | true | String value including the User\'s Username followed by their Zygy ID in parentheses.
-json | `personal_value` | true | The value representing the individual score for the User (Will show the Current User\'s high score whether or not the filter is set to `thru` any level)
-json | `filtered_value` | true | The value the current Leaderboards are sorted by.
-json | `upline_display` | true | String value displaying the User\'s upline\'s identification.
