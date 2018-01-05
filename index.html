@@ -183,13 +183,61 @@ curl -X GET www.google.com
 
 <h1 id="authentication">Authentication</h1>
 
+<blockquote>
+<p>Failure responses</p>
+</blockquote>
+<pre class="highlight shell"><code>status - 401 Unauthorized
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"Invalid email or password."</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This error can occur whenever a user enters a bad email/password upon logging in, or when a password changes causes their authorization token to become invalid.</span>
+<span class="c"># At that point, a user should be logged out immediately.</span>
+
+status - 403 Forbidden
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"You are not authorized to do that."</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This error occurs if you attempt to make a request that the current user does not have access to- for example, attempting to view somebody not on their team.</span>
+
+status - 406 Not Acceptable
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"User must set password - Server will deliver email to entered email address."</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This is a special error alerting the app that this user has not set up their password on the migrated server yet. It should be handled the same as a 401, either logging the user out or displaying an invalid email/password error.</span>
+
+status 400 - Bad Request
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"param is missing or the value is empty: user"</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.</span>
+
+status 502 - Bad Gateway <span class="o">(</span>Could not connect to server<span class="o">)</span>
+<span class="c"># (No response)</span>
+<span class="c"># This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.</span>
+
+status 500 - Server Error
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"Something went wrong."</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># If a 500 is returned, it means something went wrong on the server side. This should be reported, when possible as it generally means there is a crash.</span>
+</code></pre>
+
 <p>In order to authenticate with endpoints that require a signed in user, you must pass the authentication token that belongs to the user. You must &ldquo;login&rdquo; to retrieve that token using an email/password combination.</p>
 
 <p>Any time that the server responds with a <code class="prettyprint">401</code> status code, the user should be logged out of the current session and asked to sign in again. The only time this should happen is if they change their password.</p>
 
+<p>Errors will always be return in the format of an array, although most of the time there will only be 1 error shown.</p>
+
 <h2 id="login">Login</h2>
 
 <p>This endpoint authorizes a user.</p>
+
+<aside class="success">
+Note: We should use a generic message for both failure cases. This is to prevent a malicious user entering dozens of emails and figuring out which emails have accounts.
+
+The message should cover both the unknown email/password combo as well as a short message describing the password change.
+&ldquo;Invalid email or password. If you have not migrated your account, you will receive an email shortly with instructions on changing your password.&rdquo;
+</aside>
 
 <h3 id="http-request">HTTP Request</h3>
 
@@ -247,29 +295,123 @@ curl -X GET www.google.com
 <blockquote>
 <p>Response - Success</p>
 </blockquote>
-<pre class="highlight shell"><code>-H Authorization Token: asqmbvwwzymwccmbifgvqtfin3t
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
 <span class="o">{</span>  
   <span class="s2">"user"</span>:<span class="o">{</span>  
     <span class="s2">"id"</span>: 4336,
-    <span class="s2">"upline_id"</span>: 4,
-    <span class="s2">"trainer_id"</span>: 5,
-    <span class="s2">"downline_ids"</span>: <span class="o">[</span>  
-      1, 2, 3
+    ...
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td>An array of errors that caused the request to fail</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td>The authorization token for the current user. This is used to authorize the user.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">user</code></td>
+<td>YES</td>
+<td>Data hash of data from the user.</td>
+</tr>
+</tbody></table>
+
+<aside class="warning">
+Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
+</aside>
+
+<h1 id="users">Users</h1>
+
+<p>Use this endpoint to return the attributes of users. This includes the ids of their related associations.</p>
+
+<h2 id="show">Show</h2>
+
+<p>Returns the data of a single user.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/users/:id</code></p>
+
+<p>This user must be accessible from the current user, meaning they are either an Upline, Trainer, or a Downline of the current user.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/users/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td>User authentication value retrieved from login</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td>Server ID of the user to be returned (Included in the URL, does not need to be included as a separate parameter)</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"user"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>:4336,
+    <span class="s2">"upline_id"</span>:2,
+    <span class="s2">"trainer_id"</span>:3,
+    <span class="s2">"downline_ids"</span>:[  
+      4, 5, 6
     <span class="o">]</span>,
-    <span class="s2">"email"</span>: <span class="s2">"rocco@zygy.com"</span>,
-    <span class="s2">"family_name"</span>: <span class="s2">"Nicholls"</span>,
-    <span class="s2">"given_name"</span>: <span class="s2">"Rocco"</span>,
-    <span class="s2">"phone_number"</span>: <span class="s2">"3852599640"</span>,
-    <span class="s2">"profile_picture_url"</span>: <span class="s2">""</span>,
-    <span class="s2">"state"</span>: <span class="s2">""</span>,
-    <span class="s2">"solution_number"</span>: <span class="s2">""</span>,
-    <span class="s2">"is_rvp"</span>: <span class="nb">false</span>,
-    <span class="s2">"firebase_id"</span>: <span class="s2">""</span>,
-    <span class="s2">"firebase_ref"</span>: <span class="s2">""</span>,
-    <span class="s2">"created_at"</span>: <span class="s2">"2018-01-05T00:02:50.121Z"</span>,
-    <span class="s2">"updated_at"</span>: <span class="s2">"2018-01-05T02:07:49.512Z"</span>,
-    <span class="s2">"current_speed"</span>: 0
+    <span class="s2">"email"</span>:<span class="s2">"rocco@zygy.com"</span>,
+    <span class="s2">"family_name"</span>:<span class="s2">"Nicholls"</span>,
+    <span class="s2">"given_name"</span>:<span class="s2">"Rocco"</span>,
+    <span class="s2">"phone_number"</span>:<span class="s2">"3852599640"</span>,
+    <span class="s2">"profile_picture_url"</span>:<span class="s2">""</span>,
+    <span class="s2">"state"</span>:<span class="s2">"UT - Utah"</span>,
+    <span class="s2">"solution_number"</span>:<span class="s2">"xupr7"</span>,
+    <span class="s2">"is_rvp"</span>:false,
+    <span class="s2">"firebase_id"</span>:<span class="s2">"00XzzxIXXKbwpyBT81KT9qvPKxZ2"</span>,
+    <span class="s2">"firebase_ref"</span>:<span class="s2">"https://activitymaximizer.firebaseio.com/users/00XzzxIXXKbwpyBT81KT9qvPKxZ2"</span>,
+    <span class="s2">"created_at"</span>:<span class="s2">"2017-04-26T01:28:33.046Z"</span>,
+    <span class="s2">"updated_at"</span>:<span class="s2">"2018-01-04T07:44:33.005Z"</span>,
+    <span class="s2">"current_speed"</span>:0
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
@@ -400,9 +542,384 @@ curl -X GET www.google.com
 </tr>
 </tbody></table>
 
-<aside class="success">
-Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
-</aside>
+<h2 id="index">Index</h2>
+
+<p>Returns an array of every associated user to the current user.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/users</code></p>
+
+<p>Only users who the current user is able to access are returned:
+Upline, Trainer, and all downlines are available.</p>
+
+<p>This endpoint is paginated, meaning only a maximum of <code class="prettyprint">per</code> users are returned.
+By passing in <code class="prettyprint">page</code>, you can select which group of uses are returned.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/users"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td>User authentication value retrieved from login</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_ids</code></td>
+<td>NO</td>
+<td>Array of specific user ids to request.</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">page</code></td>
+<td>NO</td>
+<td>Default: 1 - Page of users to return based on <code class="prettyprint">per</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">per</code></td>
+<td>NO</td>
+<td>Default: 25 - Number of users to return per <code class="prettyprint">page</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">all</code></td>
+<td>NO</td>
+<td>Default: false - When passed as <code class="prettyprint">true</code>, will not paginate users and will return all of them regardless of the number.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"users"</span>:[  
+    <span class="o">{</span>  
+      <span class="s2">"id"</span>:4335,
+      ...
+      <span class="s2">"current_speed"</span>:0
+    <span class="o">}</span>,
+    <span class="o">{</span>  
+      <span class="s2">"id"</span>:2,
+      ...
+      <span class="s2">"current_speed"</span>:0
+    <span class="o">}</span>,
+    <span class="o">{</span>  
+      <span class="s2">"id"</span>:4,
+      ...
+      <span class="s2">"current_speed"</span>:0
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td>An array of errors that caused the request to fail</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td>The authorization token for the current user. This is used to authorize the user.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">users</code></td>
+<td>YES</td>
+<td>Array of requested users, each object contains the full data returned by the <code class="prettyprint">show</code> endpoint</td>
+</tr>
+</tbody></table>
+
+<h2 id="create">Create</h2>
+
+<p>Creates a new user</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://maxactivity.com/api/v1/users</code></p>
+
+<p>This endpoint does NOT require authentication.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST <span class="s2">"https://maxactivity.com/api/v1/users"</span>
+  -d <span class="s2">"user[email]=fredericksmith@email.com"</span>
+  -d <span class="s2">"user[password]=password"</span>
+  -d <span class="s2">"user[given_name]=Frederick"</span>
+
+<span class="c"># This is the equivalent of:</span>
+<span class="o">{</span>
+  <span class="s2">"user"</span>: <span class="o">{</span>
+    <span class="s2">"email"</span>: <span class="s2">"fredericksmith@email.com"</span>,
+    <span class="s2">"password"</span>: <span class="s2">"password"</span>,
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user</code></td>
+<td>YES</td>
+<td>JSON object containing all of the attributes for the new user.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"user"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"email"</span>: <span class="s2">"fredericksmith@email.com"</span>,
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
+    ...
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td>An array of errors that caused the request to fail - If the user failed to update, this will explain why.</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td>The authorization token for the current user. This is used to authorize the user.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">user</code></td>
+<td>YES</td>
+<td>Newly created user object.</td>
+</tr>
+</tbody></table>
+
+<h2 id="update">Update</h2>
+
+<p>Updates a user</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">PATCH/PUT https://maxactivity.com/api/v1/users/:id</code></p>
+
+<p>This endpoint only allows for updating the current user.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X PATCH <span class="s2">"https://maxactivity.com/api/v1/users/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+  -d <span class="s2">"user[given_name]=Frederick"</span>
+
+<span class="c"># This is the equivalent of:</span>
+<span class="o">{</span>
+  <span class="s2">"user"</span>: <span class="o">{</span>
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td>User authentication value retrieved from login</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td>Server ID of the user to be updated (Included in the URL, does not need to be included as a separate parameter)</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user</code></td>
+<td>YES</td>
+<td>JSON object containing the update to change for the user.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"user"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
+    ...
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td>An array of errors that caused the request to fail - If the user failed to update, this will explain why.</td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td>The authorization token for the current user. This is used to authorize the user.</td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">user</code></td>
+<td>YES</td>
+<td>Updated user object.</td>
+</tr>
+</tbody></table>
+
+<h2 id="destroy">Destroy</h2>
+
+<p>Removes a user</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">DELETE https://maxactivity.com/api/v1/users/:id</code></p>
+
+<p>This endpoint only allows for deleting the current user.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X DELETE <span class="s2">"https://maxactivity.com/api/v1/users/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td>User authentication value retrieved from login</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td>Server ID of the user to be deleted (Included in the URL, does not need to be included as a separate parameter)</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+
+<span class="c"># No response is returned after deleting an object.</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td>An array of errors that caused the request to fail - If the user failed to update, this will explain why.</td>
+</tr>
+</tbody></table>
 
       </div>
       <div class="dark-box">
