@@ -89,13 +89,62 @@ You can also use `--data-urlencode` to include params, but only 1 param can be a
 
 # Authentication
 
+> Failure responses
+
+```shell
+status - 401 Unauthorized
+{
+  "errors": ["Invalid email or password."]
+}
+# This error can occur whenever a user enters a bad email/password upon logging in, or when a password changes causes their authorization token to become invalid.
+# At that point, a user should be logged out immediately.
+
+status - 403 Forbidden
+{
+  "errors": ["You are not authorized to do that."]
+}
+# This error occurs if you attempt to make a request that the current user does not have access to- for example, attempting to view somebody not on their team.
+
+status - 406 Not Acceptable
+{
+  "errors": ["User must set password - Server will deliver email to entered email address."]
+}
+# This is a special error alerting the app that this user has not set up their password on the migrated server yet. It should be handled the same as a 401, either logging the user out or displaying an invalid email/password error.
+
+status 400 - Bad Request
+{
+  "errors": ["param is missing or the value is empty: user"]
+}
+# This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.
+
+status 502 - Bad Gateway (Could not connect to server)
+# (No response)
+# This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.
+
+status 500 - Server Error
+{
+  "errors": ["Something went wrong."]
+}
+# If a 500 is returned, it means something went wrong on the server side. This should be reported, when possible as it generally means there is a crash.
+```
+
 In order to authenticate with endpoints that require a signed in user, you must pass the authentication token that belongs to the user. You must "login" to retrieve that token using an email/password combination.
 
 Any time that the server responds with a `401` status code, the user should be logged out of the current session and asked to sign in again. The only time this should happen is if they change their password.
 
+Errors will always be return in the format of an array, although most of the time there will only be 1 error shown.
+
+
 ## Login
 
 This endpoint authorizes a user.
+
+<aside class="success">
+Note: We should use a generic message for both failure cases. This is to prevent a malicious user entering dozens of emails and figuring out which emails have accounts.
+
+The message should cover both the unknown email/password combo as well as a short message describing the password change.
+"Invalid email or password. If you have not migrated your account, you will receive an email shortly with instructions on changing your password."
+</aside>
 
 ### HTTP Request
 
@@ -136,29 +185,84 @@ status 406 - Not Acceptable
 > Response - Success
 
 ```shell
--H Authorization Token: asqmbvwwzymwccmbifgvqtfin3t
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
 {  
   "user":{  
     "id": 4336,
-    "upline_id": 4,
-    "trainer_id": 5,
-    "downline_ids": [  
-      1, 2, 3
+    ...
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | An array of errors that caused the request to fail
+header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
+json | `user` | YES | Data hash of data from the user.
+
+<aside class="warning">
+Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
+</aside>
+
+# Users
+
+Use this endpoint to return the attributes of users. This includes the ids of their related associations.
+
+## Show
+
+Returns the data of a single user.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/users/:id`
+
+This user must be accessible from the current user, meaning they are either an Upline, Trainer, or a Downline of the current user.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/users/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | User authentication value retrieved from login
+param | `id` | YES | Server ID of the user to be returned (Included in the URL, does not need to be included as a separate parameter)
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "user":{  
+    "id":4336,
+    "upline_id":2,
+    "trainer_id":3,
+    "downline_ids":[  
+      4, 5, 6
     ],
-    "email": "rocco@zygy.com",
-    "family_name": "Nicholls",
-    "given_name": "Rocco",
-    "phone_number": "3852599640",
-    "profile_picture_url": "",
-    "state": "",
-    "solution_number": "",
-    "is_rvp": false,
-    "firebase_id": "",
-    "firebase_ref": "",
-    "created_at": "2018-01-05T00:02:50.121Z",
-    "updated_at": "2018-01-05T02:07:49.512Z",
-    "current_speed": 0
+    "email":"rocco@zygy.com",
+    "family_name":"Nicholls",
+    "given_name":"Rocco",
+    "phone_number":"3852599640",
+    "profile_picture_url":"",
+    "state":"UT - Utah",
+    "solution_number":"xupr7",
+    "is_rvp":false,
+    "firebase_id":"00XzzxIXXKbwpyBT81KT9qvPKxZ2",
+    "firebase_ref":"https://activitymaximizer.firebaseio.com/users/00XzzxIXXKbwpyBT81KT9qvPKxZ2",
+    "created_at":"2017-04-26T01:28:33.046Z",
+    "updated_at":"2018-01-04T07:44:33.005Z",
+    "current_speed":0
   }
 }
 ```
@@ -187,6 +291,220 @@ json | `created_at` | YES |
 json | `updated_at` | YES |
 json | `current_speed` | YES | Calculated current speed of the user
 
-<aside class="success">
-Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
-</aside>
+## Index
+
+Returns an array of every associated user to the current user.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/users`
+
+Only users who the current user is able to access are returned:
+Upline, Trainer, and all downlines are available.
+
+This endpoint is paginated, meaning only a maximum of `per` users are returned.
+By passing in `page`, you can select which group of uses are returned.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/users"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | User authentication value retrieved from login
+param | `user_ids` | NO | Array of specific user ids to request.
+param | `page` | NO | Default: 1 - Page of users to return based on `per`
+param | `per` | NO | Default: 25 - Number of users to return per `page`
+param | `all` | NO | Default: false - When passed as `true`, will not paginate users and will return all of them regardless of the number.
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "users":[  
+    {  
+      "id":4335,
+      ...
+      "current_speed":0
+    },
+    {  
+      "id":2,
+      ...
+      "current_speed":0
+    },
+    {  
+      "id":4,
+      ...
+      "current_speed":0
+    }
+  ]
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | An array of errors that caused the request to fail
+header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
+json | `users` | YES | Array of requested users, each object contains the full data returned by the `show` endpoint
+
+## Create
+
+Creates a new user
+
+### HTTP Request
+
+`POST https://maxactivity.com/api/v1/users`
+
+This endpoint does NOT require authentication.
+
+> Example request
+
+```shell
+curl -X POST "https://maxactivity.com/api/v1/users"
+  -d "user[email]=fredericksmith@email.com"
+  -d "user[password]=password"
+  -d "user[given_name]=Frederick"
+
+# This is the equivalent of:
+{
+  "user": {
+    "email": "fredericksmith@email.com",
+    "password": "password",
+    "given_name": "Frederick"
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+param | `user` | YES | JSON object containing all of the attributes for the new user.
+
+> Response - Success
+
+```shell
+status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "user":{  
+    "id": 4336,
+    "email": "fredericksmith@email.com",
+    "given_name": "Frederick"
+    ...
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | An array of errors that caused the request to fail - If the user failed to update, this will explain why.
+header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
+json | `user` | YES | Newly created user object.
+
+## Update
+
+Updates a user
+
+### HTTP Request
+
+`PATCH/PUT https://maxactivity.com/api/v1/users/:id`
+
+This endpoint only allows for updating the current user.
+
+> Example request
+
+```shell
+curl -X PATCH "https://maxactivity.com/api/v1/users/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "user[given_name]=Frederick"
+
+# This is the equivalent of:
+{
+  "user": {
+    "given_name": "Frederick"
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | User authentication value retrieved from login
+param | `id` | YES | Server ID of the user to be updated (Included in the URL, does not need to be included as a separate parameter)
+param | `user` | YES | JSON object containing the update to change for the user.
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "user":{  
+    "id": 4336,
+    "given_name": "Frederick"
+    ...
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | An array of errors that caused the request to fail - If the user failed to update, this will explain why.
+header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
+json | `user` | YES | Updated user object.
+
+## Destroy
+
+Removes a user
+
+### HTTP Request
+
+`DELETE https://maxactivity.com/api/v1/users/:id`
+
+This endpoint only allows for deleting the current user.
+
+> Example request
+
+```shell
+curl -X DELETE "https://maxactivity.com/api/v1/users/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | User authentication value retrieved from login
+param | `id` | YES | Server ID of the user to be deleted (Included in the URL, does not need to be included as a separate parameter)
+
+> Response - Success
+
+```shell
+status 200 - OK
+
+# No response is returned after deleting an object.
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | An array of errors that caused the request to fail - If the user failed to update, this will explain why.
