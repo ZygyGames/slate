@@ -154,7 +154,7 @@ And then: ./deploy.rb
   -H <span class="s2">"MyOtherHeader: ThisIsMyOtherHeaderData"</span>
 </code></pre>
 
-<p>The <code class="prettyprint">-X</code> argument specifies the HTML Verb. (<code class="prettyprint">GET</code>, <code class="prettyprint">PUT</code>, <code class="prettyprint">POST</code>, <code class="prettyprint">DELETE</code>, etc&hellip;)</p>
+<p>The <code class="prettyprint">-X</code> argument specifies the HTTP Verb. (<code class="prettyprint">GET</code>, <code class="prettyprint">PUT</code>, <code class="prettyprint">POST</code>, <code class="prettyprint">DELETE</code>, etc&hellip;)</p>
 
 <p>Normally arguments are all done in-line, but for this documentation, we will split keep the <code class="prettyprint">-X</code> inline and drop the headers and data onto following lines for readability.</p>
 
@@ -186,7 +186,14 @@ curl -X GET www.google.com
 <blockquote>
 <p>Failure responses</p>
 </blockquote>
-<pre class="highlight shell"><code>status - 401 Unauthorized
+<pre class="highlight shell"><code>
+status 400 - Bad Request
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"param is missing or the value is empty: user"</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.</span>
+
+status - 401 Unauthorized
 <span class="o">{</span>
   <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"Invalid email or password."</span><span class="o">]</span>
 <span class="o">}</span>
@@ -205,21 +212,15 @@ status - 406 Not Acceptable
 <span class="o">}</span>
 <span class="c"># This is a special error alerting the app that this user has not set up their password on the migrated server yet. It should be handled the same as a 401, either logging the user out or displaying an invalid email/password error.</span>
 
-status 400 - Bad Request
-<span class="o">{</span>
-  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"param is missing or the value is empty: user"</span><span class="o">]</span>
-<span class="o">}</span>
-<span class="c"># This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.</span>
-
-status 502 - Bad Gateway <span class="o">(</span>Could not connect to server<span class="o">)</span>
-<span class="c"># (No response)</span>
-<span class="c"># This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.</span>
-
 status 500 - Server Error
 <span class="o">{</span>
   <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"Something went wrong."</span><span class="o">]</span>
 <span class="o">}</span>
 <span class="c"># If a 500 is returned, it means something went wrong on the server side. This should be reported, when possible as it generally means there is a crash.</span>
+
+status 502 - Bad Gateway <span class="o">(</span>Could not connect to server<span class="o">)</span>
+<span class="c"># (No response)</span>
+<span class="c"># This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.</span>
 </code></pre>
 
 <p>In order to authenticate with endpoints that require a signed in user, you must pass the authentication token that belongs to the user. You must &ldquo;login&rdquo; to retrieve that token using an email/password combination.</p>
@@ -241,12 +242,12 @@ The message should cover both the unknown email/password combo as well as a shor
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p><code class="prettyprint">GET https://maxactivity.com/api/v1/login</code></p>
+<p><code class="prettyprint">POST https://maxactivity.com/api/v1/login</code></p>
 
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/login"</span>
+<pre class="highlight shell"><code>curl -X POST <span class="s2">"https://maxactivity.com/api/v1/login"</span>
   -d <span class="s2">"email=xxxxx&amp;password=xxxxx"</span>
 </code></pre>
 
@@ -409,8 +410,8 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
     <span class="s2">"is_rvp"</span>:false,
     <span class="s2">"firebase_id"</span>:<span class="s2">"00XzzxIXXKbwpyBT81KT9qvPKxZ2"</span>,
     <span class="s2">"firebase_ref"</span>:<span class="s2">"https://activitymaximizer.firebaseio.com/users/00XzzxIXXKbwpyBT81KT9qvPKxZ2"</span>,
-    <span class="s2">"created_at"</span>:<span class="s2">"2017-04-26T01:28:33.046Z"</span>,
-    <span class="s2">"updated_at"</span>:<span class="s2">"2018-01-04T07:44:33.005Z"</span>,
+    <span class="s2">"created_at"</span>:<span class="s2">"2018-01-05 12:02:50 AM"</span>,
+    <span class="s2">"updated_at"</span>:<span class="s2">"2018-01-06 07:30:42 PM"</span>
     <span class="s2">"current_speed"</span>:0
   <span class="o">}</span>
 <span class="o">}</span>
@@ -526,13 +527,13 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 <td>json</td>
 <td><code class="prettyprint">created_at</code></td>
 <td>YES</td>
-<td></td>
+<td>Timestamp in the format <code class="prettyprint">%Y-%m-%d %I:%M:%S %p</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">updated_at</code></td>
 <td>YES</td>
-<td></td>
+<td>Timestamp in the format <code class="prettyprint">%Y-%m-%d %I:%M:%S %p</code></td>
 </tr>
 <tr>
 <td>json</td>
