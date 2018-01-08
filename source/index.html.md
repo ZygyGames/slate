@@ -58,7 +58,7 @@ curl -X GET www.google.com
   -H "MyOtherHeader: ThisIsMyOtherHeaderData"
 ```
 
-The `-X` argument specifies the HTML Verb. (`GET`, `PUT`, `POST`, `DELETE`, etc...)
+The `-X` argument specifies the HTTP Verb. (`GET`, `PUT`, `POST`, `DELETE`, etc...)
 
 Normally arguments are all done in-line, but for this documentation, we will split keep the `-X` inline and drop the headers and data onto following lines for readability.
 
@@ -92,6 +92,13 @@ You can also use `--data-urlencode` to include params, but only 1 param can be a
 > Failure responses
 
 ```shell
+
+status 400 - Bad Request
+{
+  "errors": ["param is missing or the value is empty: user"]
+}
+# This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.
+
 status - 401 Unauthorized
 {
   "errors": ["Invalid email or password."]
@@ -111,21 +118,15 @@ status - 406 Not Acceptable
 }
 # This is a special error alerting the app that this user has not set up their password on the migrated server yet. It should be handled the same as a 401, either logging the user out or displaying an invalid email/password error.
 
-status 400 - Bad Request
-{
-  "errors": ["param is missing or the value is empty: user"]
-}
-# This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.
-
-status 502 - Bad Gateway (Could not connect to server)
-# (No response)
-# This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.
-
 status 500 - Server Error
 {
   "errors": ["Something went wrong."]
 }
 # If a 500 is returned, it means something went wrong on the server side. This should be reported, when possible as it generally means there is a crash.
+
+status 502 - Bad Gateway (Could not connect to server)
+# (No response)
+# This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.
 ```
 
 In order to authenticate with endpoints that require a signed in user, you must pass the authentication token that belongs to the user. You must "login" to retrieve that token using an email/password combination.
@@ -148,12 +149,12 @@ The message should cover both the unknown email/password combo as well as a shor
 
 ### HTTP Request
 
-`GET https://maxactivity.com/api/v1/login`
+`POST https://maxactivity.com/api/v1/login`
 
 > Example request
 
 ```shell
-curl -X GET "https://maxactivity.com/api/v1/login"
+curl -X POST "https://maxactivity.com/api/v1/login"
   -d "email=xxxxx&password=xxxxx"
 ```
 
@@ -260,8 +261,8 @@ status 200 - OK
     "is_rvp":false,
     "firebase_id":"00XzzxIXXKbwpyBT81KT9qvPKxZ2",
     "firebase_ref":"https://activitymaximizer.firebaseio.com/users/00XzzxIXXKbwpyBT81KT9qvPKxZ2",
-    "created_at":"2017-04-26T01:28:33.046Z",
-    "updated_at":"2018-01-04T07:44:33.005Z",
+    "created_at":"2018-01-05 12:02:50 AM",
+    "updated_at":"2018-01-06 07:30:42 PM"
     "current_speed":0
   }
 }
@@ -287,8 +288,8 @@ json | `solution_number` | YES |
 json | `is_rvp` | YES |
 json | `firebase_id` | YES |
 json | `firebase_ref` | YES |
-json | `created_at` | YES |
-json | `updated_at` | YES |
+json | `created_at` | YES | Timestamp in the format `%Y-%m-%d %I:%M:%S %p`
+json | `updated_at` | YES | Timestamp in the format `%Y-%m-%d %I:%M:%S %p`
 json | `current_speed` | YES | Calculated current speed of the user
 
 ## Index
