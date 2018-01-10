@@ -130,6 +130,135 @@ And then: ./deploy.rb
 
 <p>This is to retain a consistent syntax, since <code class="prettyprint">curl</code> is easy to read and understand.</p>
 
+<h2 id="basic-details-about-requests">Basic details about requests</h2>
+
+<blockquote>
+<p>Successful Response Status Codes</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+<span class="c"># This status states that everything went according to plan and things are good.</span>
+<span class="c"># This is the most common status.</span>
+
+status 201 - Created
+<span class="c"># This status states that an object was successfully created.</span>
+</code></pre>
+
+<blockquote>
+<p>Failure Response Status Codes</p>
+</blockquote>
+<pre class="highlight shell"><code>
+status 400 - Bad Request
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"param is missing or the value is empty: user"</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.</span>
+
+status - 401 Unauthorized
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"Invalid email or password."</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This error can occur whenever a user enters a bad email/password upon logging in, or when a password changes causes their authorization token to become invalid.</span>
+<span class="c"># At that point, a user should be logged out immediately.</span>
+
+status - 403 Forbidden
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"You are not authorized to do that."</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This error occurs if you attempt to make a request that the current user does not have access to- for example, attempting to view somebody not on their team.</span>
+
+status - 406 Not Acceptable
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"User must set password - Server will deliver email to entered email address."</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># This is a special error alerting the app that this user has not set up their password on the migrated server yet. It should be handled the same as a 401, either logging the user out or displaying an invalid email/password error.</span>
+
+status 500 - Server Error
+<span class="o">{</span>
+  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"Something went wrong."</span><span class="o">]</span>
+<span class="o">}</span>
+<span class="c"># If a 500 is returned, it means something went wrong on the server side. This should be reported, when possible as it generally means there is a crash.</span>
+
+status 502 - Bad Gateway <span class="o">(</span>Could not connect to server<span class="o">)</span>
+<span class="c"># (No response)</span>
+<span class="c"># This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.</span>
+</code></pre>
+
+<p>The basic response codes are shown on the right. These status codes are the HTTP statuses that are made.
+Generally, when interacting with maxactivity.com, any time something goes wrong, you will receive a response in the form of a hash/dictionary/associative array with a single key, <code class="prettyprint">errors</code>. The value for that key is an array of human-readable messages. <strong>These messages are NOT for display to users, but to be used for debugging.</strong> Each endpoint should have custom error messages written in the app to display to the user.</p>
+
+<ul>
+<li>1xx: <strong>Information</strong> (Unused)</li>
+<li>2xx: <strong>Success</strong> - Everything went according to plan</li>
+<li>3xx: <strong>Redirect</strong> - The url you hit is no longer officially supported and you are being automatically redirected to a different url.</li>
+<li>4xx: <strong>Client Error</strong> - Something was wrong with the request- generally this means you forgot a required parameter, but could also be an invalid url, requesting an object you don&rsquo;t have permission to view, or otherwise doing something outside of your permissions.</li>
+<li>5xx: <strong>Server Error</strong> - Something went wrong with the server. This could be a bug in the code or that the server is down. Generally these mean something is going REALLY wrong.</li>
+</ul>
+
+<p>You can read more about status codes <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">Here</a></p>
+
+<h3 id="formats">Formats</h3>
+
+<p><code class="prettyprint">timestamp</code>s are always returned as strings in UTC with the format:</p>
+
+<p><code class="prettyprint">YYYY-MM-DD HH:MM:SS P</code></p>
+
+<p>Example: <code class="prettyprint">2018-01-09 08:30:47 PM</code></p>
+
+<h3 id="pagination">Pagination</h3>
+
+<p>All requests that return more than a single resource will be paginated. Pagination means the results are given in &ldquo;pages&rdquo;, to prevent a massive request being sent when only a few results are desired.</p>
+
+<p><strong>Request</strong></p>
+
+<p>There are 3 key parameters in pagination. <code class="prettyprint">page</code>, <code class="prettyprint">per</code>, and <code class="prettyprint">all</code></p>
+
+<p>Defaults:</p>
+
+<table><thead>
+<tr>
+<th>Param</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>page</td>
+<td><code class="prettyprint">1</code></td>
+<td>Which &ldquo;page&rdquo; of objects to return.</td>
+</tr>
+<tr>
+<td>per</td>
+<td><code class="prettyprint">25</code></td>
+<td>How many objects to return per page.</td>
+</tr>
+<tr>
+<td>all</td>
+<td><code class="prettyprint">false</code></td>
+<td>When set to <code class="prettyprint">true</code>, pagination is not applied and all results are returned. (Not recommended unless you know the request does not have a lot of objects.)</td>
+</tr>
+</tbody></table>
+
+<p>For example, when <code class="prettyprint">page: 2, per: 50</code> is given in the parameters, you will receive objects in the list between indices <code class="prettyprint">51-100</code> (Page 1 would be <code class="prettyprint">1-50</code> since <code class="prettyprint">per</code> is set to return 50 objects at a time)</p>
+
+<p><strong>Response</strong></p>
+
+<p>Any time you make a request to an endpoint that returns paginated objects, the <code class="prettyprint">meta</code> data in your response will contain details about the paginated objects.</p>
+<pre class="highlight shell"><code>Example response with pagination meta details
+<span class="o">{</span>
+  <span class="s2">"users"</span>: <span class="o">[{</span>...<span class="o">}</span>, <span class="o">{</span>...<span class="o">}</span>, <span class="o">{</span>...<span class="o">}]</span>,
+  <span class="s2">"meta"</span>: <span class="o">{</span>
+    <span class="s2">"total_count"</span>: 512,
+    <span class="s2">"total_pages"</span>: 11,
+    <span class="s2">"page"</span>: 2, <span class="c"># Current page</span>
+    <span class="s2">"next_page"</span>: 3, <span class="c"># Null on the last page</span>
+    <span class="s2">"prev_page"</span>: 1, <span class="c"># Null on the first page</span>
+    <span class="s2">"per"</span>: 50,
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<p>An example response might look like this:</p>
+
 <h1 id="curl">Curl</h1>
 
 <h2 id="what-is-curl">What is <code class="prettyprint">curl</code>?</h2>
@@ -183,46 +312,6 @@ curl -X GET www.google.com
 
 <h1 id="authentication">Authentication</h1>
 
-<blockquote>
-<p>Failure responses</p>
-</blockquote>
-<pre class="highlight shell"><code>
-status 400 - Bad Request
-<span class="o">{</span>
-  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"param is missing or the value is empty: user"</span><span class="o">]</span>
-<span class="o">}</span>
-<span class="c"># This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.</span>
-
-status - 401 Unauthorized
-<span class="o">{</span>
-  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"Invalid email or password."</span><span class="o">]</span>
-<span class="o">}</span>
-<span class="c"># This error can occur whenever a user enters a bad email/password upon logging in, or when a password changes causes their authorization token to become invalid.</span>
-<span class="c"># At that point, a user should be logged out immediately.</span>
-
-status - 403 Forbidden
-<span class="o">{</span>
-  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"You are not authorized to do that."</span><span class="o">]</span>
-<span class="o">}</span>
-<span class="c"># This error occurs if you attempt to make a request that the current user does not have access to- for example, attempting to view somebody not on their team.</span>
-
-status - 406 Not Acceptable
-<span class="o">{</span>
-  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"User must set password - Server will deliver email to entered email address."</span><span class="o">]</span>
-<span class="o">}</span>
-<span class="c"># This is a special error alerting the app that this user has not set up their password on the migrated server yet. It should be handled the same as a 401, either logging the user out or displaying an invalid email/password error.</span>
-
-status 500 - Server Error
-<span class="o">{</span>
-  <span class="s2">"errors"</span>: <span class="o">[</span><span class="s2">"Something went wrong."</span><span class="o">]</span>
-<span class="o">}</span>
-<span class="c"># If a 500 is returned, it means something went wrong on the server side. This should be reported, when possible as it generally means there is a crash.</span>
-
-status 502 - Bad Gateway <span class="o">(</span>Could not connect to server<span class="o">)</span>
-<span class="c"># (No response)</span>
-<span class="c"># This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.</span>
-</code></pre>
-
 <p>In order to authenticate with endpoints that require a signed in user, you must pass the authentication token that belongs to the user. You must &ldquo;login&rdquo; to retrieve that token using an email/password combination.</p>
 
 <p>Any time that the server responds with a <code class="prettyprint">401</code> status code, the user should be logged out of the current session and asked to sign in again. The only time this should happen is if they change their password.</p>
@@ -233,7 +322,7 @@ status 502 - Bad Gateway <span class="o">(</span>Could not connect to server<spa
 
 <p>This endpoint authorizes a user.</p>
 
-<aside class="success">
+<aside class="notice">
 Note: We should use a generic message for both failure cases. This is to prevent a malicious user entering dozens of emails and figuring out which emails have accounts.
 
 The message should cover both the unknown email/password combo as well as a short message describing the password change.
@@ -321,19 +410,19 @@ The message should cover both the unknown email/password combo as well as a shor
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td>An array of errors that caused the request to fail</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
 <td><code class="prettyprint">Authorization Token</code></td>
 <td>YES</td>
-<td>The authorization token for the current user. This is used to authorize the user.</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td>Data hash of data from the user.</td>
+<td><code class="prettyprint">hash:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -374,13 +463,13 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 <td>param</td>
 <td><code class="prettyprint">email</code></td>
 <td>NO</td>
-<td>Email Address</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>param</td>
 <td><code class="prettyprint">solution_number</code></td>
 <td>NO</td>
-<td>Solution Number</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 </tbody></table>
 
@@ -392,7 +481,7 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 
 <h1 id="users">Users</h1>
 
-<p>Use this endpoint to return the attributes of users. This includes the ids of their related associations.</p>
+<p>Use this endpoint to return the attributes of users.</p>
 
 <h2 id="show">Show</h2>
 
@@ -425,13 +514,13 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 <td>header</td>
 <td><code class="prettyprint">Authorization</code></td>
 <td>YES</td>
-<td>User authentication value retrieved from login</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>param</td>
 <td><code class="prettyprint">id</code></td>
 <td>YES</td>
-<td>Server ID of the user to be returned (Included in the URL, does not need to be included as a separate parameter)</td>
+<td><code class="prettyprint">integer</code></td>
 </tr>
 </tbody></table>
 
@@ -480,115 +569,115 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td>An array of errors that caused the request to fail</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
 <td><code class="prettyprint">Authorization Token</code></td>
 <td>YES</td>
-<td>The authorization token for the current user. This is used to authorize the user.</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">id</code></td>
 <td>YES</td>
-<td>Server id for the user.</td>
+<td><code class="prettyprint">integer</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">upline_id</code></td>
 <td>YES</td>
-<td>Server id of the user&rsquo;s upline - MAY BE <code class="prettyprint">null</code></td>
+<td><code class="prettyprint">integer</code> (nullable)</td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">trainer_id</code></td>
 <td>YES</td>
-<td>Server id of the user&rsquo;s trainer - MAY BE <code class="prettyprint">null</code></td>
+<td><code class="prettyprint">integer</code> (nullable)</td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">downline_ids</code></td>
 <td>YES</td>
-<td>An array of all ids of each of the user&rsquo;s baseshop (Recurring downlines)</td>
+<td><code class="prettyprint">array&lt;integer&gt;</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">email</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">given_name</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">family_name</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">phone_number</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">profile_picture_url</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">state</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">solution_number</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">is_rvp</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">boolean</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">firebase_id</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">firebase_ref</code></td>
 <td>YES</td>
-<td></td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">created_at</code></td>
 <td>YES</td>
-<td>Timestamp in the format <code class="prettyprint">%Y-%m-%d %I:%M:%S %p</code></td>
+<td><code class="prettyprint">timestamp</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">updated_at</code></td>
 <td>YES</td>
-<td>Timestamp in the format <code class="prettyprint">%Y-%m-%d %I:%M:%S %p</code></td>
+<td><code class="prettyprint">timestamp</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">current_speed</code></td>
 <td>YES</td>
-<td>Calculated current speed of the user</td>
+<td><code class="prettyprint">integer</code></td>
 </tr>
 </tbody></table>
 
@@ -604,7 +693,9 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 Upline, Trainer, and all downlines are available.</p>
 
 <p>This endpoint is paginated, meaning only a maximum of <code class="prettyprint">per</code> users are returned.
-By passing in <code class="prettyprint">page</code>, you can select which group of uses are returned.</p>
+By passing in <code class="prettyprint">page</code>, you can select which group of users are returned.</p>
+
+<p>By passing <code class="prettyprint">user_ids</code>, the endpoint will only return the included users.</p>
 
 <blockquote>
 <p>Example request</p>
@@ -627,31 +718,31 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>header</td>
 <td><code class="prettyprint">Authorization</code></td>
 <td>YES</td>
-<td>User authentication value retrieved from login</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>param</td>
 <td><code class="prettyprint">user_ids</code></td>
 <td>NO</td>
-<td>Array of specific user ids to request.</td>
+<td><code class="prettyprint">array&lt;integer&gt;</code></td>
 </tr>
 <tr>
 <td>param</td>
 <td><code class="prettyprint">page</code></td>
 <td>NO</td>
-<td>Default: 1 - Page of users to return based on <code class="prettyprint">per</code></td>
+<td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">1</code>)</td>
 </tr>
 <tr>
 <td>param</td>
 <td><code class="prettyprint">per</code></td>
 <td>NO</td>
-<td>Default: 25 - Number of users to return per <code class="prettyprint">page</code></td>
+<td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">25</code>)</td>
 </tr>
 <tr>
 <td>param</td>
 <td><code class="prettyprint">all</code></td>
 <td>NO</td>
-<td>Default: false - When passed as <code class="prettyprint">true</code>, will not paginate users and will return all of them regardless of the number.</td>
+<td><code class="prettyprint">boolean</code> (Default: <code class="prettyprint">false</code>)</td>
 </tr>
 </tbody></table>
 
@@ -666,19 +757,17 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
     <span class="o">{</span>  
       <span class="s2">"id"</span>:4335,
       ...
-      <span class="s2">"current_speed"</span>:0
     <span class="o">}</span>,
     <span class="o">{</span>  
       <span class="s2">"id"</span>:2,
       ...
-      <span class="s2">"current_speed"</span>:0
     <span class="o">}</span>,
     <span class="o">{</span>  
       <span class="s2">"id"</span>:4,
       ...
-      <span class="s2">"current_speed"</span>:0
     <span class="o">}</span>
-  <span class="o">]</span>
+  <span class="o">]</span>,
+  <span class="s2">"meta"</span>:<span class="o">{</span>...<span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
 
@@ -696,19 +785,25 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td>An array of errors that caused the request to fail</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
 <td><code class="prettyprint">Authorization Token</code></td>
 <td>YES</td>
-<td>The authorization token for the current user. This is used to authorize the user.</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">users</code></td>
 <td>YES</td>
-<td>Array of requested users, each object contains the full data returned by the <code class="prettyprint">show</code> endpoint</td>
+<td><code class="prettyprint">array&lt;hash:userJson&gt;</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">meta</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:meta</code></td>
 </tr>
 </tbody></table>
 
@@ -751,10 +846,10 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 </tr>
 </thead><tbody>
 <tr>
-<td>param</td>
+<td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td>JSON object containing all of the attributes for the new user.</td>
+<td><code class="prettyprint">hash:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -788,19 +883,13 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td>An array of errors that caused the request to fail - If the user failed to update, this will explain why.</td>
-</tr>
-<tr>
-<td>header</td>
-<td><code class="prettyprint">Authorization Token</code></td>
-<td>YES</td>
-<td>The authorization token for the current user. This is used to authorize the user.</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td>Newly created user object.</td>
+<td><code class="prettyprint">hash:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -843,19 +932,19 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>header</td>
 <td><code class="prettyprint">Authorization</code></td>
 <td>YES</td>
-<td>User authentication value retrieved from login</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>param</td>
 <td><code class="prettyprint">id</code></td>
 <td>YES</td>
-<td>Server ID of the user to be updated (Included in the URL, does not need to be included as a separate parameter)</td>
+<td><code class="prettyprint">integer</code></td>
 </tr>
 <tr>
-<td>param</td>
+<td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td>JSON object containing the update to change for the user.</td>
+<td><code class="prettyprint">hash:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -888,19 +977,19 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td>An array of errors that caused the request to fail - If the user failed to update, this will explain why.</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
 <td><code class="prettyprint">Authorization Token</code></td>
 <td>YES</td>
-<td>The authorization token for the current user. This is used to authorize the user.</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td>Updated user object.</td>
+<td><code class="prettyprint">hash:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -935,13 +1024,13 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>header</td>
 <td><code class="prettyprint">Authorization</code></td>
 <td>YES</td>
-<td>User authentication value retrieved from login</td>
+<td><code class="prettyprint">string</code></td>
 </tr>
 <tr>
 <td>param</td>
 <td><code class="prettyprint">id</code></td>
 <td>YES</td>
-<td>Server ID of the user to be deleted (Included in the URL, does not need to be included as a separate parameter)</td>
+<td><code class="prettyprint">integer</code></td>
 </tr>
 </tbody></table>
 
@@ -967,7 +1056,636 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td>An array of errors that caused the request to fail - If the user failed to update, this will explain why.</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+</tbody></table>
+
+<h1 id="contacts">Contacts</h1>
+
+<p>Use this endpoint to return the attributes of contacts for the current user.</p>
+
+<h2 id="show">Show</h2>
+
+<p>Returns the data of a single contact.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/contacts/:id</code></p>
+
+<p>This contact must be accessible from the current user, meaning the contact must belong to them or one of their downlines.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/contacts/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"contact"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"user_id"</span>: 1,
+    <span class="s2">"family_name"</span>: <span class="s2">"Smith"</span>,
+    <span class="s2">"given_name"</span>: <span class="s2">"Sarah"</span>,
+    <span class="s2">"phone_number"</span>: <span class="s2">"8011234567"</span>,
+    <span class="s2">"competitive"</span>: <span class="nb">true</span>,
+    <span class="s2">"credible"</span>: <span class="nb">true</span>,
+    <span class="s2">"kids"</span>: <span class="nb">false</span>,
+    <span class="s2">"homeowner"</span>: <span class="nb">false</span>,
+    <span class="s2">"hungry"</span>: <span class="nb">true</span>,
+    <span class="s2">"income_over_40k"</span>: <span class="nb">false</span>,
+    <span class="s2">"married"</span>: <span class="nb">true</span>,
+    <span class="s2">"motivated"</span>: <span class="nb">true</span>,
+    <span class="s2">"proper_age"</span>: <span class="nb">true</span>,
+    <span class="s2">"people_skills"</span>: <span class="nb">true</span>,
+    <span class="s2">"rating"</span>: 7,
+    <span class="s2">"recruit_rating"</span>: 4,
+    <span class="s2">"credibility_rating"</span>: 3,
+    <span class="s2">"imported"</span>: <span class="nb">false</span>,
+    <span class="s2">"firebase_ref"</span>: <span class="s2">"https://activitymaximizer.firebaseio.com/contacts/zzz123123asdasd123123asdd/SarahSmith"</span>,
+    <span class="s2">"created_at"</span>: <span class="s2">"2018-01-10 01:03:47 AM"</span>,
+    <span class="s2">"updated_at"</span>: <span class="s2">"2018-01-10 01:03:47 AM"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">user_id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">family_name</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">given_name</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">phone_number</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">competitive</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">credible</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">kids</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">homeowner</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">hungry</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">income_over_40k</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">married</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">motivated</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">proper_age</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">people_skills</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">rating</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">recruit_rating</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">credibility_rating</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">imported</code></td>
+<td>YES</td>
+<td><code class="prettyprint">boolean</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">firebase_ref</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">created_at</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">updated_at</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="index">Index</h2>
+
+<p>Returns an array of all contacts viewable by the current user.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/contacts</code></p>
+
+<p>Only contacts who the current user is able to access are returned:
+Contacts belonging to the current user or any user lower in the hierarchy.</p>
+
+<p>This endpoint is paginated, meaning only a maximum of <code class="prettyprint">per</code> contacts are returned.
+By passing in <code class="prettyprint">page</code>, you can select which group of contacts are returned.</p>
+
+<p>By passing <code class="prettyprint">user_ids</code> (Array) or <code class="prettyprint">user_id</code> (Integer), the endpoint will only return contacts belonging to the requested users.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/contacts"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_id</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_ids</code></td>
+<td>NO</td>
+<td><code class="prettyprint">array&lt;integer&gt;</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">page</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">1</code>)</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">per</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">25</code>)</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">all</code></td>
+<td>NO</td>
+<td><code class="prettyprint">boolean</code> (Default: <code class="prettyprint">false</code>)</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"contacts"</span>:[  
+    <span class="o">{</span>  
+      <span class="s2">"id"</span>:4335,
+      ...
+    <span class="o">}</span>,
+    <span class="o">{</span>  
+      <span class="s2">"id"</span>:2,
+      ...
+    <span class="o">}</span>,
+    <span class="o">{</span>  
+      <span class="s2">"id"</span>:4,
+      ...
+    <span class="o">}</span>
+  <span class="o">]</span>,
+  <span class="s2">"meta"</span>:<span class="o">{</span>...<span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">contacts</code></td>
+<td>YES</td>
+<td><code class="prettyprint">array&lt;hash:contactJson&gt;</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">meta</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:meta</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="create">Create</h2>
+
+<p>Creates a new contact for the current user</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://maxactivity.com/api/v1/contacts</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST <span class="s2">"https://maxactivity.com/api/v1/contacts"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+  -d <span class="s2">"contact[family_name]=Smith"</span>
+  -d <span class="s2">"contact[given_name]=Sarah"</span>
+
+<span class="c"># This is the equivalent of:</span>
+<span class="o">{</span>
+  <span class="s2">"contact"</span>: <span class="o">{</span>
+    <span class="s2">"given_name"</span>: <span class="s2">"Sarah"</span>,
+    <span class="s2">"given_name"</span>: <span class="s2">"Smith"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">contact</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:contactJson</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"contact"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"given_name"</span>: <span class="s2">"Sarah"</span>
+    <span class="s2">"family_name"</span>: <span class="s2">"Smith"</span>,
+    ...
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">contact</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:contactJson</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="update">Update</h2>
+
+<p>Updates a contact.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">PATCH/PUT https://maxactivity.com/api/v1/contacts/:id</code></p>
+
+<p>Can only update contacts that belong to the current user</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X PATCH <span class="s2">"https://maxactivity.com/api/v1/contacts/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+  -d <span class="s2">"contact[given_name]=Frederick"</span>
+
+<span class="c"># This is the equivalent of:</span>
+<span class="o">{</span>
+  <span class="s2">"contact"</span>: <span class="o">{</span>
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">contact</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:contactJson</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"contact"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
+    ...
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">contact</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:contactJson</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="destroy">Destroy</h2>
+
+<p>Removes a contact</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">DELETE https://maxactivity.com/api/v1/contacts/:id</code></p>
+
+<p>May only delete contacts that belong to the current user.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X DELETE <span class="s2">"https://maxactivity.com/api/v1/contacts/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+
+<span class="c"># No response is returned after deleting an object.</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
 </tr>
 </tbody></table>
 
