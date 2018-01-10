@@ -341,6 +341,55 @@ The message should cover both the unknown email/password combo as well as a shor
 Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
 </aside>
 
+<h2 id="password-reset">Password Reset</h2>
+
+<p>This endpoint is used to trigger a password reset email for users who have forgotten their password</p>
+
+<p>You can submit an email address OR a solution number. If found in the database, we will deliver a password reset to the email we have on file for that particular user.</p>
+
+<p>This endpoint will ALWAYS return a 200, regardless of if the email is actually sent or the email actually exists within our database. This is a common principle to prevent malicious users from sending batches of emails and figuring out which emails we have in our database.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://maxactivity.com/api/v1/password_reset</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST <span class="s2">"https://maxactivity.com/api/v1/password_reset"</span>
+  -d <span class="s2">"email=xxxxx"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">email</code></td>
+<td>NO</td>
+<td>Email Address</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">solution_number</code></td>
+<td>NO</td>
+<td>Solution Number</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+</code></pre>
+
 <h1 id="users">Users</h1>
 
 <p>Use this endpoint to return the attributes of users. This includes the ids of their related associations.</p>
