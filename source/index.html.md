@@ -92,6 +92,15 @@ Generally, when interacting with maxactivity.com, any time something goes wrong,
 
 You can read more about status codes [Here](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
 
+### Formats
+
+`timestamp`s are always returned as strings in UTC with the format:
+
+`YYYY-MM-DD HH:MM:SS P`
+
+Example: `2018-01-09 08:30:47 PM`
+
+
 ### Pagination
 
 All requests that return more than a single resource will be paginated. Pagination means the results are given in "pages", to prevent a massive request being sent when only a few results are desired.
@@ -263,9 +272,9 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | An array of errors that caused the request to fail
-header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
-json | `user` | YES | Data hash of data from the user.
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `user` | YES | `hash:userJson`
 
 <aside class="warning">
 Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
@@ -294,8 +303,8 @@ curl -X POST "https://maxactivity.com/api/v1/password_reset"
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-param | `email` | NO | Email Address
-param | `solution_number` | NO | Solution Number
+param | `email` | NO | `string`
+param | `solution_number` | NO | `string`
 
 > Response - Success
 
@@ -305,7 +314,7 @@ status 200 - OK
 
 # Users
 
-Use this endpoint to return the attributes of users. This includes the ids of their related associations.
+Use this endpoint to return the attributes of users.
 
 ## Show
 
@@ -328,8 +337,8 @@ curl -X GET "https://maxactivity.com/api/v1/users/4336"
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-header | `Authorization` | YES | User authentication value retrieved from login
-param | `id` | YES | Server ID of the user to be returned (Included in the URL, does not need to be included as a separate parameter)
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
 
 > Response - Success
 
@@ -366,25 +375,25 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | An array of errors that caused the request to fail
-header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
-json | `id` | YES | Server id for the user.
-json | `upline_id` | YES | Server id of the user's upline - MAY BE `null`
-json | `trainer_id` | YES | Server id of the user's trainer - MAY BE `null`
-json | `downline_ids` | YES | An array of all ids of each of the user's baseshop (Recurring downlines)
-json | `email` | YES |
-json | `given_name` | YES |
-json | `family_name` | YES |
-json | `phone_number` | YES |
-json | `profile_picture_url` | YES |
-json | `state` | YES |
-json | `solution_number` | YES |
-json | `is_rvp` | YES |
-json | `firebase_id` | YES |
-json | `firebase_ref` | YES |
-json | `created_at` | YES | Timestamp in the format `%Y-%m-%d %I:%M:%S %p`
-json | `updated_at` | YES | Timestamp in the format `%Y-%m-%d %I:%M:%S %p`
-json | `current_speed` | YES | Calculated current speed of the user
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `id` | YES | `integer`
+json | `upline_id` | YES | `integer` (nullable)
+json | `trainer_id` | YES | `integer` (nullable)
+json | `downline_ids` | YES | `array<integer>`
+json | `email` | YES | `string`
+json | `given_name` | YES | `string`
+json | `family_name` | YES | `string`
+json | `phone_number` | YES | `string`
+json | `profile_picture_url` | YES | `string`
+json | `state` | YES | `string`
+json | `solution_number` | YES | `string`
+json | `is_rvp` | YES | `boolean`
+json | `firebase_id` | YES | `string`
+json | `firebase_ref` | YES | `string`
+json | `created_at` | YES | `timestamp`
+json | `updated_at` | YES | `timestamp`
+json | `current_speed` | YES | `integer`
 
 ## Index
 
@@ -398,7 +407,9 @@ Only users who the current user is able to access are returned:
 Upline, Trainer, and all downlines are available.
 
 This endpoint is paginated, meaning only a maximum of `per` users are returned.
-By passing in `page`, you can select which group of uses are returned.
+By passing in `page`, you can select which group of users are returned.
+
+By passing `user_ids`, the endpoint will only return the included users.
 
 > Example request
 
@@ -411,11 +422,11 @@ curl -X GET "https://maxactivity.com/api/v1/users"
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-header | `Authorization` | YES | User authentication value retrieved from login
-param | `user_ids` | NO | Array of specific user ids to request.
-param | `page` | NO | Default: 1 - Page of users to return based on `per`
-param | `per` | NO | Default: 25 - Number of users to return per `page`
-param | `all` | NO | Default: false - When passed as `true`, will not paginate users and will return all of them regardless of the number.
+header | `Authorization` | YES | `string`
+param | `user_ids` | NO | `array<integer>`
+param | `page` | NO | `integer` (Default: `1`)
+param | `per` | NO | `integer` (Default: `25`)
+param | `all` | NO | `boolean` (Default: `false`)
 
 > Response - Success
 
@@ -428,19 +439,17 @@ status 200 - OK
     {  
       "id":4335,
       ...
-      "current_speed":0
     },
     {  
       "id":2,
       ...
-      "current_speed":0
     },
     {  
       "id":4,
       ...
-      "current_speed":0
     }
-  ]
+  ],
+  "meta":{...}
 }
 ```
 
@@ -448,9 +457,10 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | An array of errors that caused the request to fail
-header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
-json | `users` | YES | Array of requested users, each object contains the full data returned by the `show` endpoint
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `users` | YES | `array<hash:userJson>`
+json | `meta` | YES | `hash:meta`
 
 ## Create
 
@@ -484,7 +494,7 @@ curl -X POST "https://maxactivity.com/api/v1/users"
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-param | `user` | YES | JSON object containing all of the attributes for the new user.
+json | `user` | YES | `hash:userJson`
 
 > Response - Success
 
@@ -506,9 +516,8 @@ status 201 - Created
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | An array of errors that caused the request to fail - If the user failed to update, this will explain why.
-header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
-json | `user` | YES | Newly created user object.
+json | `errors` | NO | `hash:array<string>`
+json | `user` | YES | `hash:userJson`
 
 ## Update
 
@@ -539,9 +548,9 @@ curl -X PATCH "https://maxactivity.com/api/v1/users/4336"
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-header | `Authorization` | YES | User authentication value retrieved from login
-param | `id` | YES | Server ID of the user to be updated (Included in the URL, does not need to be included as a separate parameter)
-param | `user` | YES | JSON object containing the update to change for the user.
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+json | `user` | YES | `hash:userJson`
 
 > Response - Success
 
@@ -562,9 +571,9 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | An array of errors that caused the request to fail - If the user failed to update, this will explain why.
-header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
-json | `user` | YES | Updated user object.
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `user` | YES | `hash:userJson`
 
 ## Destroy
 
@@ -587,8 +596,8 @@ curl -X DELETE "https://maxactivity.com/api/v1/users/4336"
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-header | `Authorization` | YES | User authentication value retrieved from login
-param | `id` | YES | Server ID of the user to be deleted (Included in the URL, does not need to be included as a separate parameter)
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
 
 > Response - Success
 
@@ -602,4 +611,345 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | An array of errors that caused the request to fail - If the user failed to update, this will explain why.
+json | `errors` | NO | `hash:array<string>`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Contacts
+
+Use this endpoint to return the attributes of contacts for the current user.
+
+## Show
+
+Returns the data of a single contact.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/contacts/:id`
+
+This contact must be accessible from the current user, meaning the contact must belong to them or one of their downlines.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/contacts/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "contact":{  
+    "id": 4336,
+    "user_id": 1,
+    "family_name": "Smith",
+    "given_name": "Sarah",
+    "phone_number": "8011234567",
+    "competitive": true,
+    "credible": true,
+    "kids": false,
+    "homeowner": false,
+    "hungry": true,
+    "income_over_40k": false,
+    "married": true,
+    "motivated": true,
+    "proper_age": true,
+    "people_skills": true,
+    "rating": 7,
+    "recruit_rating": 4,
+    "credibility_rating": 3,
+    "imported": false,
+    "firebase_ref": "https://activitymaximizer.firebaseio.com/contacts/zzz123123asdasd123123asdd/SarahSmith",
+    "created_at": "2018-01-10 01:03:47 AM",
+    "updated_at": "2018-01-10 01:03:47 AM"
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `id` | YES | `integer`
+json | `user_id` | YES | `integer`
+json | `family_name` | YES | `string`
+json | `given_name` | YES | `string`
+json | `phone_number` | YES | `string`
+json | `competitive` | YES | `boolean`
+json | `credible` | YES | `boolean`
+json | `kids` | YES | `boolean`
+json | `homeowner` | YES | `boolean`
+json | `hungry` | YES | `boolean`
+json | `income_over_40k` | YES | `boolean`
+json | `married` | YES | `boolean`
+json | `motivated` | YES | `boolean`
+json | `proper_age` | YES | `boolean`
+json | `people_skills` | YES | `boolean`
+json | `rating` | YES | `integer`
+json | `recruit_rating` | YES | `integer`
+json | `credibility_rating` | YES | `integer`
+json | `imported` | YES | `boolean`
+json | `firebase_ref` | YES | `string`
+json | `created_at` | YES | `timestamp`
+json | `updated_at` | YES | `timestamp`
+
+## Index
+
+Returns an array of all contacts viewable by the current user.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/contacts`
+
+Only contacts who the current user is able to access are returned:
+Contacts belonging to the current user or any user lower in the hierarchy.
+
+This endpoint is paginated, meaning only a maximum of `per` contacts are returned.
+By passing in `page`, you can select which group of contacts are returned.
+
+By passing `user_ids` (Array) or `user_id` (Integer), the endpoint will only return contacts belonging to the requested users.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/contacts"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `user_id` | NO | `integer`
+param | `user_ids` | NO | `array<integer>`
+param | `page` | NO | `integer` (Default: `1`)
+param | `per` | NO | `integer` (Default: `25`)
+param | `all` | NO | `boolean` (Default: `false`)
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "contacts":[  
+    {  
+      "id":4335,
+      ...
+    },
+    {  
+      "id":2,
+      ...
+    },
+    {  
+      "id":4,
+      ...
+    }
+  ],
+  "meta":{...}
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `contacts` | YES | `array<hash:contactJson>`
+json | `meta` | YES | `hash:meta`
+
+## Create
+
+Creates a new contact for the current user
+
+### HTTP Request
+
+`POST https://maxactivity.com/api/v1/contacts`
+
+> Example request
+
+```shell
+curl -X POST "https://maxactivity.com/api/v1/contacts"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "contact[family_name]=Smith"
+  -d "contact[given_name]=Sarah"
+
+# This is the equivalent of:
+{
+  "contact": {
+    "given_name": "Sarah",
+    "given_name": "Smith"
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `contact` | YES | `hash:contactJson`
+
+> Response - Success
+
+```shell
+status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "contact":{  
+    "id": 4336,
+    "given_name": "Sarah"
+    "family_name": "Smith",
+    ...
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `contact` | YES | `hash:contactJson`
+
+## Update
+
+Updates a contact.
+
+### HTTP Request
+
+`PATCH/PUT https://maxactivity.com/api/v1/contacts/:id`
+
+Can only update contacts that belong to the current user
+
+> Example request
+
+```shell
+curl -X PATCH "https://maxactivity.com/api/v1/contacts/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "contact[given_name]=Frederick"
+
+# This is the equivalent of:
+{
+  "contact": {
+    "given_name": "Frederick"
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+json | `contact` | YES | `hash:contactJson`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "contact":{  
+    "id": 4336,
+    "given_name": "Frederick"
+    ...
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `contact` | YES | `hash:contactJson`
+
+## Destroy
+
+Removes a contact
+
+### HTTP Request
+
+`DELETE https://maxactivity.com/api/v1/contacts/:id`
+
+May only delete contacts that belong to the current user.
+
+> Example request
+
+```shell
+curl -X DELETE "https://maxactivity.com/api/v1/contacts/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+
+# No response is returned after deleting an object.
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`

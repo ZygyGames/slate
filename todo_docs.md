@@ -22,7 +22,7 @@ curl -X GET "https://maxactivity.com/api/v1/..."
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-header | `Authorization` | YES | User authentication value retrieved from login
+header | `Authorization` | YES | `string`
 param | `param` | NO | Array of specific user ids to request.
 
 > Response - Success
@@ -42,8 +42,8 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | An array of errors that caused the request to fail
-header | `Authorization Token` | YES | The authorization token for the current user. This is used to authorize the user.
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
 
 <aside class="warning">
 Remember — Store the `Authorization-Code` in-app and over-write it every time a user logs in!
