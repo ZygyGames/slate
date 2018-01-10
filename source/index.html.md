@@ -28,6 +28,109 @@ All of the examples will be given in `curl` (for Requests TO the server) and `JS
 
 This is to retain a consistent syntax, since `curl` is easy to read and understand.
 
+## Basic details about requests
+
+> Successful Response Status Codes
+
+```shell
+status 200 - OK
+# This status states that everything went according to plan and things are good.
+# This is the most common status.
+
+status 201 - Created
+# This status states that an object was successfully created.
+```
+
+> Failure Response Status Codes
+
+```shell
+
+status 400 - Bad Request
+{
+  "errors": ["param is missing or the value is empty: user"]
+}
+# This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.
+
+status - 401 Unauthorized
+{
+  "errors": ["Invalid email or password."]
+}
+# This error can occur whenever a user enters a bad email/password upon logging in, or when a password changes causes their authorization token to become invalid.
+# At that point, a user should be logged out immediately.
+
+status - 403 Forbidden
+{
+  "errors": ["You are not authorized to do that."]
+}
+# This error occurs if you attempt to make a request that the current user does not have access to- for example, attempting to view somebody not on their team.
+
+status - 406 Not Acceptable
+{
+  "errors": ["User must set password - Server will deliver email to entered email address."]
+}
+# This is a special error alerting the app that this user has not set up their password on the migrated server yet. It should be handled the same as a 401, either logging the user out or displaying an invalid email/password error.
+
+status 500 - Server Error
+{
+  "errors": ["Something went wrong."]
+}
+# If a 500 is returned, it means something went wrong on the server side. This should be reported, when possible as it generally means there is a crash.
+
+status 502 - Bad Gateway (Could not connect to server)
+# (No response)
+# This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.
+```
+
+The basic response codes are shown on the right. These status codes are the HTTP statuses that are made.
+Generally, when interacting with maxactivity.com, any time something goes wrong, you will receive a response in the form of a hash/dictionary/associative array with a single key, `errors`. The value for that key is an array of human-readable messages. **These messages are NOT for display to users, but to be used for debugging.** Each endpoint should have custom error messages written in the app to display to the user.
+
+* 1xx: **Information** (Unused)
+* 2xx: **Success** - Everything went according to plan
+* 3xx: **Redirect** - The url you hit is no longer officially supported and you are being automatically redirected to a different url.
+* 4xx: **Client Error** - Something was wrong with the request- generally this means you forgot a required parameter, but could also be an invalid url, requesting an object you don't have permission to view, or otherwise doing something outside of your permissions.
+* 5xx: **Server Error** - Something went wrong with the server. This could be a bug in the code or that the server is down. Generally these mean something is going REALLY wrong.
+
+You can read more about status codes [Here](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
+
+### Pagination
+
+All requests that return more than a single resource will be paginated. Pagination means the results are given in "pages", to prevent a massive request being sent when only a few results are desired.
+
+**Request**
+
+There are 3 key parameters in pagination. `page`, `per`, and `all`
+
+Defaults:
+
+Param | Default | Description
+---- | --------- | ---------
+page | `1` | Which "page" of objects to return.
+per | `25` | How many objects to return per page.
+all | `false` | When set to `true`, pagination is not applied and all results are returned. (Not recommended unless you know the request does not have a lot of objects.)
+
+For example, when `page: 2, per: 50` is given in the parameters, you will receive objects in the list between indices `51-100` (Page 1 would be `1-50` since `per` is set to return 50 objects at a time)
+
+**Response**
+
+Any time you make a request to an endpoint that returns paginated objects, the `meta` data in your response will contain details about the paginated objects.
+
+```shell
+Example response with pagination meta details
+{
+  "users": [{...}, {...}, {...}],
+  "meta": {
+    "total_count": 512,
+    "total_pages": 11,
+    "page": 2, # Current page
+    "next_page": 3, # Null on the last page
+    "prev_page": 1, # Null on the first page
+    "per": 50,
+  }
+}
+```
+
+An example response might look like this:
+
 # Curl
 
 ## What is `curl`?
@@ -89,46 +192,6 @@ You can also use `--data-urlencode` to include params, but only 1 param can be a
 
 # Authentication
 
-> Failure responses
-
-```shell
-
-status 400 - Bad Request
-{
-  "errors": ["param is missing or the value is empty: user"]
-}
-# This error states that something went wrong with parsing the params that were passed in. Generally, it's because the params were not nested under the resource name that they are updating.
-
-status - 401 Unauthorized
-{
-  "errors": ["Invalid email or password."]
-}
-# This error can occur whenever a user enters a bad email/password upon logging in, or when a password changes causes their authorization token to become invalid.
-# At that point, a user should be logged out immediately.
-
-status - 403 Forbidden
-{
-  "errors": ["You are not authorized to do that."]
-}
-# This error occurs if you attempt to make a request that the current user does not have access to- for example, attempting to view somebody not on their team.
-
-status - 406 Not Acceptable
-{
-  "errors": ["User must set password - Server will deliver email to entered email address."]
-}
-# This is a special error alerting the app that this user has not set up their password on the migrated server yet. It should be handled the same as a 401, either logging the user out or displaying an invalid email/password error.
-
-status 500 - Server Error
-{
-  "errors": ["Something went wrong."]
-}
-# If a 500 is returned, it means something went wrong on the server side. This should be reported, when possible as it generally means there is a crash.
-
-status 502 - Bad Gateway (Could not connect to server)
-# (No response)
-# This error generally occurs while the server is restarting, but informs the app that the server could not be reached for some reason or another.
-```
-
 In order to authenticate with endpoints that require a signed in user, you must pass the authentication token that belongs to the user. You must "login" to retrieve that token using an email/password combination.
 
 Any time that the server responds with a `401` status code, the user should be logged out of the current session and asked to sign in again. The only time this should happen is if they change their password.
@@ -139,7 +202,7 @@ Errors will always be return in the format of an array, although most of the tim
 
 This endpoint authorizes a user.
 
-<aside class="success">
+<aside class="notice">
 Note: We should use a generic message for both failure cases. This is to prevent a malicious user entering dozens of emails and figuring out which emails have accounts.
 
 The message should cover both the unknown email/password combo as well as a short message describing the password change.
