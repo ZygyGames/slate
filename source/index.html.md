@@ -135,7 +135,6 @@ Any time that the server responds with a `401` status code, the user should be l
 
 Errors will always be return in the format of an array, although most of the time there will only be 1 error shown.
 
-
 ## Login
 
 This endpoint authorizes a user.
@@ -208,6 +207,38 @@ json | `user` | YES | Data hash of data from the user.
 <aside class="warning">
 Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
 </aside>
+
+## Password Reset
+
+This endpoint is used to trigger a password reset email for users who have forgotten their password
+
+You can submit an email address OR a solution number. If found in the database, we will deliver a password reset to the email we have on file for that particular user.
+
+This endpoint will ALWAYS return a 200, regardless of if the email is actually sent or the email actually exists within our database. This is a common principle to prevent malicious users from sending batches of emails and figuring out which emails we have in our database.
+
+### HTTP Request
+
+`POST https://maxactivity.com/api/v1/password_reset`
+
+> Example request
+
+```shell
+curl -X POST "https://maxactivity.com/api/v1/password_reset"
+  -d "email=xxxxx"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+param | `email` | NO | Email Address
+param | `solution_number` | NO | Solution Number
+
+> Response - Success
+
+```shell
+status 200 - OK
+```
 
 # Users
 
