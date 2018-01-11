@@ -126,7 +126,7 @@ Any time you make a request to an endpoint that returns paginated objects, the `
 ```shell
 Example response with pagination meta details
 {
-  "users": [{...}, {...}, {...}],
+  "users": [{}, {}, {}],
   "meta": {
     "total_count": 512,
     "total_pages": 11,
@@ -263,7 +263,7 @@ status 200 - OK
 {  
   "user":{  
     "id": 4336,
-    ...
+    "..."
   }
 }
 ```
@@ -362,8 +362,6 @@ status 200 - OK
     "state":"UT - Utah",
     "solution_number":"xupr7",
     "is_rvp":false,
-    "firebase_id":"00XzzxIXXKbwpyBT81KT9qvPKxZ2",
-    "firebase_ref":"https://activitymaximizer.firebaseio.com/users/00XzzxIXXKbwpyBT81KT9qvPKxZ2",
     "created_at":"2018-01-05 12:02:50 AM",
     "updated_at":"2018-01-06 07:30:42 PM"
     "current_speed":0
@@ -389,8 +387,6 @@ json | `profile_picture_url` | YES | `string`
 json | `state` | YES | `string`
 json | `solution_number` | YES | `string`
 json | `is_rvp` | YES | `boolean`
-json | `firebase_id` | YES | `string`
-json | `firebase_ref` | YES | `string`
 json | `created_at` | YES | `timestamp`
 json | `updated_at` | YES | `timestamp`
 json | `current_speed` | YES | `integer`
@@ -409,7 +405,11 @@ Upline, Trainer, and all downlines are available.
 This endpoint is paginated, meaning only a maximum of `per` users are returned.
 By passing in `page`, you can select which group of users are returned.
 
-By passing `user_ids`, the endpoint will only return the included users.
+**Filterable Options**
+
+`last_sync` pass in a timestamp to return only the objects updated later than the requested date
+
+`user_ids`, the endpoint will only return the included users.
 
 > Example request
 
@@ -424,6 +424,7 @@ Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `Authorization` | YES | `string`
 param | `user_ids` | NO | `array<integer>`
+param | `last_sync` | NO | `timestamp`
 param | `page` | NO | `integer` (Default: `1`)
 param | `per` | NO | `integer` (Default: `25`)
 param | `all` | NO | `boolean` (Default: `false`)
@@ -435,21 +436,8 @@ status 200 - OK
 -H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
 {  
-  "users":[  
-    {  
-      "id":4335,
-      ...
-    },
-    {  
-      "id":2,
-      ...
-    },
-    {  
-      "id":4,
-      ...
-    }
-  ],
-  "meta":{...}
+  "users":[{}, {}, {}],
+  "meta": {}
 }
 ```
 
@@ -506,8 +494,8 @@ status 201 - Created
   "user":{  
     "id": 4336,
     "email": "fredericksmith@email.com",
-    "given_name": "Frederick"
-    ...
+    "given_name": "Frederick",
+    "..."
   }
 }
 ```
@@ -561,8 +549,8 @@ status 200 - OK
 {  
   "user":{  
     "id": 4336,
-    "given_name": "Frederick"
-    ...
+    "given_name": "Frederick",
+    "..."
   }
 }
 ```
@@ -613,38 +601,6 @@ Type | Key | Success? | Description
 ---- | --- | -------- | -----------
 json | `errors` | NO | `hash:array<string>`
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Contacts
 
 Use this endpoint to return the attributes of contacts for the current user.
@@ -683,8 +639,8 @@ status 200 - OK
   "contact":{  
     "id": 4336,
     "user_id": 1,
-    "family_name": "Smith",
     "given_name": "Sarah",
+    "family_name": "Smith",
     "phone_number": "8011234567",
     "competitive": true,
     "credible": true,
@@ -700,7 +656,6 @@ status 200 - OK
     "recruit_rating": 4,
     "credibility_rating": 3,
     "imported": false,
-    "firebase_ref": "https://activitymaximizer.firebaseio.com/contacts/zzz123123asdasd123123asdd/SarahSmith",
     "created_at": "2018-01-10 01:03:47 AM",
     "updated_at": "2018-01-10 01:03:47 AM"
   }
@@ -732,7 +687,6 @@ json | `rating` | YES | `integer`
 json | `recruit_rating` | YES | `integer`
 json | `credibility_rating` | YES | `integer`
 json | `imported` | YES | `boolean`
-json | `firebase_ref` | YES | `string`
 json | `created_at` | YES | `timestamp`
 json | `updated_at` | YES | `timestamp`
 
@@ -750,7 +704,13 @@ Contacts belonging to the current user or any user lower in the hierarchy.
 This endpoint is paginated, meaning only a maximum of `per` contacts are returned.
 By passing in `page`, you can select which group of contacts are returned.
 
-By passing `user_ids` (Array) or `user_id` (Integer), the endpoint will only return contacts belonging to the requested users.
+**Filterable Options**
+
+`last_sync` pass in a timestamp to return only the objects updated later than the requested date
+
+`contact_ids` (Array), only return the contacts requested.
+
+`user_ids` (Array) or `user_id` (Integer), the endpoint will only return contacts belonging to the requested users.
 
 > Example request
 
@@ -766,6 +726,7 @@ Type | Parameter | Required? | Description
 header | `Authorization` | YES | `string`
 param | `user_id` | NO | `integer`
 param | `user_ids` | NO | `array<integer>`
+param | `last_sync` | NO | `timestamp`
 param | `page` | NO | `integer` (Default: `1`)
 param | `per` | NO | `integer` (Default: `25`)
 param | `all` | NO | `boolean` (Default: `false`)
@@ -777,21 +738,8 @@ status 200 - OK
 -H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
 {  
-  "contacts":[  
-    {  
-      "id":4335,
-      ...
-    },
-    {  
-      "id":2,
-      ...
-    },
-    {  
-      "id":4,
-      ...
-    }
-  ],
-  "meta":{...}
+  "contacts":[{}, {}, {}],
+  "meta":{}
 }
 ```
 
@@ -847,7 +795,7 @@ status 201 - Created
     "id": 4336,
     "given_name": "Sarah"
     "family_name": "Smith",
-    ...
+    "..."
   }
 }
 ```
@@ -902,8 +850,8 @@ status 200 - OK
 {  
   "contact":{  
     "id": 4336,
-    "given_name": "Frederick"
-    ...
+    "given_name": "Frederick",
+    "..."
   }
 }
 ```
@@ -930,6 +878,298 @@ May only delete contacts that belong to the current user.
 
 ```shell
 curl -X DELETE "https://maxactivity.com/api/v1/contacts/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+
+# No response is returned after deleting an object.
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Lists
+
+Use this endpoint to return the attributes of lists for the current user.
+
+## Show
+
+Returns the data of a single list.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/lists/:id`
+
+This list must be accessible from the current user, meaning the list must belong to them or one of their downlines.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/lists/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "list":{  
+    "id": 4336,
+    "user_id": 1,
+    "name": "Cool People",
+    "contact_ids": [1, 2, 3],
+    "created_at": "2018-01-10 01:03:47 AM",
+    "updated_at": "2018-01-10 01:03:47 AM"
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `id` | YES | `integer`
+json | `user_id` | YES | `integer`
+json | `name` | YES | `string`
+json | `contact_ids` | YES | `array<integer>`
+json | `created_at` | YES | `timestamp`
+json | `updated_at` | YES | `timestamp`
+
+## Index
+
+Returns an array of all lists viewable by the current user.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/lists`
+
+Only lists who the current user is able to access are returned:
+Lists belonging to the current user or any user lower in the hierarchy.
+
+This endpoint is paginated, meaning only a maximum of `per` lists are returned.
+By passing in `page`, you can select which group of lists are returned.
+
+**Filterable Options**
+
+`last_sync` pass in a timestamp to return only the objects updated later than the requested date
+
+`contact_ids` (Array) or `contact_id` (Integer), the endpoint will only return lists containing the requested contacts.
+
+`list_ids` to only return lists with the passed ids
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/lists"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `user_id` | NO | `integer`
+param | `user_ids` | NO | `array<integer>`
+param | `last_sync` | NO | `timestamp`
+param | `page` | NO | `integer` (Default: `1`)
+param | `per` | NO | `integer` (Default: `25`)
+param | `all` | NO | `boolean` (Default: `false`)
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "lists":[{}, {}, {}],
+  "meta":{}
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `lists` | YES | `array<hash:listJson>`
+json | `meta` | YES | `hash:meta`
+
+## Create
+
+Creates a new list for the current user
+
+### HTTP Request
+
+`POST https://maxactivity.com/api/v1/lists`
+
+> Example request
+
+```shell
+curl -X POST "https://maxactivity.com/api/v1/lists"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "list[name]=Cool%20People"
+
+# This is the equivalent of:
+{
+  "list": {
+    "name": "Cool People"
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `list` | YES | `hash:listJson`
+
+> Response - Success
+
+```shell
+status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "list":{  
+    "id": 4336,
+    "name": "Cool People"
+    "..."
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `list` | YES | `hash:listJson`
+
+## Update
+
+Updates a list.
+
+### HTTP Request
+
+`PATCH/PUT https://maxactivity.com/api/v1/lists/:id`
+
+Can only update lists that belong to the current user
+
+> Example request
+
+```shell
+curl -X PATCH "https://maxactivity.com/api/v1/lists/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "list[name]=Cool%20People"
+
+# This is the equivalent of:
+{
+  "list": {
+    "name": "Cool People"
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+json | `list` | YES | `hash:listJson`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "list":{  
+    "id": 4336,
+    "name": "Cool People",
+    "..."
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `list` | YES | `hash:listJson`
+
+## Destroy
+
+Removes a list
+
+### HTTP Request
+
+`DELETE https://maxactivity.com/api/v1/lists/:id`
+
+May only delete lists that belong to the current user.
+
+> Example request
+
+```shell
+curl -X DELETE "https://maxactivity.com/api/v1/lists/4336"
   -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
 ```
 
