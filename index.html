@@ -2177,6 +2177,554 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 </tr>
 </tbody></table>
 
+<h1 id="events">Events</h1>
+
+<p>Use this endpoint to return the attributes of events for the current user.</p>
+
+<h2 id="show">Show</h2>
+
+<p>Returns the data of a single event.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/events/:id</code></p>
+
+<p>This event must be accessible from the current user, meaning the event must belong to them or one of their downlines.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/events/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"event"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"user_id"</span>: 1,
+    <span class="s2">"contact_id"</span>: 4,
+    <span class="s2">"amount"</span>: 1000,
+    <span class="s2">"event_type"</span>: <span class="s2">"Appointment to Close Life"</span>,
+    <span class="s2">"event_kit_id"</span>: null,
+    <span class="s2">"date"</span>: <span class="s2">"2017-09-08"</span>,
+    <span class="s2">"created_at"</span>: <span class="s2">"2017-09-09 12:20:05 AM"</span>,
+    <span class="s2">"updated_at"</span>: <span class="s2">"2017-09-09 12:20:05 AM"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">user_id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">contact_id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">amount</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">event_type</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">event_kit_id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">date</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">created_at</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">updated_at</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="index">Index</h2>
+
+<p>Returns an array of all events viewable by the current user.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/events</code></p>
+
+<p>Only events who the current user is able to access are returned:
+Events belonging to the current user or any user lower in the hierarchy.</p>
+
+<p>This endpoint is paginated, meaning only a maximum of <code class="prettyprint">per</code> events are returned.
+By passing in <code class="prettyprint">page</code>, you can select which group of events are returned.</p>
+
+<p><strong>Filterable Options</strong></p>
+
+<p><code class="prettyprint">last_sync</code> pass in a timestamp to return only the objects updated later than the requested date</p>
+
+<p><code class="prettyprint">contact_ids</code> (Array) or <code class="prettyprint">contact_id</code> (Integer), the endpoint will only return events with the requested contacts.</p>
+
+<p><code class="prettyprint">user_ids</code> (Array) or <code class="prettyprint">user_id</code> (Integer), the endpoint will only return events with the requested users.</p>
+
+<p><code class="prettyprint">event_ids</code> to only return events with the passed ids</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/events"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">contact_id</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">contact_ids</code></td>
+<td>NO</td>
+<td><code class="prettyprint">array&lt;integer&gt;</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_id</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_ids</code></td>
+<td>NO</td>
+<td><code class="prettyprint">array&lt;integer&gt;</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">last_sync</code></td>
+<td>NO</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">page</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">1</code>)</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">per</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">25</code>)</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">all</code></td>
+<td>NO</td>
+<td><code class="prettyprint">boolean</code> (Default: <code class="prettyprint">false</code>)</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"events"</span>:[<span class="o">{}</span>, <span class="o">{}</span>, <span class="o">{}]</span>,
+  <span class="s2">"meta"</span>:<span class="o">{}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">events</code></td>
+<td>YES</td>
+<td><code class="prettyprint">array&lt;hash:eventJson&gt;</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">meta</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:meta</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="create">Create</h2>
+
+<p>Creates a new event for the current user</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://maxactivity.com/api/v1/events</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST <span class="s2">"https://maxactivity.com/api/v1/events"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+  -d <span class="s2">"event[amount]=2000"</span>
+
+<span class="c"># This is the equivalent of:</span>
+<span class="o">{</span>
+  <span class="s2">"event"</span>: <span class="o">{</span>
+    <span class="s2">"amount"</span>: 2000
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">event</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:eventJson</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"event"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"amount"</span>: 2000,
+    <span class="s2">"..."</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">event</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:eventJson</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="update">Update</h2>
+
+<p>Updates a event.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">PATCH/PUT https://maxactivity.com/api/v1/events/:id</code></p>
+
+<p>Can only update events that belong to the current user</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X PATCH <span class="s2">"https://maxactivity.com/api/v1/events/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+  -d <span class="s2">"event[amount]=2000"</span>
+
+<span class="c"># This is the equivalent of:</span>
+<span class="o">{</span>
+  <span class="s2">"event"</span>: <span class="o">{</span>
+    <span class="s2">"amount"</span>: 2000
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">event</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:eventJson</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"event"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"amount"</span>: 2000,
+    <span class="s2">"..."</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">event</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:eventJson</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="destroy">Destroy</h2>
+
+<p>Removes a event</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">DELETE https://maxactivity.com/api/v1/events/:id</code></p>
+
+<p>May only delete events that belong to the current user.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X DELETE <span class="s2">"https://maxactivity.com/api/v1/events/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+
+<span class="c"># No response is returned after deleting an object.</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+</tbody></table>
+
       </div>
       <div class="dark-box">
           <div class="lang-selector">
