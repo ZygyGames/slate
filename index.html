@@ -245,7 +245,7 @@ Generally, when interacting with maxactivity.com, any time something goes wrong,
 <p>Any time you make a request to an endpoint that returns paginated objects, the <code class="prettyprint">meta</code> data in your response will contain details about the paginated objects.</p>
 <pre class="highlight shell"><code>Example response with pagination meta details
 <span class="o">{</span>
-  <span class="s2">"users"</span>: <span class="o">[{</span>...<span class="o">}</span>, <span class="o">{</span>...<span class="o">}</span>, <span class="o">{</span>...<span class="o">}]</span>,
+  <span class="s2">"users"</span>: <span class="o">[{}</span>, <span class="o">{}</span>, <span class="o">{}]</span>,
   <span class="s2">"meta"</span>: <span class="o">{</span>
     <span class="s2">"total_count"</span>: 512,
     <span class="s2">"total_pages"</span>: 11,
@@ -391,7 +391,7 @@ The message should cover both the unknown email/password combo as well as a shor
 <span class="o">{</span>  
   <span class="s2">"user"</span>:<span class="o">{</span>  
     <span class="s2">"id"</span>: 4336,
-    ...
+    <span class="s2">"..."</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
@@ -546,8 +546,6 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
     <span class="s2">"state"</span>:<span class="s2">"UT - Utah"</span>,
     <span class="s2">"solution_number"</span>:<span class="s2">"xupr7"</span>,
     <span class="s2">"is_rvp"</span>:false,
-    <span class="s2">"firebase_id"</span>:<span class="s2">"00XzzxIXXKbwpyBT81KT9qvPKxZ2"</span>,
-    <span class="s2">"firebase_ref"</span>:<span class="s2">"https://activitymaximizer.firebaseio.com/users/00XzzxIXXKbwpyBT81KT9qvPKxZ2"</span>,
     <span class="s2">"created_at"</span>:<span class="s2">"2018-01-05 12:02:50 AM"</span>,
     <span class="s2">"updated_at"</span>:<span class="s2">"2018-01-06 07:30:42 PM"</span>
     <span class="s2">"current_speed"</span>:0
@@ -651,18 +649,6 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 </tr>
 <tr>
 <td>json</td>
-<td><code class="prettyprint">firebase_id</code></td>
-<td>YES</td>
-<td><code class="prettyprint">string</code></td>
-</tr>
-<tr>
-<td>json</td>
-<td><code class="prettyprint">firebase_ref</code></td>
-<td>YES</td>
-<td><code class="prettyprint">string</code></td>
-</tr>
-<tr>
-<td>json</td>
 <td><code class="prettyprint">created_at</code></td>
 <td>YES</td>
 <td><code class="prettyprint">timestamp</code></td>
@@ -695,7 +681,11 @@ Upline, Trainer, and all downlines are available.</p>
 <p>This endpoint is paginated, meaning only a maximum of <code class="prettyprint">per</code> users are returned.
 By passing in <code class="prettyprint">page</code>, you can select which group of users are returned.</p>
 
-<p>By passing <code class="prettyprint">user_ids</code>, the endpoint will only return the included users.</p>
+<p><strong>Filterable Options</strong></p>
+
+<p><code class="prettyprint">last_sync</code> pass in a timestamp to return only the objects updated later than the requested date</p>
+
+<p><code class="prettyprint">user_ids</code>, the endpoint will only return the included users.</p>
 
 <blockquote>
 <p>Example request</p>
@@ -728,6 +718,12 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 </tr>
 <tr>
 <td>param</td>
+<td><code class="prettyprint">last_sync</code></td>
+<td>NO</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>param</td>
 <td><code class="prettyprint">page</code></td>
 <td>NO</td>
 <td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">1</code>)</td>
@@ -753,21 +749,8 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 -H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
 <span class="o">{</span>  
-  <span class="s2">"users"</span>:[  
-    <span class="o">{</span>  
-      <span class="s2">"id"</span>:4335,
-      ...
-    <span class="o">}</span>,
-    <span class="o">{</span>  
-      <span class="s2">"id"</span>:2,
-      ...
-    <span class="o">}</span>,
-    <span class="o">{</span>  
-      <span class="s2">"id"</span>:4,
-      ...
-    <span class="o">}</span>
-  <span class="o">]</span>,
-  <span class="s2">"meta"</span>:<span class="o">{</span>...<span class="o">}</span>
+  <span class="s2">"users"</span>:[<span class="o">{}</span>, <span class="o">{}</span>, <span class="o">{}]</span>,
+  <span class="s2">"meta"</span>: <span class="o">{}</span>
 <span class="o">}</span>
 </code></pre>
 
@@ -863,8 +846,8 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
   <span class="s2">"user"</span>:<span class="o">{</span>  
     <span class="s2">"id"</span>: 4336,
     <span class="s2">"email"</span>: <span class="s2">"fredericksmith@email.com"</span>,
-    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
-    ...
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>,
+    <span class="s2">"..."</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
@@ -957,8 +940,8 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <span class="o">{</span>  
   <span class="s2">"user"</span>:<span class="o">{</span>  
     <span class="s2">"id"</span>: 4336,
-    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
-    ...
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>,
+    <span class="s2">"..."</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
@@ -1115,8 +1098,8 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
   <span class="s2">"contact"</span>:<span class="o">{</span>  
     <span class="s2">"id"</span>: 4336,
     <span class="s2">"user_id"</span>: 1,
-    <span class="s2">"family_name"</span>: <span class="s2">"Smith"</span>,
     <span class="s2">"given_name"</span>: <span class="s2">"Sarah"</span>,
+    <span class="s2">"family_name"</span>: <span class="s2">"Smith"</span>,
     <span class="s2">"phone_number"</span>: <span class="s2">"8011234567"</span>,
     <span class="s2">"competitive"</span>: <span class="nb">true</span>,
     <span class="s2">"credible"</span>: <span class="nb">true</span>,
@@ -1132,7 +1115,6 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
     <span class="s2">"recruit_rating"</span>: 4,
     <span class="s2">"credibility_rating"</span>: 3,
     <span class="s2">"imported"</span>: <span class="nb">false</span>,
-    <span class="s2">"firebase_ref"</span>: <span class="s2">"https://activitymaximizer.firebaseio.com/contacts/zzz123123asdasd123123asdd/SarahSmith"</span>,
     <span class="s2">"created_at"</span>: <span class="s2">"2018-01-10 01:03:47 AM"</span>,
     <span class="s2">"updated_at"</span>: <span class="s2">"2018-01-10 01:03:47 AM"</span>
   <span class="o">}</span>
@@ -1277,12 +1259,6 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 </tr>
 <tr>
 <td>json</td>
-<td><code class="prettyprint">firebase_ref</code></td>
-<td>YES</td>
-<td><code class="prettyprint">string</code></td>
-</tr>
-<tr>
-<td>json</td>
 <td><code class="prettyprint">created_at</code></td>
 <td>YES</td>
 <td><code class="prettyprint">timestamp</code></td>
@@ -1309,7 +1285,13 @@ Contacts belonging to the current user or any user lower in the hierarchy.</p>
 <p>This endpoint is paginated, meaning only a maximum of <code class="prettyprint">per</code> contacts are returned.
 By passing in <code class="prettyprint">page</code>, you can select which group of contacts are returned.</p>
 
-<p>By passing <code class="prettyprint">user_ids</code> (Array) or <code class="prettyprint">user_id</code> (Integer), the endpoint will only return contacts belonging to the requested users.</p>
+<p><strong>Filterable Options</strong></p>
+
+<p><code class="prettyprint">last_sync</code> pass in a timestamp to return only the objects updated later than the requested date</p>
+
+<p><code class="prettyprint">contact_ids</code> (Array), only return the contacts requested.</p>
+
+<p><code class="prettyprint">user_ids</code> (Array) or <code class="prettyprint">user_id</code> (Integer), the endpoint will only return contacts belonging to the requested users.</p>
 
 <blockquote>
 <p>Example request</p>
@@ -1348,6 +1330,12 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 </tr>
 <tr>
 <td>param</td>
+<td><code class="prettyprint">last_sync</code></td>
+<td>NO</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>param</td>
 <td><code class="prettyprint">page</code></td>
 <td>NO</td>
 <td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">1</code>)</td>
@@ -1373,21 +1361,8 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 -H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
 <span class="o">{</span>  
-  <span class="s2">"contacts"</span>:[  
-    <span class="o">{</span>  
-      <span class="s2">"id"</span>:4335,
-      ...
-    <span class="o">}</span>,
-    <span class="o">{</span>  
-      <span class="s2">"id"</span>:2,
-      ...
-    <span class="o">}</span>,
-    <span class="o">{</span>  
-      <span class="s2">"id"</span>:4,
-      ...
-    <span class="o">}</span>
-  <span class="o">]</span>,
-  <span class="s2">"meta"</span>:<span class="o">{</span>...<span class="o">}</span>
+  <span class="s2">"contacts"</span>:[<span class="o">{}</span>, <span class="o">{}</span>, <span class="o">{}]</span>,
+  <span class="s2">"meta"</span>:<span class="o">{}</span>
 <span class="o">}</span>
 </code></pre>
 
@@ -1487,7 +1462,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
     <span class="s2">"id"</span>: 4336,
     <span class="s2">"given_name"</span>: <span class="s2">"Sarah"</span>
     <span class="s2">"family_name"</span>: <span class="s2">"Smith"</span>,
-    ...
+    <span class="s2">"..."</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
@@ -1586,8 +1561,8 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <span class="o">{</span>  
   <span class="s2">"contact"</span>:<span class="o">{</span>  
     <span class="s2">"id"</span>: 4336,
-    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>
-    ...
+    <span class="s2">"given_name"</span>: <span class="s2">"Frederick"</span>,
+    <span class="s2">"..."</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
@@ -1636,6 +1611,519 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <p>Example request</p>
 </blockquote>
 <pre class="highlight shell"><code>curl -X DELETE <span class="s2">"https://maxactivity.com/api/v1/contacts/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+
+<span class="c"># No response is returned after deleting an object.</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+</tbody></table>
+
+<h1 id="lists">Lists</h1>
+
+<p>Use this endpoint to return the attributes of lists for the current user.</p>
+
+<h2 id="show">Show</h2>
+
+<p>Returns the data of a single list.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/lists/:id</code></p>
+
+<p>This list must be accessible from the current user, meaning the list must belong to them or one of their downlines.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/lists/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"list"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"user_id"</span>: 1,
+    <span class="s2">"name"</span>: <span class="s2">"Cool People"</span>,
+    <span class="s2">"contact_ids"</span>: <span class="o">[</span>1, 2, 3],
+    <span class="s2">"created_at"</span>: <span class="s2">"2018-01-10 01:03:47 AM"</span>,
+    <span class="s2">"updated_at"</span>: <span class="s2">"2018-01-10 01:03:47 AM"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">user_id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">name</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">contact_ids</code></td>
+<td>YES</td>
+<td><code class="prettyprint">array&lt;integer&gt;</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">created_at</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">updated_at</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="index">Index</h2>
+
+<p>Returns an array of all lists viewable by the current user.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/lists</code></p>
+
+<p>Only lists who the current user is able to access are returned:
+Lists belonging to the current user or any user lower in the hierarchy.</p>
+
+<p>This endpoint is paginated, meaning only a maximum of <code class="prettyprint">per</code> lists are returned.
+By passing in <code class="prettyprint">page</code>, you can select which group of lists are returned.</p>
+
+<p><strong>Filterable Options</strong></p>
+
+<p><code class="prettyprint">last_sync</code> pass in a timestamp to return only the objects updated later than the requested date</p>
+
+<p><code class="prettyprint">contact_ids</code> (Array) or <code class="prettyprint">contact_id</code> (Integer), the endpoint will only return lists containing the requested contacts.</p>
+
+<p><code class="prettyprint">list_ids</code> to only return lists with the passed ids</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/lists"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_id</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">user_ids</code></td>
+<td>NO</td>
+<td><code class="prettyprint">array&lt;integer&gt;</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">last_sync</code></td>
+<td>NO</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">page</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">1</code>)</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">per</code></td>
+<td>NO</td>
+<td><code class="prettyprint">integer</code> (Default: <code class="prettyprint">25</code>)</td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">all</code></td>
+<td>NO</td>
+<td><code class="prettyprint">boolean</code> (Default: <code class="prettyprint">false</code>)</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"lists"</span>:[<span class="o">{}</span>, <span class="o">{}</span>, <span class="o">{}]</span>,
+  <span class="s2">"meta"</span>:<span class="o">{}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">lists</code></td>
+<td>YES</td>
+<td><code class="prettyprint">array&lt;hash:listJson&gt;</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">meta</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:meta</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="create">Create</h2>
+
+<p>Creates a new list for the current user</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">POST https://maxactivity.com/api/v1/lists</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST <span class="s2">"https://maxactivity.com/api/v1/lists"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+  -d <span class="s2">"list[name]=Cool%20People"</span>
+
+<span class="c"># This is the equivalent of:</span>
+<span class="o">{</span>
+  <span class="s2">"list"</span>: <span class="o">{</span>
+    <span class="s2">"name"</span>: <span class="s2">"Cool People"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">list</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:listJson</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"list"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"name"</span>: <span class="s2">"Cool People"</span>
+    <span class="s2">"..."</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">list</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:listJson</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="update">Update</h2>
+
+<p>Updates a list.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">PATCH/PUT https://maxactivity.com/api/v1/lists/:id</code></p>
+
+<p>Can only update lists that belong to the current user</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X PATCH <span class="s2">"https://maxactivity.com/api/v1/lists/4336"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+  -d <span class="s2">"list[name]=Cool%20People"</span>
+
+<span class="c"># This is the equivalent of:</span>
+<span class="o">{</span>
+  <span class="s2">"list"</span>: <span class="o">{</span>
+    <span class="s2">"name"</span>: <span class="s2">"Cool People"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">list</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:listJson</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"list"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>: 4336,
+    <span class="s2">"name"</span>: <span class="s2">"Cool People"</span>,
+    <span class="s2">"..."</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">list</code></td>
+<td>YES</td>
+<td><code class="prettyprint">hash:listJson</code></td>
+</tr>
+</tbody></table>
+
+<h2 id="destroy">Destroy</h2>
+
+<p>Removes a list</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">DELETE https://maxactivity.com/api/v1/lists/:id</code></p>
+
+<p>May only delete lists that belong to the current user.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X DELETE <span class="s2">"https://maxactivity.com/api/v1/lists/4336"</span>
   -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
 </code></pre>
 
