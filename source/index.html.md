@@ -902,30 +902,6 @@ Type | Key | Success? | Description
 ---- | --- | -------- | -----------
 json | `errors` | NO | `hash:array<string>`
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Lists
 
 Use this endpoint to return the attributes of lists for the current user.
@@ -1170,6 +1146,307 @@ May only delete lists that belong to the current user.
 
 ```shell
 curl -X DELETE "https://maxactivity.com/api/v1/lists/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+
+# No response is returned after deleting an object.
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Events
+
+Use this endpoint to return the attributes of events for the current user.
+
+## Show
+
+Returns the data of a single event.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/events/:id`
+
+This event must be accessible from the current user, meaning the event must belong to them or one of their downlines.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/events/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "event":{  
+    "id": 4336,
+    "user_id": 1,
+    "contact_id": 4,
+    "amount": 1000,
+    "event_type": "Appointment to Close Life",
+    "event_kit_id": null,
+    "date": "2017-09-08",
+    "created_at": "2017-09-09 12:20:05 AM",
+    "updated_at": "2017-09-09 12:20:05 AM"
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `id` | YES | `integer`
+json | `user_id` | YES | `integer`
+json | `contact_id` | YES | `integer`
+json | `amount` | YES | `string`
+json | `event_type` | YES | `integer`
+json | `event_kit_id` | YES | `string`
+json | `date` | YES | `timestamp`
+json | `created_at` | YES | `timestamp`
+json | `updated_at` | YES | `timestamp`
+
+## Index
+
+Returns an array of all events viewable by the current user.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/events`
+
+Only events who the current user is able to access are returned:
+Events belonging to the current user or any user lower in the hierarchy.
+
+This endpoint is paginated, meaning only a maximum of `per` events are returned.
+By passing in `page`, you can select which group of events are returned.
+
+**Filterable Options**
+
+`last_sync` pass in a timestamp to return only the objects updated later than the requested date
+
+`contact_ids` (Array) or `contact_id` (Integer), the endpoint will only return events with the requested contacts.
+
+`user_ids` (Array) or `user_id` (Integer), the endpoint will only return events with the requested users.
+
+`event_ids` to only return events with the passed ids
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/events"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `contact_id` | NO | `integer`
+param | `contact_ids` | NO | `array<integer>`
+param | `user_id` | NO | `integer`
+param | `user_ids` | NO | `array<integer>`
+param | `last_sync` | NO | `timestamp`
+param | `page` | NO | `integer` (Default: `1`)
+param | `per` | NO | `integer` (Default: `25`)
+param | `all` | NO | `boolean` (Default: `false`)
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "events":[{}, {}, {}],
+  "meta":{}
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `events` | YES | `array<hash:eventJson>`
+json | `meta` | YES | `hash:meta`
+
+## Create
+
+Creates a new event for the current user
+
+### HTTP Request
+
+`POST https://maxactivity.com/api/v1/events`
+
+> Example request
+
+```shell
+curl -X POST "https://maxactivity.com/api/v1/events"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "event[amount]=2000"
+
+# This is the equivalent of:
+{
+  "event": {
+    "amount": 2000
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `event` | YES | `hash:eventJson`
+
+> Response - Success
+
+```shell
+status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "event":{  
+    "id": 4336,
+    "amount": 2000,
+    "..."
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `event` | YES | `hash:eventJson`
+
+## Update
+
+Updates a event.
+
+### HTTP Request
+
+`PATCH/PUT https://maxactivity.com/api/v1/events/:id`
+
+Can only update events that belong to the current user
+
+> Example request
+
+```shell
+curl -X PATCH "https://maxactivity.com/api/v1/events/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "event[amount]=2000"
+
+# This is the equivalent of:
+{
+  "event": {
+    "amount": 2000
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+json | `event` | YES | `hash:eventJson`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "event":{  
+    "id": 4336,
+    "amount": 2000,
+    "..."
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `hash:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `event` | YES | `hash:eventJson`
+
+## Destroy
+
+Removes a event
+
+### HTTP Request
+
+`DELETE https://maxactivity.com/api/v1/events/:id`
+
+May only delete events that belong to the current user.
+
+> Example request
+
+```shell
+curl -X DELETE "https://maxactivity.com/api/v1/events/4336"
   -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
 ```
 
