@@ -652,7 +652,7 @@ status 200 - OK
     "motivated": true,
     "proper_age": true,
     "people_skills": true,
-    "rating": 7,
+    "client_rating": 7,
     "recruit_rating": 4,
     "credibility_rating": 3,
     "imported": false,
@@ -683,7 +683,7 @@ json | `married` | YES | `boolean`
 json | `motivated` | YES | `boolean`
 json | `proper_age` | YES | `boolean`
 json | `people_skills` | YES | `boolean`
-json | `rating` | YES | `integer`
+json | `client_rating` | YES | `integer`
 json | `recruit_rating` | YES | `integer`
 json | `credibility_rating` | YES | `integer`
 json | `imported` | YES | `boolean`
