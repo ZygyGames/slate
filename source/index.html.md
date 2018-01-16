@@ -979,7 +979,9 @@ By passing in `page`, you can select which group of lists are returned.
 
 `last_sync` pass in a timestamp to return only the objects updated later than the requested date
 
-`contact_ids` (Array) or `contact_id` (Integer), the endpoint will only return lists containing the requested contacts.
+`contact_ids` (Array) or `contact_id` (Integer), the endpoint will only return lists containing the requested contact(s).
+
+`user_ids` (Array) or `user_id` (Integer), the endpoint will only return lists for the requested user(s).
 
 `list_ids` to only return lists with the passed ids
 
