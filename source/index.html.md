@@ -312,6 +312,37 @@ param | `solution_number` | NO | `string`
 status 200 - OK
 ```
 
+# Account
+
+## Month End
+
+This endpoint simply returns the timestamp for the next month-end date.
+Because this can change at any time, this endpoint should be checked often.
+
+**This Endpoint does not require authentication**
+
+`GET https://maxactivity.com/api/v1/account/month_end`
+
+The response from this endpoint is simply a string containing the formatted date for the month end of the current month.
+
+You can optionally add a `date` parameter to get the month end for a specific date.
+
+<aside class="notice">
+The Month End date is calculated as the first week day in the following month, and skips Labor Day and New Years Day.
+</aside>
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/account/month_end"
+```
+
+> Response
+
+```shell
+2018-02-01 04:00:00 PM
+```
+
 # Users
 
 Use this endpoint to return the attributes of users.
@@ -641,6 +672,7 @@ status 200 - OK
     "user_id": 1,
     "given_name": "Sarah",
     "family_name": "Smith",
+    "email": "sarah@smith.com",
     "phone_number": "8011234567",
     "competitive": true,
     "credible": true,
@@ -672,6 +704,7 @@ json | `id` | YES | `integer`
 json | `user_id` | YES | `integer`
 json | `family_name` | YES | `string`
 json | `given_name` | YES | `string`
+json | `email` | YES | `string`
 json | `phone_number` | YES | `string`
 json | `competitive` | YES | `boolean`
 json | `credible` | YES | `boolean`
