@@ -1062,6 +1062,12 @@ json | `meta` | YES | `hash:meta`
 
 Creates a new list for the current user
 
+Optionally, can pass `contact_ids`, `add_contact_ids`, `remove_contact_ids` to add Contacts to the list.
+
+`contact_ids` will overwrite whatever existing Contacts there are.
+
+`add_contact_ids` and `remove_contact_ids` alter the current list of Contacts to include/exclude the passed in Contacts.
+
 ### HTTP Request
 
 `POST https://maxactivity.com/api/v1/lists`
@@ -1114,6 +1120,13 @@ json | `list` | YES | `hash:listJson`
 ## Update
 
 Updates a list.
+
+Optionally, can pass `contact_ids`, `add_contact_ids`, `remove_contact_ids` to add Contacts to the list.
+
+`contact_ids` will overwrite whatever existing Contacts there are.
+
+`add_contact_ids` and `remove_contact_ids` alter the current list of Contacts to include/exclude the passed in Contacts.
+
 
 ### HTTP Request
 
@@ -1240,7 +1253,7 @@ Returns the data of a single event.
 
 `GET https://maxactivity.com/api/v1/events/:id`
 
-This event must be accessible from the current user, meaning the event must belong to them or one of their downlines.
+This event must be accessible from the current user, meaning the event must belong to them,  one of their downlines, or their trainer.
 
 > Example request
 
@@ -1270,7 +1283,7 @@ status 200 - OK
     "amount": 1000,
     "event_type": "Appointment to Close Life",
     "event_kit_id": null,
-    "date": "2017-09-08",
+    "date": "2017-09-08 12:20:05 AM",
     "created_at": "2017-09-09 12:20:05 AM",
     "updated_at": "2017-09-09 12:20:05 AM"
   }
@@ -1303,6 +1316,7 @@ Returns an array of all events viewable by the current user.
 
 Only events who the current user is able to access are returned:
 Events belonging to the current user or any user lower in the hierarchy.
+Events belonging to the current user's trainer are also included.
 
 This endpoint is paginated, meaning only a maximum of `per` events are returned.
 By passing in `page`, you can select which group of events are returned.
