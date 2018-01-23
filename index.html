@@ -1962,6 +1962,12 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 
 <p>Creates a new list for the current user</p>
 
+<p>Optionally, can pass <code class="prettyprint">contact_ids</code>, <code class="prettyprint">add_contact_ids</code>, <code class="prettyprint">remove_contact_ids</code> to add Contacts to the list.</p>
+
+<p><code class="prettyprint">contact_ids</code> will overwrite whatever existing Contacts there are.</p>
+
+<p><code class="prettyprint">add_contact_ids</code> and <code class="prettyprint">remove_contact_ids</code> alter the current list of Contacts to include/exclude the passed in Contacts.</p>
+
 <h3 id="http-request">HTTP Request</h3>
 
 <p><code class="prettyprint">POST https://maxactivity.com/api/v1/lists</code></p>
@@ -2053,6 +2059,12 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <h2 id="update">Update</h2>
 
 <p>Updates a list.</p>
+
+<p>Optionally, can pass <code class="prettyprint">contact_ids</code>, <code class="prettyprint">add_contact_ids</code>, <code class="prettyprint">remove_contact_ids</code> to add Contacts to the list.</p>
+
+<p><code class="prettyprint">contact_ids</code> will overwrite whatever existing Contacts there are.</p>
+
+<p><code class="prettyprint">add_contact_ids</code> and <code class="prettyprint">remove_contact_ids</code> alter the current list of Contacts to include/exclude the passed in Contacts.</p>
 
 <h3 id="http-request">HTTP Request</h3>
 
@@ -2229,7 +2241,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 
 <p><code class="prettyprint">GET https://maxactivity.com/api/v1/events/:id</code></p>
 
-<p>This event must be accessible from the current user, meaning the event must belong to them or one of their downlines.</p>
+<p>This event must be accessible from the current user, meaning the event must belong to them,  one of their downlines, or their trainer.</p>
 
 <blockquote>
 <p>Example request</p>
@@ -2276,7 +2288,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
     <span class="s2">"amount"</span>: 1000,
     <span class="s2">"event_type"</span>: <span class="s2">"Appointment to Close Life"</span>,
     <span class="s2">"event_kit_id"</span>: null,
-    <span class="s2">"date"</span>: <span class="s2">"2017-09-08"</span>,
+    <span class="s2">"date"</span>: <span class="s2">"2017-09-08 12:20:05 AM"</span>,
     <span class="s2">"created_at"</span>: <span class="s2">"2017-09-09 12:20:05 AM"</span>,
     <span class="s2">"updated_at"</span>: <span class="s2">"2017-09-09 12:20:05 AM"</span>
   <span class="o">}</span>
@@ -2370,7 +2382,8 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <p><code class="prettyprint">GET https://maxactivity.com/api/v1/events</code></p>
 
 <p>Only events who the current user is able to access are returned:
-Events belonging to the current user or any user lower in the hierarchy.</p>
+Events belonging to the current user or any user lower in the hierarchy.
+Events belonging to the current user&rsquo;s trainer are also included.</p>
 
 <p>This endpoint is paginated, meaning only a maximum of <code class="prettyprint">per</code> events are returned.
 By passing in <code class="prettyprint">page</code>, you can select which group of events are returned.</p>
