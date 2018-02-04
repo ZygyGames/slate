@@ -184,7 +184,7 @@ status 502 - Bad Gateway <span class="o">(</span>Could not connect to server<spa
 </code></pre>
 
 <p>The basic response codes are shown on the right. These status codes are the HTTP statuses that are made.
-Generally, when interacting with maxactivity.com, any time something goes wrong, you will receive a response in the form of a hash/dictionary/associative array with a single key, <code class="prettyprint">errors</code>. The value for that key is an array of human-readable messages. <strong>These messages are NOT for display to users, but to be used for debugging.</strong> Each endpoint should have custom error messages written in the app to display to the user.</p>
+Generally, when interacting with maxactivity.com, any time something goes wrong, you will receive a response in the form of a key/value/dictionary/associative array with a single key, <code class="prettyprint">errors</code>. The value for that key is an array of human-readable messages. <strong>These messages are NOT for display to users, but to be used for debugging.</strong> Each endpoint should have custom error messages written in the app to display to the user.</p>
 
 <ul>
 <li>1xx: <strong>Information</strong> (Unused)</li>
@@ -410,7 +410,7 @@ The message should cover both the unknown email/password combo as well as a shor
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -422,7 +422,7 @@ The message should cover both the unknown email/password combo as well as a shor
 <td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:userJson</code></td>
+<td><code class="prettyprint">key/value:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -478,6 +478,136 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 </blockquote>
 <pre class="highlight shell"><code>status 200 - OK
 </code></pre>
+
+<h1 id="updates-websockets">Updates / Websockets</h1>
+
+<h2 id="updates">Updates</h2>
+
+<p>This endpoint requires a <code class="prettyprint">last_sync</code> parameter to be sent, and will respond with all viewable objects that have been updated or deleted since the requested timestamp.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/updates"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span> <span class="se">\</span>
+  --data-urlencode <span class="s2">"last_sync=2018-02-01 04:00:00 PM"</span>
+</code></pre>
+
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>  
+  <span class="s2">"timestamp"</span>: <span class="s2">"2018-02-01 04:00:00 PM"</span>
+  <span class="s2">"changed"</span>:[
+    <span class="s2">"users"</span>: <span class="o">[{}</span>, <span class="o">{}</span>, <span class="o">{}]</span>,
+    <span class="s2">"contacts"</span>: <span class="o">[{}</span>, <span class="o">{}]</span>,
+    <span class="s2">"lists"</span>: <span class="o">[{}</span>, <span class="o">{}]</span>
+  <span class="o">]</span>,
+  <span class="s2">"deleted"</span>:[
+    <span class="s2">"contacts"</span>: <span class="o">[{}]</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+</code></pre>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/updates</code></p>
+
+<p>The response from this endpoint is a complex object. At the top level there are 3 keys: <code class="prettyprint">changed</code> (Array), <code class="prettyprint">deleted</code> (Array), <code class="prettyprint">timestamp</code> (Timestamp/String)</p>
+
+<p>The <code class="prettyprint">timestamp</code> is the current time when the request was made. (This can/should be stored for later)
+The <code class="prettyprint">changed</code> and <code class="prettyprint">deleted</code> arrays contain the objects that were changed or deleted, respectively.
+The objects are key/value pairs where the key is the object type and the value is an array of the objects of that type.</p>
+
+<h2 id="websockets">Websockets</h2>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="c"># Connect:</span>
+wscat -c <span class="s2">"wss://maxactivity.com/cable"</span> -o <span class="s2">"https://maxactivity.com"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+
+<span class="c"># Subscribe:</span>
+<span class="o">{</span>
+  <span class="s2">"command"</span>: <span class="s2">"subscribe"</span>,
+  <span class="s2">"identifier"</span>: <span class="s2">"{</span><span class="se">\"</span><span class="s2">channel</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">UpdatesChannel</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">channel_id</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">updates_1111</span><span class="se">\"</span><span class="s2">}"</span>
+<span class="o">}</span>
+<span class="c"># Notice that `identifier` is a string value with JSON inside.</span>
+
+<span class="c"># Message:</span>
+<span class="o">{</span>
+  <span class="s2">"command"</span>: <span class="s2">"message"</span>,
+  <span class="s2">"identifier"</span>: <span class="s2">"{</span><span class="se">\"</span><span class="s2">channel</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">UpdatesChannel</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">channel_id</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">updates_1111</span><span class="se">\"</span><span class="s2">}"</span>,
+  <span class="s2">"data"</span>: <span class="s2">"{</span><span class="se">\"</span><span class="s2">action</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">pong</span><span class="se">\"</span><span class="s2">,</span><span class="se">\"</span><span class="s2">content</span><span class="se">\"</span><span class="s2">:</span><span class="se">\"</span><span class="s2">Hello, World</span><span class="se">\"</span><span class="s2">}"</span>
+<span class="o">}</span>
+<span class="c"># Again, both `identifier` and `data` are Strings with JSON inside.</span>
+</code></pre>
+
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"timestamp"</span>: <span class="s2">"2018-02-04 12:36:44 AM"</span>,
+  <span class="s2">"changed"</span>: <span class="o">{</span>
+    <span class="s2">"users"</span>: <span class="o">[</span>
+      <span class="o">{</span>
+        <span class="s2">"id"</span>: 1111,
+        <span class="s2">"upline_id"</span>: 1000,
+        <span class="s2">"trainer_id"</span>: 1001,
+        <span class="s2">"downline_ids"</span>: <span class="o">[]</span>,
+        <span class="s2">"email"</span>: <span class="s2">"rocco@zygy.com"</span>,
+        <span class="s2">"family_name"</span>: <span class="s2">"Nicholls"</span>,
+        <span class="s2">"given_name"</span>: <span class="s2">"Rocco"</span>,
+        <span class="s2">"phone_number"</span>: <span class="s2">"(385)259-9640"</span>,
+        <span class="s2">"profile_picture_url"</span>: <span class="s2">""</span>,
+        <span class="s2">"state"</span>: <span class="s2">"UT - Utah"</span>,
+        <span class="s2">"solution_number"</span>: <span class="s2">"xupr7"</span>,
+        <span class="s2">"is_rvp"</span>: <span class="nb">false</span>,
+        <span class="s2">"created_at"</span>: <span class="s2">"2017-03-05 04:52:03 AM"</span>,
+        <span class="s2">"updated_at"</span>: <span class="s2">"2018-02-04 12:36:44 AM"</span>,
+        <span class="s2">"current_speed"</span>: 0
+      <span class="o">}</span>
+    <span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<p>Websockets allow you to receive updates as they happen. To demonstrate websockets, the <code class="prettyprint">wscat</code> command line tool will be used.</p>
+
+<p><code class="prettyprint">wscat</code> can be installed with <code class="prettyprint">npm install -g wscat</code></p>
+
+<h3 id="connect">Connect</h3>
+
+<p>The initial connection must be made to the url:
+<code class="prettyprint">wss://maxactivity.com/cable</code>
+The request origin must be set to the root domain,
+<code class="prettyprint">https://maxactivity.com</code></p>
+
+<p>In order to use the websockets, you must be authorized. You can authorize the same way as other endpoints, by including the <code class="prettyprint">Authorization</code> header.</p>
+
+<aside class="warning">
+If a connection is lost, the app should continually attempt to reconnect to the server until the connection is once again made. At that point, you must also subscribe again.
+</aside>
+
+<h3 id="subscribe">Subscribe</h3>
+
+<p>In order to actually get data back from the server, you must first subscribe to a channel.</p>
+
+<p>The connection is like having a cell phone network, but subscribing to a channel is actually dialing a phone number.</p>
+
+<p>In order to keep things simple, there is only 1 channel you must subscribe to- the <code class="prettyprint">UpdatesChannel</code></p>
+
+<p>In order to subscribe, you must send data through the websocket telling the server which channel you want to subscribe to.</p>
+
+<p><code class="prettyprint">command</code> tells the server what you want to do- <code class="prettyprint">subscribe</code>.</p>
+
+<p><code class="prettyprint">identifier</code> is a <strong>String</strong> containing the subscription data. Specifically, in that string, you want to pass the <code class="prettyprint">channel</code> you are subscribing to and the <code class="prettyprint">channel_id</code>, which is a string telling the server which user you want updates for.</p>
+
+<p>The <code class="prettyprint">channel</code> is a hard set string as <code class="prettyprint">UpdatesChannel</code>
+The <code class="prettyprint">channel_id</code> is a string <code class="prettyprint">updates_1111</code> - replace <code class="prettyprint">1111</code> with the current user&rsquo;s server id.</p>
+
+<h3 id="response">Response</h3>
+
+<p>The response from the server will not come immediately, but as a message through the websocket. The message will always be a JSON packet. This data will exactly match the format of the <code class="prettyprint">updates</code> endpoint, but typically only 1 object will be sent.  </p>
 
 <h1 id="account">Account</h1>
 
@@ -598,7 +728,7 @@ The Month End date is calculated as the first week day in the following month, a
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -799,7 +929,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -811,13 +941,13 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">users</code></td>
 <td>YES</td>
-<td><code class="prettyprint">array&lt;hash:userJson&gt;</code></td>
+<td><code class="prettyprint">array&lt;key/value:userJson&gt;</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">meta</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:meta</code></td>
+<td><code class="prettyprint">key/value:meta</code></td>
 </tr>
 </tbody></table>
 
@@ -863,7 +993,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:userJson</code></td>
+<td><code class="prettyprint">key/value:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -897,13 +1027,13 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:userJson</code></td>
+<td><code class="prettyprint">key/value:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -958,7 +1088,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:userJson</code></td>
+<td><code class="prettyprint">key/value:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -991,7 +1121,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -1003,7 +1133,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">user</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:userJson</code></td>
+<td><code class="prettyprint">key/value:userJson</code></td>
 </tr>
 </tbody></table>
 
@@ -1070,7 +1200,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 </tbody></table>
 
@@ -1167,7 +1297,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -1418,7 +1548,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -1430,13 +1560,13 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">contacts</code></td>
 <td>YES</td>
-<td><code class="prettyprint">array&lt;hash:contactJson&gt;</code></td>
+<td><code class="prettyprint">array&lt;key/value:contactJson&gt;</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">meta</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:meta</code></td>
+<td><code class="prettyprint">key/value:meta</code></td>
 </tr>
 </tbody></table>
 
@@ -1485,7 +1615,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>param</td>
 <td><code class="prettyprint">contact</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:contactJson</code></td>
+<td><code class="prettyprint">key/value:contactJson</code></td>
 </tr>
 </tbody></table>
 
@@ -1519,7 +1649,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -1531,7 +1661,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">contact</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:contactJson</code></td>
+<td><code class="prettyprint">key/value:contactJson</code></td>
 </tr>
 </tbody></table>
 
@@ -1586,7 +1716,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">contact</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:contactJson</code></td>
+<td><code class="prettyprint">key/value:contactJson</code></td>
 </tr>
 </tbody></table>
 
@@ -1619,7 +1749,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -1631,7 +1761,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">contact</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:contactJson</code></td>
+<td><code class="prettyprint">key/value:contactJson</code></td>
 </tr>
 </tbody></table>
 
@@ -1698,7 +1828,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 </tbody></table>
 
@@ -1779,7 +1909,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -1936,7 +2066,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -1948,13 +2078,13 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">lists</code></td>
 <td>YES</td>
-<td><code class="prettyprint">array&lt;hash:listJson&gt;</code></td>
+<td><code class="prettyprint">array&lt;key/value:listJson&gt;</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">meta</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:meta</code></td>
+<td><code class="prettyprint">key/value:meta</code></td>
 </tr>
 </tbody></table>
 
@@ -2007,7 +2137,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>param</td>
 <td><code class="prettyprint">list</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:listJson</code></td>
+<td><code class="prettyprint">key/value:listJson</code></td>
 </tr>
 </tbody></table>
 
@@ -2040,7 +2170,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -2052,7 +2182,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">list</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:listJson</code></td>
+<td><code class="prettyprint">key/value:listJson</code></td>
 </tr>
 </tbody></table>
 
@@ -2113,7 +2243,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">list</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:listJson</code></td>
+<td><code class="prettyprint">key/value:listJson</code></td>
 </tr>
 </tbody></table>
 
@@ -2146,7 +2276,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -2158,7 +2288,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">list</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:listJson</code></td>
+<td><code class="prettyprint">key/value:listJson</code></td>
 </tr>
 </tbody></table>
 
@@ -2225,7 +2355,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 </tbody></table>
 
@@ -2309,7 +2439,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -2497,7 +2627,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -2509,13 +2639,13 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">events</code></td>
 <td>YES</td>
-<td><code class="prettyprint">array&lt;hash:eventJson&gt;</code></td>
+<td><code class="prettyprint">array&lt;key/value:eventJson&gt;</code></td>
 </tr>
 <tr>
 <td>json</td>
 <td><code class="prettyprint">meta</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:meta</code></td>
+<td><code class="prettyprint">key/value:meta</code></td>
 </tr>
 </tbody></table>
 
@@ -2562,7 +2692,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>param</td>
 <td><code class="prettyprint">event</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:eventJson</code></td>
+<td><code class="prettyprint">key/value:eventJson</code></td>
 </tr>
 </tbody></table>
 
@@ -2595,7 +2725,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -2607,7 +2737,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">event</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:eventJson</code></td>
+<td><code class="prettyprint">key/value:eventJson</code></td>
 </tr>
 </tbody></table>
 
@@ -2662,7 +2792,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">event</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:eventJson</code></td>
+<td><code class="prettyprint">key/value:eventJson</code></td>
 </tr>
 </tbody></table>
 
@@ -2695,7 +2825,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 <tr>
 <td>header</td>
@@ -2707,7 +2837,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">event</code></td>
 <td>YES</td>
-<td><code class="prettyprint">hash:eventJson</code></td>
+<td><code class="prettyprint">key/value:eventJson</code></td>
 </tr>
 </tbody></table>
 
@@ -2774,7 +2904,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <td>json</td>
 <td><code class="prettyprint">errors</code></td>
 <td>NO</td>
-<td><code class="prettyprint">hash:array&lt;string&gt;</code></td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
 </tr>
 </tbody></table>
 
