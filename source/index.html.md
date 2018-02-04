@@ -440,7 +440,7 @@ The `channel_id` is a string `updates_1111` - replace `1111` with the current us
 
 ### Response
 
-The response from the server will not come immediately, but as a message through the websocket. The message will always be a JSON packet. This data will exactly match the format of the `updates` endpoint, but typically only 1 object will be sent. 
+The response from the server will not come immediately, but as a message through the websocket. The message will always be a JSON packet. This data will exactly match the format of the `updates` endpoint, but typically only 1 object will be sent.  
 
 # Account
 
