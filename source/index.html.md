@@ -82,7 +82,7 @@ status 502 - Bad Gateway (Could not connect to server)
 ```
 
 The basic response codes are shown on the right. These status codes are the HTTP statuses that are made.
-Generally, when interacting with maxactivity.com, any time something goes wrong, you will receive a response in the form of a hash/dictionary/associative array with a single key, `errors`. The value for that key is an array of human-readable messages. **These messages are NOT for display to users, but to be used for debugging.** Each endpoint should have custom error messages written in the app to display to the user.
+Generally, when interacting with maxactivity.com, any time something goes wrong, you will receive a response in the form of a key/value/dictionary/associative array with a single key, `errors`. The value for that key is an array of human-readable messages. **These messages are NOT for display to users, but to be used for debugging.** Each endpoint should have custom error messages written in the app to display to the user.
 
 * 1xx: **Information** (Unused)
 * 2xx: **Success** - Everything went according to plan
@@ -272,9 +272,9 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `user` | YES | `hash:userJson`
+json | `user` | YES | `key/value:userJson`
 
 <aside class="warning">
 Remember — Store the `Authorization Token` in-app and over-write it on every request! If the user changes their password, that token is regenerated. Not saving this token will cause your user to be unauthenticated.
@@ -311,6 +311,136 @@ param | `solution_number` | NO | `string`
 ```shell
 status 200 - OK
 ```
+
+# Updates / Websockets
+
+## Updates
+
+This endpoint requires a `last_sync` parameter to be sent, and will respond with all viewable objects that have been updated or deleted since the requested timestamp.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/updates" \
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii" \
+  --data-urlencode "last_sync=2018-02-01 04:00:00 PM"
+```
+
+> Response
+
+```shell
+{  
+  "timestamp": "2018-02-01 04:00:00 PM"
+  "changed":[
+    "users": [{}, {}, {}],
+    "contacts": [{}, {}],
+    "lists": [{}, {}]
+  ],
+  "deleted":[
+    "contacts": [{}]
+  ]
+}
+```
+
+`GET https://maxactivity.com/api/v1/updates`
+
+The response from this endpoint is a complex object. At the top level there are 3 keys: `changed` (Array), `deleted` (Array), `timestamp` (Timestamp/String)
+
+The `timestamp` is the current time when the request was made. (This can/should be stored for later)
+The `changed` and `deleted` arrays contain the objects that were changed or deleted, respectively.
+The objects are key/value pairs where the key is the object type and the value is an array of the objects of that type.
+
+## Websockets
+
+> Example request
+
+```shell
+# Connect:
+wscat -c "wss://maxactivity.com/cable" -o "https://maxactivity.com" \
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+
+# Subscribe:
+{
+  "command": "subscribe",
+  "identifier": "{\"channel\":\"UpdatesChannel\",\"channel_id\":\"updates_1111\"}"
+}
+# Notice that `identifier` is a string value with JSON inside.
+
+# Message:
+{
+  "command": "message",
+  "identifier": "{\"channel\":\"UpdatesChannel\",\"channel_id\":\"updates_1111\"}",
+  "data": "{\"action\":\"pong\",\"content\":\"Hello, World\"}"
+}
+# Again, both `identifier` and `data` are Strings with JSON inside.
+```
+
+> Response
+
+```shell
+{
+  "timestamp": "2018-02-04 12:36:44 AM",
+  "changed": {
+    "users": [
+      {
+        "id": 1111,
+        "upline_id": 1000,
+        "trainer_id": 1001,
+        "downline_ids": [],
+        "email": "rocco@zygy.com",
+        "family_name": "Nicholls",
+        "given_name": "Rocco",
+        "phone_number": "(385)259-9640",
+        "profile_picture_url": "",
+        "state": "UT - Utah",
+        "solution_number": "xupr7",
+        "is_rvp": false,
+        "created_at": "2017-03-05 04:52:03 AM",
+        "updated_at": "2018-02-04 12:36:44 AM",
+        "current_speed": 0
+      }
+    ]
+  }
+}
+```
+
+Websockets allow you to receive updates as they happen. To demonstrate websockets, the `wscat` command line tool will be used.
+
+`wscat` can be installed with `npm install -g wscat`
+
+### Connect
+
+The initial connection must be made to the url:
+`wss://maxactivity.com/cable`
+The request origin must be set to the root domain,
+`https://maxactivity.com`
+
+In order to use the websockets, you must be authorized. You can authorize the same way as other endpoints, by including the `Authorization` header.
+
+<aside class="warning">
+If a connection is lost, the app should continually attempt to reconnect to the server until the connection is once again made. At that point, you must also subscribe again.
+</aside>
+
+### Subscribe
+
+In order to actually get data back from the server, you must first subscribe to a channel.
+
+The connection is like having a cell phone network, but subscribing to a channel is actually dialing a phone number.
+
+In order to keep things simple, there is only 1 channel you must subscribe to- the `UpdatesChannel`
+
+In order to subscribe, you must send data through the websocket telling the server which channel you want to subscribe to.
+
+`command` tells the server what you want to do- `subscribe`.
+
+`identifier` is a **String** containing the subscription data. Specifically, in that string, you want to pass the `channel` you are subscribing to and the `channel_id`, which is a string telling the server which user you want updates for.
+
+The `channel` is a hard set string as `UpdatesChannel`
+The `channel_id` is a string `updates_1111` - replace `1111` with the current user's server id.
+
+### Response
+
+The response from the server will not come immediately, but as a message through the websocket. The message will always be a JSON packet. This data will exactly match the format of the `updates` endpoint, but typically only 1 object will be sent. 
 
 # Account
 
@@ -404,7 +534,7 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
 json | `id` | YES | `integer`
 json | `upline_id` | YES | `integer` (nullable)
@@ -476,10 +606,10 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `users` | YES | `array<hash:userJson>`
-json | `meta` | YES | `hash:meta`
+json | `users` | YES | `array<key/value:userJson>`
+json | `meta` | YES | `key/value:meta`
 
 ## Create
 
@@ -513,7 +643,7 @@ curl -X POST "https://maxactivity.com/api/v1/users"
 
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
-json | `user` | YES | `hash:userJson`
+json | `user` | YES | `key/value:userJson`
 
 > Response - Success
 
@@ -535,8 +665,8 @@ status 201 - Created
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
-json | `user` | YES | `hash:userJson`
+json | `errors` | NO | `key/value:array<string>`
+json | `user` | YES | `key/value:userJson`
 
 ## Update
 
@@ -569,7 +699,7 @@ Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `Authorization` | YES | `string`
 param | `id` | YES | `integer`
-json | `user` | YES | `hash:userJson`
+json | `user` | YES | `key/value:userJson`
 
 > Response - Success
 
@@ -590,9 +720,9 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `user` | YES | `hash:userJson`
+json | `user` | YES | `key/value:userJson`
 
 ## Destroy
 
@@ -630,7 +760,7 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 
 # Contacts
 
@@ -698,7 +828,7 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
 json | `id` | YES | `integer`
 json | `user_id` | YES | `integer`
@@ -780,10 +910,10 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `contacts` | YES | `array<hash:contactJson>`
-json | `meta` | YES | `hash:meta`
+json | `contacts` | YES | `array<key/value:contactJson>`
+json | `meta` | YES | `key/value:meta`
 
 ## Create
 
@@ -815,7 +945,7 @@ curl -X POST "https://maxactivity.com/api/v1/contacts"
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `Authorization` | YES | `string`
-param | `contact` | YES | `hash:contactJson`
+param | `contact` | YES | `key/value:contactJson`
 
 > Response - Success
 
@@ -837,9 +967,9 @@ status 201 - Created
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `contact` | YES | `hash:contactJson`
+json | `contact` | YES | `key/value:contactJson`
 
 ## Update
 
@@ -872,7 +1002,7 @@ Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `Authorization` | YES | `string`
 param | `id` | YES | `integer`
-json | `contact` | YES | `hash:contactJson`
+json | `contact` | YES | `key/value:contactJson`
 
 > Response - Success
 
@@ -893,9 +1023,9 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `contact` | YES | `hash:contactJson`
+json | `contact` | YES | `key/value:contactJson`
 
 ## Destroy
 
@@ -933,7 +1063,7 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 
 # Lists
 
@@ -985,7 +1115,7 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
 json | `id` | YES | `integer`
 json | `user_id` | YES | `integer`
@@ -1053,10 +1183,10 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `lists` | YES | `array<hash:listJson>`
-json | `meta` | YES | `hash:meta`
+json | `lists` | YES | `array<key/value:listJson>`
+json | `meta` | YES | `key/value:meta`
 
 ## Create
 
@@ -1092,7 +1222,7 @@ curl -X POST "https://maxactivity.com/api/v1/lists"
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `Authorization` | YES | `string`
-param | `list` | YES | `hash:listJson`
+param | `list` | YES | `key/value:listJson`
 
 > Response - Success
 
@@ -1113,9 +1243,9 @@ status 201 - Created
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `list` | YES | `hash:listJson`
+json | `list` | YES | `key/value:listJson`
 
 ## Update
 
@@ -1155,7 +1285,7 @@ Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `Authorization` | YES | `string`
 param | `id` | YES | `integer`
-json | `list` | YES | `hash:listJson`
+json | `list` | YES | `key/value:listJson`
 
 > Response - Success
 
@@ -1176,9 +1306,9 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `list` | YES | `hash:listJson`
+json | `list` | YES | `key/value:listJson`
 
 ## Destroy
 
@@ -1216,7 +1346,7 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 
 
 
@@ -1294,7 +1424,7 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
 json | `id` | YES | `integer`
 json | `user_id` | YES | `integer`
@@ -1368,10 +1498,10 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `events` | YES | `array<hash:eventJson>`
-json | `meta` | YES | `hash:meta`
+json | `events` | YES | `array<key/value:eventJson>`
+json | `meta` | YES | `key/value:meta`
 
 ## Create
 
@@ -1401,7 +1531,7 @@ curl -X POST "https://maxactivity.com/api/v1/events"
 Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `Authorization` | YES | `string`
-param | `event` | YES | `hash:eventJson`
+param | `event` | YES | `key/value:eventJson`
 
 > Response - Success
 
@@ -1422,9 +1552,9 @@ status 201 - Created
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `event` | YES | `hash:eventJson`
+json | `event` | YES | `key/value:eventJson`
 
 ## Update
 
@@ -1457,7 +1587,7 @@ Type | Parameter | Required? | Description
 ---- | --------- | --------- | -----------
 header | `Authorization` | YES | `string`
 param | `id` | YES | `integer`
-json | `event` | YES | `hash:eventJson`
+json | `event` | YES | `key/value:eventJson`
 
 > Response - Success
 
@@ -1478,9 +1608,9 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
 header | `Authorization Token` | YES | `string`
-json | `event` | YES | `hash:eventJson`
+json | `event` | YES | `key/value:eventJson`
 
 ## Destroy
 
@@ -1518,4 +1648,4 @@ status 200 - OK
 
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
-json | `errors` | NO | `hash:array<string>`
+json | `errors` | NO | `key/value:array<string>`
