@@ -818,6 +818,17 @@ status 200 - OK
     "recruit_rating": 4,
     "credibility_rating": 3,
     "imported": false,
+    "recruited": true,
+    "invited": false,
+    "sold": true,
+    "attended": false,
+    "street1": "123 Fake street",
+    "street2": null,
+    "city": "Sandy",
+    "state": "UT",
+    "zip": "84070-8814",
+    "country": "US",
+    "deleted_at": null,
     "created_at": "2018-01-10 01:03:47 AM",
     "updated_at": "2018-01-10 01:03:47 AM"
   }
