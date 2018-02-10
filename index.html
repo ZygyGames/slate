@@ -1832,6 +1832,124 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 </tr>
 </tbody></table>
 
+<h1 id="list-contacts">List Contacts</h1>
+
+<p>Use this endpoint to return the join table between Lists and Contacts for backfilling purposes</p>
+
+<h2 id="index">Index</h2>
+
+<p>Returns the data of a single list.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p><code class="prettyprint">GET https://maxactivity.com/api/v1/list_contacts</code></p>
+
+<p>This list must be accessible from the current user, meaning the list must belong to them or one of their downlines.</p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/list_contacts"</span>
+  -H <span class="s2">"Authorization: Token aaabbbcccdddeeefffggghhhiii"</span>
+</code></pre>
+
+<h3 id="request-expectations">Request Expectations:</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Parameter</th>
+<th>Required?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>param</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Response - Success</p>
+</blockquote>
+<pre class="highlight shell"><code>status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+<span class="o">{</span>  
+  <span class="s2">"list_contacts"</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"list_id"</span>: 26706,
+      <span class="s2">"contact_id"</span>: 97278,
+      <span class="s2">"created_at"</span>: <span class="s2">"2018-02-10 01:46:49 AM"</span>,
+      <span class="s2">"updated_at"</span>: <span class="s2">"2018-02-10 01:46:49 AM"</span>,
+      <span class="s2">"deleted_at"</span>: null
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="response-expectations">Response Expectations</h3>
+
+<table><thead>
+<tr>
+<th>Type</th>
+<th>Key</th>
+<th>Success?</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">errors</code></td>
+<td>NO</td>
+<td><code class="prettyprint">key/value:array&lt;string&gt;</code></td>
+</tr>
+<tr>
+<td>header</td>
+<td><code class="prettyprint">Authorization Token</code></td>
+<td>YES</td>
+<td><code class="prettyprint">string</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">list_id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">contact_id</code></td>
+<td>YES</td>
+<td><code class="prettyprint">integer</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">created_at</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+<tr>
+<td>json</td>
+<td><code class="prettyprint">updated_at</code></td>
+<td>YES</td>
+<td><code class="prettyprint">timestamp</code></td>
+</tr>
+</tbody></table>
+
 <h1 id="lists">Lists</h1>
 
 <p>Use this endpoint to return the attributes of lists for the current user.</p>
