@@ -1065,6 +1065,65 @@ Type | Key | Success? | Description
 ---- | --- | -------- | -----------
 json | `errors` | NO | `key/value:array<string>`
 
+# List Contacts
+
+Use this endpoint to return the join table between Lists and Contacts for backfilling purposes
+
+## Index
+
+Returns the data of a single list.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/list_contacts`
+
+This list must be accessible from the current user, meaning the list must belong to them or one of their downlines.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/list_contacts"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "list_contacts": [
+    {
+      "list_id": 26706,
+      "contact_id": 97278,
+      "created_at": "2018-02-10 01:46:49 AM",
+      "updated_at": "2018-02-10 01:46:49 AM",
+      "deleted_at": null
+    }
+  ]
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `key/value:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `id` | YES | `integer`
+json | `list_id` | YES | `integer`
+json | `contact_id` | YES | `integer`
+json | `created_at` | YES | `timestamp`
+json | `updated_at` | YES | `timestamp`
+
 # Lists
 
 Use this endpoint to return the attributes of lists for the current user.
