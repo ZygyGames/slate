@@ -16,6 +16,7 @@ Hi Rocco! Do this:
 
 bundle install
 bundle exec middleman server
+http://localhost:4567
 *Make changes, commit*
 And then: ./deploy.rb
 -->
@@ -568,7 +569,9 @@ By passing in `page`, you can select which group of users are returned.
 
 **Filterable Options**
 
-`last_sync` pass in a timestamp to return only the objects updated later than the requested date
+`last_sync` pass in a timestamp to return only the objects updated LATER than the requested date
+
+`since` pass in a timestamp to return only the objects updated EARLIER than the requested date
 
 `user_ids`, the endpoint will only return the included users.
 
@@ -762,6 +765,69 @@ Type | Key | Success? | Description
 ---- | --- | -------- | -----------
 json | `errors` | NO | `key/value:array<string>`
 
+# Company
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/company"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{
+  "company": {
+    "id": 1,
+    "name": "None",
+    "event_groups": [
+      "Appointments Set",
+      "Appointments Done",
+      "Invites",
+      "New Shows"
+    ],
+    "rating_groups": {
+      "Client Rating": [
+        "Has Kids",
+        "Homeowner",
+        "Income Over 40k",
+        "Married",
+        "Age 25-55"
+      ],
+      "Recruit Rating": [
+        "Competitive",
+        "Credible",
+        "Hungry",
+        "Motivated",
+        "People Skills"
+      ]
+    }
+  }
+}
+```
+
+Use this endpoint to return the company data of the current user
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/company`
+
+Currently, the company has data for event and rating groups.
+
+Event Groups is an array of the titles of each valid event type for the company.
+
+Rating Groups is a nested hash which contains the groups of Rating Types.
+
 # Contacts
 
 Use this endpoint to return the attributes of contacts for the current user.
@@ -796,42 +862,58 @@ param | `id` | YES | `integer`
 status 200 - OK
 -H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
-{  
-  "contact":{  
-    "id": 4336,
-    "user_id": 1,
-    "given_name": "Sarah",
-    "family_name": "Smith",
-    "email": "sarah@smith.com",
-    "phone_number": "8011234567",
-    "competitive": true,
-    "credible": true,
-    "kids": false,
-    "homeowner": false,
-    "hungry": true,
-    "income_over_40k": false,
-    "married": true,
-    "motivated": true,
-    "proper_age": true,
-    "people_skills": true,
-    "client_rating": 7,
-    "recruit_rating": 4,
-    "credibility_rating": 3,
-    "imported": false,
-    "recruited": true,
-    "invited": false,
-    "sold": true,
-    "attended": false,
-    "street1": "123 Fake street",
-    "street2": null,
-    "city": "Sandy",
-    "state": "UT",
-    "zip": "84070-8814",
-    "country": "US",
-    "deleted_at": null,
-    "created_at": "2018-01-10 01:03:47 AM",
-    "updated_at": "2018-01-10 01:03:47 AM"
-  }
+"contact": {
+  "id": 37140,
+  "user_id": 1803,
+  "family_name": "Nicholls",
+  "given_name": "Rocco",
+  "phone_number": "(385)259-9640",
+  "street1": null,
+  "street2": null,
+  "city": null,
+  "state": null,
+  "zip": null,
+  "country": null,
+  "ratings": {
+    "Client Rating": {
+      "Has Kids": false,
+      "Homeowner": true,
+      "Income Over 40k": true,
+      "Married": true,
+      "Age 25-55": true
+    },
+    "Recruit Rating": {
+      "Competitive": false,
+      "Credible": true,
+      "Hungry": true,
+      "Motivated": true,
+      "People Skills": false
+    }
+  },
+  "client_rating": 4,
+  "recruit_rating": 3,
+  "credibility_rating": 10,
+  "imported": true,
+  "recruited": false,
+  "invited": false,
+  "sold": false,
+  "attended": false,
+  "list_ids": [
+    10813,
+    10817,
+    26704
+  ],
+  "created_at": "2017-12-22 05:06:36 PM",
+  "updated_at": "2018-02-24 01:11:53 AM",
+  "notes": [
+    {
+      "id": 6078,
+      "contact_id": 37140,
+      "content": "Some Contact Note",
+      "created_at": "2018-02-24 01:11:01 AM",
+      "updated_at": "2018-02-24 01:11:01 AM"
+    }
+  ]
 }
 ```
 
@@ -847,16 +929,14 @@ json | `family_name` | YES | `string`
 json | `given_name` | YES | `string`
 json | `email` | YES | `string`
 json | `phone_number` | YES | `string`
-json | `competitive` | YES | `boolean`
-json | `credible` | YES | `boolean`
-json | `kids` | YES | `boolean`
-json | `homeowner` | YES | `boolean`
-json | `hungry` | YES | `boolean`
-json | `income_over_40k` | YES | `boolean`
-json | `married` | YES | `boolean`
-json | `motivated` | YES | `boolean`
-json | `proper_age` | YES | `boolean`
-json | `people_skills` | YES | `boolean`
+json | `street` | YES | `string`
+json | `street2` | YES | `string`
+json | `city` | YES | `string`
+json | `state` | YES | `string`
+json | `zip` | YES | `string`
+json | `country` | YES | `string`
+json | `ratings` | YES | `key/value:boolean`
+json | `notes` | YES | `array<Note>`
 json | `client_rating` | YES | `integer`
 json | `recruit_rating` | YES | `integer`
 json | `credibility_rating` | YES | `integer`
@@ -880,7 +960,9 @@ By passing in `page`, you can select which group of contacts are returned.
 
 **Filterable Options**
 
-`last_sync` pass in a timestamp to return only the objects updated later than the requested date
+`last_sync` pass in a timestamp to return only the objects updated LATER than the requested date
+
+`since` pass in a timestamp to return only the objects updated EARLIER than the requested date
 
 `contact_ids` (Array), only return the contacts requested.
 
@@ -991,6 +1073,7 @@ Updates a contact.
 `PATCH/PUT https://maxactivity.com/api/v1/contacts/:id`
 
 Can only update contacts that belong to the current user
+Ratings and Notes can be edited by nesting them
 
 > Example request
 
@@ -1003,6 +1086,16 @@ curl -X PATCH "https://maxactivity.com/api/v1/contacts/4336"
 {
   "contact": {
     "given_name": "Frederick"
+    "ratings": {
+      "Client Rating": {
+        "Has Kids": false
+      }
+    },
+    "notes": [
+      {"content": "This is adding a new note."},
+      {"id": 1, "content": "This is updating an existing note."},
+      {"id": 2, "_destroy": true} # This deletes an existing note
+    ]
   }
 }
 ```
@@ -1210,7 +1303,9 @@ By passing in `page`, you can select which group of lists are returned.
 
 **Filterable Options**
 
-`last_sync` pass in a timestamp to return only the objects updated later than the requested date
+`last_sync` pass in a timestamp to return only the objects updated LATER than the requested date
+
+`since` pass in a timestamp to return only the objects updated EARLIER than the requested date
 
 `contact_ids` (Array) or `contact_id` (Integer), the endpoint will only return lists containing the requested contact(s).
 
@@ -1418,29 +1513,6 @@ Type | Key | Success? | Description
 ---- | --- | -------- | -----------
 json | `errors` | NO | `key/value:array<string>`
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Events
 
 Use this endpoint to return the attributes of events for the current user.
@@ -1523,7 +1595,9 @@ By passing in `page`, you can select which group of events are returned.
 
 **Filterable Options**
 
-`last_sync` pass in a timestamp to return only the objects updated later than the requested date
+`last_sync` pass in a timestamp to return only the objects updated LATER than the requested date
+
+`since` pass in a timestamp to return only the objects updated EARLIER than the requested date
 
 `contact_ids` (Array) or `contact_id` (Integer), the endpoint will only return events with the requested contacts.
 
