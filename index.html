@@ -641,6 +641,19 @@ The Month End date is calculated as the first week day in the following month, a
 <pre class="highlight shell"><code>2018-02-01 04:00:00 PM
 </code></pre>
 
+<h2 id="onesignal-notifications">OneSignal Notifications</h2>
+
+<p>Once the user has subscribed to OneSignal Notifications, send their OneSignal ID to this endpoint in order to allow remote notifications from the server.</p>
+
+<p><code class="prettyprint">POST https://maxactivity.com/api/v1/account/subscribe_notifications</code></p>
+
+<blockquote>
+<p>Example request</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET <span class="s2">"https://maxactivity.com/api/v1/account/subscribe_notifications"</span>
+  -d <span class="s2">"onesignal_id=asdfasdf-asdfasdf-asdfasdf"</span>
+</code></pre>
+
 <h1 id="users">Users</h1>
 
 <p>Use this endpoint to return the attributes of users.</p>
@@ -1240,25 +1253,29 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <pre class="highlight shell"><code>status 200 - OK
 -H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
-<span class="o">{</span>
-  <span class="s2">"company"</span>: <span class="o">{</span>
-    <span class="s2">"id"</span>: 1,
-    <span class="s2">"name"</span>: <span class="s2">"None"</span>,
-    <span class="s2">"event_groups"</span>: <span class="o">[</span>
-      <span class="s2">"Appointments Set"</span>,
-      <span class="s2">"Appointments Done"</span>,
-      <span class="s2">"Invites"</span>,
-      <span class="s2">"New Shows"</span>
-    <span class="o">]</span>,
-    <span class="s2">"rating_groups"</span>: <span class="o">{</span>
-      <span class="s2">"Client Rating"</span>: <span class="o">[</span>
+<span class="o">{</span>  
+  <span class="s2">"company"</span>:<span class="o">{</span>  
+    <span class="s2">"id"</span>:1,
+    <span class="s2">"name"</span>:<span class="s2">"None"</span>,
+    <span class="s2">"event_groups"</span>:<span class="o">{</span>
+      <span class="s2">"Appointment"</span>:[
+        <span class="s2">"Set Appointment"</span>,
+        <span class="s2">"Went on Appointment"</span>
+      <span class="o">]</span>,
+      <span class="s2">"Other"</span>:[
+        <span class="s2">"Invited to Meeting"</span>,
+        <span class="s2">"Went to Meeting"</span>
+      <span class="o">]</span>
+    <span class="o">}</span>,
+    <span class="s2">"rating_groups"</span>:<span class="o">{</span>
+      <span class="s2">"Client Rating"</span>:[
         <span class="s2">"Has Kids"</span>,
         <span class="s2">"Homeowner"</span>,
         <span class="s2">"Income Over 40k"</span>,
         <span class="s2">"Married"</span>,
         <span class="s2">"Age 25-55"</span>
       <span class="o">]</span>,
-      <span class="s2">"Recruit Rating"</span>: <span class="o">[</span>
+      <span class="s2">"Recruit Rating"</span>:[
         <span class="s2">"Competitive"</span>,
         <span class="s2">"Credible"</span>,
         <span class="s2">"Hungry"</span>,
@@ -1278,7 +1295,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 
 <p>Currently, the company has data for event and rating groups.</p>
 
-<p>Event Groups is an array of the titles of each valid event type for the company.</p>
+<p>Event Groups is nested hash which contains the groups of Event Types.</p>
 
 <p>Rating Groups is a nested hash which contains the groups of Rating Types.</p>
 
