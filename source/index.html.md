@@ -474,6 +474,19 @@ curl -X GET "https://maxactivity.com/api/v1/account/month_end"
 2018-02-01 04:00:00 PM
 ```
 
+## OneSignal Notifications
+
+Once the user has subscribed to OneSignal Notifications, send their OneSignal ID to this endpoint in order to allow remote notifications from the server.
+
+`POST https://maxactivity.com/api/v1/account/subscribe_notifications`
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/account/subscribe_notifications"
+  -d "onesignal_id=asdfasdf-asdfasdf-asdfasdf"
+```
+
 # Users
 
 Use this endpoint to return the attributes of users.
@@ -786,25 +799,29 @@ header | `Authorization` | YES | `string`
 status 200 - OK
 -H Authorization Token: aaabbbcccdddeeefffggghhhiii
 
-{
-  "company": {
-    "id": 1,
-    "name": "None",
-    "event_groups": [
-      "Appointments Set",
-      "Appointments Done",
-      "Invites",
-      "New Shows"
-    ],
-    "rating_groups": {
-      "Client Rating": [
+{  
+  "company":{  
+    "id":1,
+    "name":"None",
+    "event_groups":{
+      "Appointment":[
+        "Set Appointment",
+        "Went on Appointment"
+      ],
+      "Other":[
+        "Invited to Meeting",
+        "Went to Meeting"
+      ]
+    },
+    "rating_groups":{
+      "Client Rating":[
         "Has Kids",
         "Homeowner",
         "Income Over 40k",
         "Married",
         "Age 25-55"
       ],
-      "Recruit Rating": [
+      "Recruit Rating":[
         "Competitive",
         "Credible",
         "Hungry",
@@ -824,7 +841,7 @@ Use this endpoint to return the company data of the current user
 
 Currently, the company has data for event and rating groups.
 
-Event Groups is an array of the titles of each valid event type for the company.
+Event Groups is nested hash which contains the groups of Event Types.
 
 Rating Groups is a nested hash which contains the groups of Rating Types.
 
