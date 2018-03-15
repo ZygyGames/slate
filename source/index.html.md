@@ -1810,3 +1810,321 @@ status 200 - OK
 Type | Key | Success? | Description
 ---- | --- | -------- | -----------
 json | `errors` | NO | `key/value:array<string>`
+
+# Goals
+
+Use this endpoint to return the attributes of goal sets for the current user.
+
+## Show
+
+Returns the data of a single goal set.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/goal_sets/:id`
+
+This goal set must be accessible from the current user, meaning the goal set must belong to them or one of their downlines.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/goal_sets/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+"goal_set": {
+  "id": 215,
+  "client_uuid": null,
+  "user_id": 1803,
+  "title": "My Goals",
+  "goals": [
+    {
+      "id": 2140,
+      "client_uuid": null,
+      "goal_type": "Contacts Added",
+      "percentage_completed": 85.7,
+      "goal_amount": 7,
+      "current_amount": 6,
+      "created_at": "2018-03-15 03:06:25 AM",
+      "updated_at": "2018-03-15 03:44:27 AM"
+    }
+  ],
+  "percentage_completed": 85.7,
+  "start_date": "2018-03-14",
+  "end_date": "2018-03-31",
+  "completed_at": null,
+  "deleted_at": null,
+  "created_at": "2018-03-15 03:06:25 AM",
+  "updated_at": "2018-03-15 03:44:27 AM"
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `key/value:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `id` | YES | `integer`
+json | `user_id` | YES | `integer`
+json | `title` | YES | `string`
+json | `percentage_completed` | YES | `float`
+json | `start_date` | YES | `timestamp`
+json | `end_date` | YES | `timestamp`
+json | `completed_at` | YES | `timestamp`
+json | `goals` | YES | `array<Goal>`
+json | `created_at` | YES | `timestamp`
+json | `updated_at` | YES | `timestamp`
+json | `deleted_at` | YES | `timestamp`
+
+## Index
+
+Returns an array of all goal sets viewable by the current user.
+
+### HTTP Request
+
+`GET https://maxactivity.com/api/v1/goal_sets`
+
+Only goal_sets who the current user is able to access are returned:
+GoalSets belonging to the current user or any user lower in the hierarchy.
+
+This endpoint is paginated, meaning only a maximum of `per` goal_sets are returned.
+By passing in `page`, you can select which group of goal_sets are returned.
+
+**Filterable Options**
+
+`last_sync` pass in a timestamp to return only the objects updated LATER than the requested date
+
+`since` pass in a timestamp to return only the objects updated EARLIER than the requested date
+
+`goal_set_ids` (Array), only return the goal_sets requested.
+
+`user_ids` (Array) or `user_id` (Integer), the endpoint will only return goal_sets belonging to the requested users.
+
+> Example request
+
+```shell
+curl -X GET "https://maxactivity.com/api/v1/goal_sets"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `user_id` | NO | `integer`
+param | `user_ids` | NO | `array<integer>`
+param | `last_sync` | NO | `timestamp`
+param | `page` | NO | `integer` (Default: `1`)
+param | `per` | NO | `integer` (Default: `25`)
+param | `all` | NO | `boolean` (Default: `false`)
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "goal_sets":[{}, {}, {}],
+  "meta":{}
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `key/value:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `goal_sets` | YES | `array<key/value:goal_setJson>`
+json | `meta` | YES | `key/value:meta`
+
+## Create
+
+Creates a new goal_set for the current user
+
+### HTTP Request
+
+`POST https://maxactivity.com/api/v1/goal_sets`
+
+> Example request
+
+```shell
+curl -X POST "https://maxactivity.com/api/v1/goal_sets"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "goal_set[family_name]=Smith"
+  -d "goal_set[given_name]=Sarah"
+
+# This is the equivalent of:
+{
+  "goal_set": {
+    "title": "My Goals",
+    "start_date": "2018-03-14",
+    "end_date": "2018-03-31",
+    "goals": [
+      {"goal_type": "Contacts Added", "goal_amount": 7},
+      {"goal_type": "Set Appointment", "goal_amount": 20},
+      {"goal_type": "Went on Appointment", "goal_amount": 5}
+    ]
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `goal_set` | YES | `key/value:goal_setJson`
+param | `goals[start_date]` | YES | `timestamp`
+param | `goals[end_date]` | YES | `timestamp`
+
+> Response - Success
+
+```shell
+status 201 - Created
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "goal_set":{  
+    "title": "My Goals",
+    "start_date": "2018-03-14",
+    "end_date": "2018-03-31",
+    "goals": [
+      {"goal_type": "Contacts Added", "goal_amount": 7},
+      {"goal_type": "Set Appointment", "goal_amount": 20},
+      {"goal_type": "Went on Appointment", "goal_amount": 5}
+    ]
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `key/value:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `goal_set` | YES | `key/value:goal_setJson`
+
+## Update
+
+Updates a goal_set.
+
+### HTTP Request
+
+`PATCH/PUT https://maxactivity.com/api/v1/goal_sets/:id`
+
+Can only update goal_sets that belong to the current user
+Goals can be edited by nesting them
+
+> Example request
+
+```shell
+curl -X PATCH "https://maxactivity.com/api/v1/goal_sets/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+  -d "goal_set[given_name]=Frederick"
+
+# This is the equivalent of:
+{
+  "goal_set":{  
+    "title": "My Goals",
+    "start_date": "2018-03-14",
+    "end_date": "2018-03-31",
+    "goals": [
+      {"goal_type": "Contacts Added", "goal_amount": 7},
+      {"id": 215, "goal_type": "Set Appointment", "goal_amount": 20},
+      {"id": 216, "_destroy": true}
+    ]
+  }
+}
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+json | `goal_set` | YES | `key/value:goal_setJson`
+
+> Response - Success
+
+```shell
+status 200 - OK
+-H Authorization Token: aaabbbcccdddeeefffggghhhiii
+
+{  
+  "goal_set":{  
+    "title": "My Goals",
+    "start_date": "2018-03-14",
+    "end_date": "2018-03-31",
+    "goals": [
+      {"goal_type": "Contacts Added", "goal_amount": 7},
+      {"id": 215, "goal_type": "Set Appointment", "goal_amount": 20},
+      {"id": 216, "_destroy": true}
+    ]
+  }
+}
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `key/value:array<string>`
+header | `Authorization Token` | YES | `string`
+json | `goal_set` | YES | `key/value:goal_setJson`
+
+## Destroy
+
+Removes a goal_set
+
+### HTTP Request
+
+`DELETE https://maxactivity.com/api/v1/goal_sets/:id`
+
+May only delete goal_sets that belong to the current user.
+
+> Example request
+
+```shell
+curl -X DELETE "https://maxactivity.com/api/v1/goal_sets/4336"
+  -H "Authorization: Token aaabbbcccdddeeefffggghhhiii"
+```
+
+### Request Expectations:
+
+Type | Parameter | Required? | Description
+---- | --------- | --------- | -----------
+header | `Authorization` | YES | `string`
+param | `id` | YES | `integer`
+
+> Response - Success
+
+```shell
+status 200 - OK
+
+# No response is returned after deleting an object.
+```
+
+### Response Expectations
+
+Type | Key | Success? | Description
+---- | --- | -------- | -----------
+json | `errors` | NO | `key/value:array<string>`
