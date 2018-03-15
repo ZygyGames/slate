@@ -828,7 +828,14 @@ status 200 - OK
         "Motivated",
         "People Skills"
       ]
-    }
+    },
+    "goal_types":[
+      "Contacts Added",
+      "Set Appointment",
+      "Went on Appointment",
+      "Invited to Meeting",
+      "Went to Meeting"
+    ]
   }
 }
 ```
@@ -1958,6 +1965,10 @@ json | `meta` | YES | `key/value:meta`
 
 Creates a new goal_set for the current user
 
+Use `time_period` to automatically set the start and end date for the GoalSet.
+When set to Weekly, the start date will be the previous Sunday and the end date will be the following Saturday.
+When set to Monthly, the start date will be the previous "month end" and the end date will be the next.
+
 ### HTTP Request
 
 `POST https://maxactivity.com/api/v1/goal_sets`
@@ -1974,8 +1985,7 @@ curl -X POST "https://maxactivity.com/api/v1/goal_sets"
 {
   "goal_set": {
     "title": "My Goals",
-    "start_date": "2018-03-14",
-    "end_date": "2018-03-31",
+    "time_period": "weekly",
     "goals": [
       {"goal_type": "Contacts Added", "goal_amount": 7},
       {"goal_type": "Set Appointment", "goal_amount": 20},
