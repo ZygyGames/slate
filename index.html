@@ -1282,7 +1282,14 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
         <span class="s2">"Motivated"</span>,
         <span class="s2">"People Skills"</span>
       <span class="o">]</span>
-    <span class="o">}</span>
+    <span class="o">}</span>,
+    <span class="s2">"goal_types"</span>:[
+      <span class="s2">"Contacts Added"</span>,
+      <span class="s2">"Set Appointment"</span>,
+      <span class="s2">"Went on Appointment"</span>,
+      <span class="s2">"Invited to Meeting"</span>,
+      <span class="s2">"Went to Meeting"</span>
+    <span class="o">]</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
@@ -3458,6 +3465,10 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 
 <p>Creates a new goal_set for the current user</p>
 
+<p>Use <code class="prettyprint">time_period</code> to automatically set the start and end date for the GoalSet.
+When set to Weekly, the start date will be the previous Sunday and the end date will be the following Saturday.
+When set to Monthly, the start date will be the previous &ldquo;month end&rdquo; and the end date will be the next.</p>
+
 <h3 id="http-request">HTTP Request</h3>
 
 <p><code class="prettyprint">POST https://maxactivity.com/api/v1/goal_sets</code></p>
@@ -3474,8 +3485,7 @@ By passing in <code class="prettyprint">page</code>, you can select which group 
 <span class="o">{</span>
   <span class="s2">"goal_set"</span>: <span class="o">{</span>
     <span class="s2">"title"</span>: <span class="s2">"My Goals"</span>,
-    <span class="s2">"start_date"</span>: <span class="s2">"2018-03-14"</span>,
-    <span class="s2">"end_date"</span>: <span class="s2">"2018-03-31"</span>,
+    <span class="s2">"time_period"</span>: <span class="s2">"weekly"</span>,
     <span class="s2">"goals"</span>: <span class="o">[</span>
       <span class="o">{</span><span class="s2">"goal_type"</span>: <span class="s2">"Contacts Added"</span>, <span class="s2">"goal_amount"</span>: 7<span class="o">}</span>,
       <span class="o">{</span><span class="s2">"goal_type"</span>: <span class="s2">"Set Appointment"</span>, <span class="s2">"goal_amount"</span>: 20<span class="o">}</span>,
