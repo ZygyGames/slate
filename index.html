@@ -201,7 +201,7 @@ Generally, when interacting with maxactivity.com, any time something goes wrong,
 
 <p>You can read more about status codes <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">Here</a></p>
 
-<h3 id="formats">Formats</h3>
+<h2 id="formats">Formats</h2>
 
 <p><code class="prettyprint">timestamp</code>s are always returned as strings in UTC with the format:</p>
 
@@ -226,7 +226,7 @@ Generally, when interacting with maxactivity.com, any time something goes wrong,
 <span class="o">}</span>
 </code></pre>
 
-<h2 id="restful-api">RESTful API</h2>
+<h1 id="restful-api">RESTful API</h1>
 
 <p>maxactivity.com uses RESTful APIs.
 RESTful means we adhere to &ldquo;Representational State Transfer&rdquo; constraints.
@@ -246,7 +246,7 @@ For example:
 <p>Means your url should look like this: <code class="prettyprint">https://maxactivity.com/api/v1/users/123</code>
 The <code class="prettyprint">123</code> is the <em>server id</em> for that user.</p>
 
-<h3 id="show">SHOW</h3>
+<h2 id="show">SHOW</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -276,7 +276,7 @@ The <code class="prettyprint">123</code> is the <em>server id</em> for that user
 
 <p>.</p>
 
-<h3 id="index">INDEX</h3>
+<h2 id="index">INDEX</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -349,7 +349,7 @@ Some endpoints have additional filters which will be covered in the specific res
 
 <p>Any time you make a request to an endpoint that returns paginated objects, the <code class="prettyprint">meta</code> data in your response will contain details about the paginated objects.</p>
 
-<h3 id="create">CREATE</h3>
+<h2 id="create">CREATE</h2>
 
 <blockquote>
 <p>Example Request</p>
@@ -379,7 +379,7 @@ Some endpoints have additional filters which will be covered in the specific res
 
 <p>In these cases, the objects should be nested as a property in the object they are under, with the key being the <em>pluralized, lowercase, underscored</em> name of the object. If an <code class="prettyprint">id</code> for the nested resource is not included, a new resource will be created, otherwise the resource will be updated. If the special key <code class="prettyprint">_destroy</code> is passed with a value of <code class="prettyprint">true</code>, the nested object will be deleted.</p>
 
-<h3 id="update">UPDATE</h3>
+<h2 id="update">UPDATE</h2>
 
 <blockquote>
 <p>Example Request</p>
@@ -399,7 +399,7 @@ Some endpoints have additional filters which will be covered in the specific res
 
 <p>All properties must be nested beneath the <em>singular, lowercase, underscored</em> resource key.</p>
 
-<h3 id="destroy">DESTROY</h3>
+<h2 id="destroy">DESTROY</h2>
 
 <p>DELETE <code class="prettyprint">/resources/:id</code></p>
 
@@ -416,13 +416,13 @@ Some endpoints have additional filters which will be covered in the specific res
 <li>Username/Password combination (Not recommended)</li>
 </ol>
 
-<h3 id="authorization-token">Authorization Token</h3>
+<h2 id="authorization-token">Authorization Token</h2>
 
 <p>An authentication token will be returned in the <em>headers</em> of any request where the user was successfully authenticated.
 This token is found as the value for the head &ldquo;Authorization Token&rdquo; and can be stored in the device&rsquo;s local storage safely.
 In order to authenticate, pass the <code class="prettyprint">Authorization</code> header in your request with a value of <code class="prettyprint">Token aabbccdd</code> where <code class="prettyprint">aabbccdd</code> is the authorization retrieved from the previous header.</p>
 
-<h3 id="username-password-combination">Username/Password combination</h3>
+<h2 id="username-password-combination">Username/Password combination</h2>
 
 <p>In order to get an Authorization Token, a user must first log in with their username or email and password combination.
 These should <strong>NOT</strong> be stored on the device, as the device&rsquo;s local memory can potentially be accessed.
@@ -437,7 +437,7 @@ In order to authenticate, pass the <code class="prettyprint">Authorization</code
 <blockquote>
 <p>Example Request</p>
 </blockquote>
-<pre class="highlight shell"><code>POST https://maxactivity.com/api/v1/login
+<pre class="highlight shell"><code>POST /login
 
 <span class="o">{</span>
   <span class="s2">"email"</span>: <span class="s2">"user@email.com"</span>, <span class="c"># * Required</span>
@@ -464,7 +464,7 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>POST https://maxactivity.com/api/v1/password_reset
+<pre class="highlight shell"><code>POST /password_reset
 
 <span class="o">{</span>
   <span class="s2">"email"</span>: <span class="s2">"user@email.com"</span>
@@ -489,7 +489,7 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>GET https://maxactivity.com/api/v1/updates
+<pre class="highlight shell"><code>GET /updates
 
 <span class="o">{</span>
   <span class="s2">"last_sync"</span>: <span class="s2">"2018-02-01 04:00:00 PM"</span>
@@ -588,7 +588,7 @@ wscat -c <span class="s2">"wss://maxactivity.com/cable"</span> -o <span class="s
 
 <p><code class="prettyprint">wscat</code> can be installed with <code class="prettyprint">npm install -g wscat</code></p>
 
-<h3 id="connect">Connect</h3>
+<h2 id="connect">Connect</h2>
 
 <p>The initial connection must be made to the url:
 <code class="prettyprint">wss://maxactivity.com/cable</code>
@@ -601,7 +601,7 @@ The request origin must be set to the root domain,
 If a connection is lost, the app should continually attempt to reconnect to the server until the connection is once again made. At that point, you must also subscribe again.
 </aside>
 
-<h3 id="subscribe">Subscribe</h3>
+<h2 id="subscribe">Subscribe</h2>
 
 <p>In order to actually get data back from the server, you must first subscribe to a channel.</p>
 
@@ -620,7 +620,7 @@ The <code class="prettyprint">GlobalChannel</code> contains information for all 
 <p>The <code class="prettyprint">channel</code> is a hard set string as <code class="prettyprint">UpdatesChannel</code> or <code class="prettyprint">GlobalChannel</code>
 The <code class="prettyprint">channel_id</code> should only be included with the <code class="prettyprint">UpdatesChannel</code> and the value is a string <code class="prettyprint">updates_1111</code> - replace <code class="prettyprint">1111</code> with the current user&rsquo;s server id.</p>
 
-<h3 id="response">Response</h3>
+<h2 id="response">Response</h2>
 
 <p>The response from the server will not come immediately, but as a message through the websocket. The message will always be a JSON packet. This data will exactly match the format of the <code class="prettyprint">updates</code> endpoint, but typically only a few objects will be sent at a time and they will be sent as soon as those objects are changed on the server.</p>
 
@@ -660,20 +660,18 @@ The <code class="prettyprint">meta</code> key will <strong>always</strong> conta
 When the command is <code class="prettyprint">resync</code> the app should drop the current database and sync again using the standard endpoints. This is used when a user&rsquo;s company is changed, causing all values within the app to potentially change. It can also be used when debugging.
 When the command is <code class="prettyprint">logout</code> a user should <strong>immediately</strong> be logged out- the database should be dropped and the <code class="prettyprint">Authentication Token</code> cleared. This will generally be used if there is suspicious activity on the user&rsquo;s account.</p>
 
-<h1 id="account">Account</h1>
+<h1 id="endpoints">Endpoints</h1>
 
-<h2 id="month-end">Month End</h2>
+<h2 id="account">Account</h2>
+
+<h3 id="month-end">Month End</h3>
 
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>GET <span class="s2">"https://maxactivity.com/api/v1/account/month_end"</span>
-</code></pre>
+<pre class="highlight shell"><code>GET /account/month_end
 
-<blockquote>
-<p>Response</p>
-</blockquote>
-<pre class="highlight shell"><code><span class="o">{</span>
+<span class="o">{</span>
   <span class="s2">"month_end"</span>: <span class="s2">"2018-02-01 04:00:00 PM"</span>
 <span class="o">}</span>
 </code></pre>
@@ -690,12 +688,12 @@ The Month End date is calculated as the first week day in the following month, a
 Month End can occasionally be updated to be a different date/time for various reasons.
 </aside>
 
-<h2 id="onesignal-notifications">OneSignal Notifications</h2>
+<h3 id="onesignal-notifications">OneSignal Notifications</h3>
 
 <blockquote>
 <p>Example request</p>
 </blockquote>
-<pre class="highlight shell"><code>POST https://maxactivity.com/api/v1/account/subscribe_notifications
+<pre class="highlight shell"><code>POST /account/subscribe_notifications
 
 <span class="o">{</span>
   <span class="s2">"onesignal_id"</span>: <span class="s2">"asdfasdf-asdfasdf-asdfasdf"</span>
@@ -704,7 +702,7 @@ Month End can occasionally be updated to be a different date/time for various re
 
 <p>Once the user has subscribed to OneSignal Notifications, send their OneSignal ID to this endpoint in order to allow remote notifications from the server.</p>
 
-<h1 id="user">User</h1>
+<h2 id="user">User</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -768,7 +766,7 @@ Month End can occasionally be updated to be a different date/time for various re
 
 <aside class="notice">Creating a user does NOT require authentication. Use the Create User endpoint to register a new account.</aside>
 
-<h1 id="company">Company</h1>
+<h2 id="company">Company</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -837,7 +835,7 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
 
 <p>The above values will be needed when creating objects relative to each category.</p>
 
-<h1 id="contact">Contact</h1>
+<h2 id="contact">Contact</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -932,7 +930,40 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
 
 <aside class="notice">Notes are treated as a nested resource for Contacts. To modify notes, you must do so through the nested resources syntax.</aside>
 
-<h1 id="list-contact">List Contact</h1>
+<h2 id="note">Note</h2>
+
+<blockquote>
+<p>Example Response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"note"</span>: <span class="o">{</span>
+    <span class="s2">"id"</span>: 6088,
+    <span class="s2">"client_uuid"</span>: null,
+    <span class="s2">"contact_id"</span>: 37140,
+    <span class="s2">"content"</span>: <span class="s2">"Some Stuff"</span>,
+    <span class="s2">"created_at"</span>: <span class="s2">"2018-03-20 01:02:07 AM"</span>,
+    <span class="s2">"updated_at"</span>: <span class="s2">"2018-03-20 01:02:07 AM"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p>Example Request</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"note"</span>: <span class="o">{</span>
+    <span class="s2">"client_uuid"</span>: null,
+    <span class="s2">"contact_id"</span>: 37140, <span class="c"># * Required on first create</span>
+    <span class="s2">"content"</span>: <span class="s2">"Some Stuff"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h3 id="additional-filters">Additional Filters</h3>
+
+<p><code class="prettyprint">contact_id</code> can be passed as an array or a single integer, will return only notes belonging to those Contact(s)</p>
+
+<h2 id="list-contact">List Contact</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -968,7 +999,7 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
 
 <aside class="notice">This resource only has an INDEX endpoint.</aside>
 
-<h1 id="list">List</h1>
+<h2 id="list">List</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -1000,16 +1031,19 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
 <span class="o">}</span>
 </code></pre>
 
-<p>The Lists INDEX endpoint has an additional filter:
-<code class="prettyprint">contact_ids</code> - When passing an array of or single id, will return all lists that contain that Contact.</p>
-
 <p>When creating or updating a list, Contacts can be modified in 3 ways:</p>
 
-<p><code class="prettyprint">contact_ids</code> - This sets the new Contact list. Any contacts not included will be removed, and extra contacts will be added. Existing contacts will be unchanged. (Not recommended)
-<code class="prettyprint">add_contact_ids</code> - Adds new contacts by id without modifying existing contacts.
-<code class="prettyprint">remove_contact_ids</code> - Removes contacts from a list if they are present.</p>
+<ol>
+<li><code class="prettyprint">contact_ids</code> - This sets the new Contact list. Any contacts not included will be removed, and extra contacts will be added. Existing contacts will be unchanged. (Not recommended)</li>
+<li><code class="prettyprint">add_contact_ids</code> - Adds new contacts by id without modifying existing contacts.</li>
+<li><code class="prettyprint">remove_contact_ids</code> - Removes contacts from a list if they are present.</li>
+</ol>
 
-<h1 id="event">Event</h1>
+<h3 id="additional-filters">Additional Filters</h3>
+
+<p><code class="prettyprint">contact_id</code> can be passed as an array or a single integer, will return only lists which include those Contact(s)</p>
+
+<h2 id="event">Event</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -1060,7 +1094,7 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
 <li>Pass the <code class="prettyprint">meeting_schedule_id</code> AND the <code class="prettyprint">meeting_date</code> - This will automatically set the corresponding meeting id.</li>
 </ol>
 
-<h1 id="goal-set">Goal Set</h1>
+<h2 id="goal-set">Goal Set</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -1077,20 +1111,7 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
     <span class="s2">"completed_at"</span>: <span class="s2">"2018-03-15 04:00:23 AM"</span>,
     <span class="s2">"deleted_at"</span>: null,
     <span class="s2">"created_at"</span>: <span class="s2">"2018-03-15 03:06:25 AM"</span>,
-    <span class="s2">"updated_at"</span>: <span class="s2">"2018-03-15 04:00:31 AM"</span>,
-    <span class="s2">"goals"</span>: <span class="o">[</span>
-      <span class="o">{</span>
-        <span class="s2">"id"</span>: 2140,
-        <span class="s2">"client_uuid"</span>: <span class="s2">"aaaa-bbbb-cccc-dddd"</span>,
-        <span class="s2">"goal_type"</span>: <span class="s2">"Contacts Added"</span>,
-        <span class="s2">"goal_set_id"</span>: 215,
-        <span class="s2">"percentage_completed"</span>: 128.6,
-        <span class="s2">"goal_amount"</span>: 7,
-        <span class="s2">"current_amount"</span>: 9,
-        <span class="s2">"created_at"</span>: <span class="s2">"2018-03-15 03:06:25 AM"</span>,
-        <span class="s2">"updated_at"</span>: <span class="s2">"2018-03-15 03:54:31 AM"</span>
-      <span class="o">}</span>
-    <span class="o">]</span>
+    <span class="s2">"updated_at"</span>: <span class="s2">"2018-03-15 04:00:31 AM"</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
@@ -1103,23 +1124,49 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
     <span class="s2">"client_uuid"</span>: <span class="s2">"aaaa-bbbb-cccc-dddd"</span>,
     <span class="s2">"title"</span>: <span class="s2">"My Goals"</span>,
     <span class="s2">"start_date"</span>: <span class="s2">"2018-03-14"</span>,        <span class="c"># * Required on first create</span>
-    <span class="s2">"end_date"</span>: <span class="s2">"2018-03-31"</span>           <span class="c"># * Required on first create</span>
-    <span class="s2">"goals"</span>: <span class="o">[</span>
-      <span class="o">{</span>
-        <span class="s2">"id"</span>: 2140,
-        <span class="s2">"client_uuid"</span>: <span class="s2">"aaaa-bbbb-cccc-dddd"</span>,
-        <span class="s2">"goal_type"</span>: <span class="s2">"Contacts Added"</span>, <span class="c"># * Required on first create, pulled from the Company goal_types</span>
-        <span class="s2">"goal_amount"</span>: 7,              <span class="c"># * Required on first create</span>
-        <span class="s2">"current_amount"</span>: 9,
-      <span class="o">}</span>
-    <span class="o">]</span>,
+    <span class="s2">"end_date"</span>: <span class="s2">"2018-03-31"</span>,          <span class="c"># * Required on first create</span>
+    <span class="s2">"time_period"</span>: <span class="s2">"weekly"</span>            <span class="c"># * Alternative to the start/end date</span>
   <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
 
-<aside class="notice">Goals are treated as a nested resource for Goal Sets. To modify notes, you must do so through the nested resources syntax.</aside>
+<aside class="notice">`time_period` can be included instead of `start_date` and `end_date`. Valid options are: &ldquo;weekly&rdquo; and &ldquo;monthly&rdquo;. When passed, the time stamps are automatically determined. Weekly is Sunday to Sunday, monthly is Month End to Month End.</aside>
 
-<h1 id="meeting-schedule">Meeting Schedule</h1>
+<h2 id="goal">Goal</h2>
+
+<blockquote>
+<p>Example Response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"goal"</span>: <span class="o">{</span>
+    <span class="s2">"id"</span>: 2139,
+    <span class="s2">"client_uuid"</span>: null,
+    <span class="s2">"goal_type"</span>: <span class="s2">"Contacts Added"</span>,
+    <span class="s2">"goal_set_id"</span>: 214,
+    <span class="s2">"goal_set_client_uuid"</span>: null,
+    <span class="s2">"percentage_completed"</span>: 128.6,
+    <span class="s2">"goal_amount"</span>: 7,
+    <span class="s2">"current_amount"</span>: 9,
+    <span class="s2">"created_at"</span>: <span class="s2">"2018-03-15 03:02:12 AM"</span>,
+    <span class="s2">"updated_at"</span>: <span class="s2">"2018-03-15 03:54:31 AM"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<blockquote>
+<p>Example Request</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"goal"</span>: <span class="o">{</span>
+    <span class="s2">"client_uuid"</span>: null,
+    <span class="s2">"goal_type"</span>: <span class="s2">"Contacts Added"</span>,
+    <span class="s2">"goal_amount"</span>: 7,
+    <span class="s2">"goal_set_id"</span>: 214 <span class="c"># * Required on first create</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<h2 id="meeting-schedule">Meeting Schedule</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -1167,7 +1214,7 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
 
 <p>The RVP or user that creates the meeting schedule is referred to as the <code class="prettyprint">orchestrator</code></p>
 
-<h1 id="meeting">Meeting</h1>
+<h2 id="meeting">Meeting</h2>
 
 <blockquote>
 <p>Example Response</p>
@@ -1211,7 +1258,7 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
 
 <p>The <code class="prettyprint">original_date</code> that&rsquo;s returned is the original time the Meeting is supposed to exist, in case the time is adjusted for a particular meeting date.</p>
 
-<h1 id="attendance">Attendance</h1>
+<h2 id="attendance">Attendance</h2>
 
 <blockquote>
 <p>Example Response</p>
