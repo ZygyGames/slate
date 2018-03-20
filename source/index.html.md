@@ -97,7 +97,7 @@ Generally, when interacting with maxactivity.com, any time something goes wrong,
 
 You can read more about status codes [Here](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
 
-### Formats
+## Formats
 
 `timestamp`s are always returned as strings in UTC with the format:
 
@@ -122,7 +122,7 @@ Example response with pagination meta details
 }
 ```
 
-## RESTful API
+# RESTful API
 
 maxactivity.com uses RESTful APIs.
 RESTful means we adhere to "Representational State Transfer" constraints.
@@ -142,7 +142,7 @@ For example:
 Means your url should look like this: `https://maxactivity.com/api/v1/users/123`
 The `123` is the *server id* for that user.
 
-### SHOW
+## SHOW
 
 > Example Response
 
@@ -172,7 +172,7 @@ This resource must be *viewable* by the current user, or you will get a `404 - N
 
 .
 
-### INDEX
+## INDEX
 
 > Example Response
 
@@ -228,7 +228,7 @@ Some endpoints have additional filters which will be covered in the specific res
 Any time you make a request to an endpoint that returns paginated objects, the `meta` data in your response will contain details about the paginated objects.
 
 
-### CREATE
+## CREATE
 
 > Example Request
 
@@ -258,7 +258,7 @@ Occasionally, objects will be nested within another object, such as `notes` unde
 
 In these cases, the objects should be nested as a property in the object they are under, with the key being the *pluralized, lowercase, underscored* name of the object. If an `id` for the nested resource is not included, a new resource will be created, otherwise the resource will be updated. If the special key `_destroy` is passed with a value of `true`, the nested object will be deleted.
 
-### UPDATE
+## UPDATE
 
 > Example Request
 
@@ -278,7 +278,7 @@ Only send the properties that are currently being modified- this prevents race c
 
 All properties must be nested beneath the *singular, lowercase, underscored* resource key.
 
-### DESTROY
+## DESTROY
 
 DELETE `/resources/:id`
 
@@ -293,13 +293,13 @@ Submitting to this endpoint will destroy the object. *A user can only destroy ob
 1. Authorization Token (Recommended)
 2. Username/Password combination (Not recommended)
 
-### Authorization Token
+## Authorization Token
 
 An authentication token will be returned in the *headers* of any request where the user was successfully authenticated.
 This token is found as the value for the head "Authorization Token" and can be stored in the device's local storage safely.
 In order to authenticate, pass the `Authorization` header in your request with a value of `Token aabbccdd` where `aabbccdd` is the authorization retrieved from the previous header.
 
-### Username/Password combination
+## Username/Password combination
 
 In order to get an Authorization Token, a user must first log in with their username or email and password combination.
 These should **NOT** be stored on the device, as the device's local memory can potentially be accessed.
@@ -314,7 +314,7 @@ Any time that the server responds with a `401` status code, the user should be l
 > Example Request
 
 ```shell
-POST https://maxactivity.com/api/v1/login
+POST /login
 
 {
   "email": "user@email.com", # * Required
@@ -341,7 +341,7 @@ Remember — Store the `Authorization Token` in-app and over-write it on every r
 > Example request
 
 ```shell
-POST https://maxactivity.com/api/v1/password_reset
+POST /password_reset
 
 {
   "email": "user@email.com"
@@ -366,7 +366,7 @@ This endpoint will ALWAYS return a 200, regardless of if the email is actually s
 > Example request
 
 ```shell
-GET https://maxactivity.com/api/v1/updates
+GET /updates
 
 {
   "last_sync": "2018-02-01 04:00:00 PM"
@@ -465,7 +465,7 @@ Websockets allow you to receive updates as they happen. To demonstrate websocket
 
 `wscat` can be installed with `npm install -g wscat`
 
-### Connect
+## Connect
 
 The initial connection must be made to the url:
 `wss://maxactivity.com/cable`
@@ -478,7 +478,7 @@ In order to use the websockets, you must be authorized. You can authorize the sa
 If a connection is lost, the app should continually attempt to reconnect to the server until the connection is once again made. At that point, you must also subscribe again.
 </aside>
 
-### Subscribe
+## Subscribe
 
 In order to actually get data back from the server, you must first subscribe to a channel.
 
@@ -497,7 +497,7 @@ In order to subscribe, you must send data through the websocket telling the serv
 The `channel` is a hard set string as `UpdatesChannel` or `GlobalChannel`
 The `channel_id` should only be included with the `UpdatesChannel` and the value is a string `updates_1111` - replace `1111` with the current user's server id.
 
-### Response
+## Response
 
 The response from the server will not come immediately, but as a message through the websocket. The message will always be a JSON packet. This data will exactly match the format of the `updates` endpoint, but typically only a few objects will be sent at a time and they will be sent as soon as those objects are changed on the server.
 
@@ -537,19 +537,17 @@ These can be:
 When the command is `resync` the app should drop the current database and sync again using the standard endpoints. This is used when a user's company is changed, causing all values within the app to potentially change. It can also be used when debugging.
 When the command is `logout` a user should **immediately** be logged out- the database should be dropped and the `Authentication Token` cleared. This will generally be used if there is suspicious activity on the user's account.
 
-# Account
+# Endpoints
 
-## Month End
+## Account
+
+### Month End
 
 > Example request
 
 ```shell
-GET "https://maxactivity.com/api/v1/account/month_end"
-```
+GET /account/month_end
 
-> Response
-
-```shell
 {
   "month_end": "2018-02-01 04:00:00 PM"
 }
@@ -567,12 +565,12 @@ The Month End date is calculated as the first week day in the following month, a
 Month End can occasionally be updated to be a different date/time for various reasons.
 </aside>
 
-## OneSignal Notifications
+### OneSignal Notifications
 
 > Example request
 
 ```shell
-POST https://maxactivity.com/api/v1/account/subscribe_notifications
+POST /account/subscribe_notifications
 
 {
   "onesignal_id": "asdfasdf-asdfasdf-asdfasdf"
@@ -581,7 +579,7 @@ POST https://maxactivity.com/api/v1/account/subscribe_notifications
 
 Once the user has subscribed to OneSignal Notifications, send their OneSignal ID to this endpoint in order to allow remote notifications from the server.
 
-# User
+## User
 
 > Example Response
 
@@ -645,7 +643,7 @@ Once the user has subscribed to OneSignal Notifications, send their OneSignal ID
 
 <aside class="notice">Creating a user does NOT require authentication. Use the Create User endpoint to register a new account.</aside>
 
-# Company
+## Company
 
 > Example Response
 
@@ -714,7 +712,7 @@ Inside of the event groups are `event_types` which are the names of the specific
 
 The above values will be needed when creating objects relative to each category.
 
-# Contact
+## Contact
 
 > Example Response
 
@@ -809,7 +807,40 @@ The above values will be needed when creating objects relative to each category.
 
 <aside class="notice">Notes are treated as a nested resource for Contacts. To modify notes, you must do so through the nested resources syntax.</aside>
 
-# List Contact
+## Note
+
+> Example Response
+
+```shell
+{
+  "note": {
+    "id": 6088,
+    "client_uuid": null,
+    "contact_id": 37140,
+    "content": "Some Stuff",
+    "created_at": "2018-03-20 01:02:07 AM",
+    "updated_at": "2018-03-20 01:02:07 AM"
+  }
+}
+```
+
+> Example Request
+
+```shell
+{
+  "note": {
+    "client_uuid": null,
+    "contact_id": 37140, # * Required on first create
+    "content": "Some Stuff"
+  }
+}
+```
+
+### Additional Filters
+
+`contact_id` can be passed as an array or a single integer, will return only notes belonging to those Contact(s)
+
+## List Contact
 
 > Example Response
 
@@ -845,7 +876,7 @@ The above values will be needed when creating objects relative to each category.
 
 <aside class="notice">This resource only has an INDEX endpoint.</aside>
 
-# List
+## List
 
 > Example Response
 
@@ -876,17 +907,17 @@ The above values will be needed when creating objects relative to each category.
   }
 }
 ```
-
-The Lists INDEX endpoint has an additional filter:
-`contact_ids` - When passing an array of or single id, will return all lists that contain that Contact.
-
 When creating or updating a list, Contacts can be modified in 3 ways:
 
-`contact_ids` - This sets the new Contact list. Any contacts not included will be removed, and extra contacts will be added. Existing contacts will be unchanged. (Not recommended)
-`add_contact_ids` - Adds new contacts by id without modifying existing contacts.
-`remove_contact_ids` - Removes contacts from a list if they are present.
+1. `contact_ids` - This sets the new Contact list. Any contacts not included will be removed, and extra contacts will be added. Existing contacts will be unchanged. (Not recommended)
+2. `add_contact_ids` - Adds new contacts by id without modifying existing contacts.
+3. `remove_contact_ids` - Removes contacts from a list if they are present.
 
-# Event
+### Additional Filters
+
+`contact_id` can be passed as an array or a single integer, will return only lists which include those Contact(s)
+
+## Event
 
 > Example Response
 
@@ -935,7 +966,7 @@ The meeting can be set one of 2 ways:
 1. Pass the `meeting_id`, if accessible.
 2. Pass the `meeting_schedule_id` AND the `meeting_date` - This will automatically set the corresponding meeting id.
 
-# Goal Set
+## Goal Set
 
 > Example Response
 
@@ -952,20 +983,7 @@ The meeting can be set one of 2 ways:
     "completed_at": "2018-03-15 04:00:23 AM",
     "deleted_at": null,
     "created_at": "2018-03-15 03:06:25 AM",
-    "updated_at": "2018-03-15 04:00:31 AM",
-    "goals": [
-      {
-        "id": 2140,
-        "client_uuid": "aaaa-bbbb-cccc-dddd",
-        "goal_type": "Contacts Added",
-        "goal_set_id": 215,
-        "percentage_completed": 128.6,
-        "goal_amount": 7,
-        "current_amount": 9,
-        "created_at": "2018-03-15 03:06:25 AM",
-        "updated_at": "2018-03-15 03:54:31 AM"
-      }
-    ]
+    "updated_at": "2018-03-15 04:00:31 AM"
   }
 }
 ```
@@ -978,23 +996,50 @@ The meeting can be set one of 2 ways:
     "client_uuid": "aaaa-bbbb-cccc-dddd",
     "title": "My Goals",
     "start_date": "2018-03-14",        # * Required on first create
-    "end_date": "2018-03-31"           # * Required on first create
-    "goals": [
-      {
-        "id": 2140,
-        "client_uuid": "aaaa-bbbb-cccc-dddd",
-        "goal_type": "Contacts Added", # * Required on first create, pulled from the Company goal_types
-        "goal_amount": 7,              # * Required on first create
-        "current_amount": 9,
-      }
-    ],
+    "end_date": "2018-03-31",          # * Required on first create
+    "time_period": "weekly"            # * Alternative to the start/end date
   }
 }
 ```
 
-<aside class="notice">Goals are treated as a nested resource for Goal Sets. To modify notes, you must do so through the nested resources syntax.</aside>
+<aside class="notice">`time_period` can be included instead of `start_date` and `end_date`. Valid options are: "weekly" and "monthly". When passed, the time stamps are automatically determined. Weekly is Sunday to Sunday, monthly is Month End to Month End.</aside>
 
-# Meeting Schedule
+
+## Goal
+
+> Example Response
+
+```shell
+{
+  "goal": {
+    "id": 2139,
+    "client_uuid": null,
+    "goal_type": "Contacts Added",
+    "goal_set_id": 214,
+    "goal_set_client_uuid": null,
+    "percentage_completed": 128.6,
+    "goal_amount": 7,
+    "current_amount": 9,
+    "created_at": "2018-03-15 03:02:12 AM",
+    "updated_at": "2018-03-15 03:54:31 AM"
+  }
+}
+```
+
+> Example Request
+
+```shell
+{
+  "goal": {
+    "client_uuid": null,
+    "goal_type": "Contacts Added",
+    "goal_amount": 7,
+    "goal_set_id": 214 # * Required on first create
+  }
+}
+```
+
+## Meeting Schedule
 
 > Example Response
 
@@ -1042,7 +1087,7 @@ Start and End dates and times can be set by using the `*_at` properties instead 
 
 The RVP or user that creates the meeting schedule is referred to as the `orchestrator`
 
-# Meeting
+## Meeting
 
 > Example Response
 
@@ -1086,7 +1131,7 @@ The Meeting returned from SHOW is **NOT** guaranteed to have an id. Meetings are
 
 The `original_date` that's returned is the original time the Meeting is supposed to exist, in case the time is adjusted for a particular meeting date.
 
-# Attendance
+## Attendance
 
 > Example Response
 
