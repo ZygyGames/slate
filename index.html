@@ -808,6 +808,15 @@ Month End can occasionally be updated to be a different date/time for various re
       <span class="s2">"Went on Appointment"</span>,
       <span class="s2">"Invited to Meeting"</span>,
       <span class="s2">"Went to Meeting"</span>
+    <span class="o">]</span>,
+    <span class="s2">"goal_time_periods"</span>: <span class="o">[</span>
+      <span class="s2">"Weekly"</span>,
+      <span class="s2">"Monthly"</span>
+    <span class="o">]</span>,
+    <span class="s2">"meeting_types"</span>: <span class="o">[</span>
+      <span class="s2">"Training Meeting"</span>,
+      <span class="s2">"Opportunity Meeting"</span>,
+      <span class="s2">"Emergency Meeting"</span>
     <span class="o">]</span>
   <span class="o">}</span>,
   <span class="s2">"meta"</span>: <span class="o">{}</span>
@@ -1196,7 +1205,7 @@ Inside of the event groups are <code class="prettyprint">event_types</code> whic
 <pre class="highlight shell"><code><span class="o">{</span>
   <span class="s2">"meeting_schedule"</span>: <span class="o">{</span>
     <span class="s2">"client_uuid"</span>: <span class="s2">"aaaa-bbbb-cccc-dddd"</span>,
-    <span class="s2">"meeting_type"</span>: <span class="s2">"Training Meeting"</span>,
+    <span class="s2">"meeting_type"</span>: <span class="s2">"Training Meeting"</span>, <span class="c"># * This must correspond to the CompanyMeetingTypes</span>
     <span class="s2">"location"</span>: <span class="s2">"7070 Stone Dr Daphne AL"</span>,
     <span class="s2">"description"</span>: <span class="s2">"Saturday Training"</span>,
     <span class="s2">"repeat_type"</span>: <span class="s2">"weekly"</span>, <span class="c"># Can be null for non-repeating meeting</span>
