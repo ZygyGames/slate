@@ -685,6 +685,15 @@ Once the user has subscribed to OneSignal Notifications, send their OneSignal ID
       "Went on Appointment",
       "Invited to Meeting",
       "Went to Meeting"
+    ],
+    "goal_time_periods": [
+      "Weekly",
+      "Monthly"
+    ],
+    "meeting_types": [
+      "Training Meeting",
+      "Opportunity Meeting",
+      "Emergency Meeting"
     ]
   },
   "meta": {}
@@ -1069,7 +1078,7 @@ The meeting can be set one of 2 ways:
 {
   "meeting_schedule": {
     "client_uuid": "aaaa-bbbb-cccc-dddd",
-    "meeting_type": "Training Meeting",
+    "meeting_type": "Training Meeting", # * This must correspond to the CompanyMeetingTypes
     "location": "7070 Stone Dr Daphne AL",
     "description": "Saturday Training",
     "repeat_type": "weekly", # Can be null for non-repeating meeting
