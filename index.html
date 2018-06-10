@@ -116,11 +116,10 @@
         <!--
 Hi Rocco! Do this:
 
-bundle install
-bundle exec middleman server
+bundle install; bundle exec middleman server
 http://localhost:4567
 *Make changes, commit*
-And then: ./deploy.rb
+And then: ./deploy.sh
 -->
 
 <h1 id="introduction">Introduction</h1>
@@ -691,7 +690,7 @@ Month End can occasionally be updated to be a different date/time for various re
 <h3 id="onesignal-notifications">OneSignal Notifications</h3>
 
 <blockquote>
-<p>Example request</p>
+<p>Subscribe (Authenticated)</p>
 </blockquote>
 <pre class="highlight shell"><code>POST /account/subscribe_notifications
 
@@ -700,7 +699,49 @@ Month End can occasionally be updated to be a different date/time for various re
 <span class="o">}</span>
 </code></pre>
 
+<blockquote>
+<p>Unsubscribe (NOT Authenticated)</p>
+</blockquote>
+<pre class="highlight shell"><code>DELETE /account/subscribe_notifications
+
+<span class="o">{</span>
+  <span class="s2">"onesignal_id"</span>: <span class="s2">"asdfasdf-asdfasdf-asdfasdf"</span>
+<span class="o">}</span>
+</code></pre>
+
 <p>Once the user has subscribed to OneSignal Notifications, send their OneSignal ID to this endpoint in order to allow remote notifications from the server.</p>
+
+<p>Send the same request as a <code class="prettyprint">DELETE</code> in order to unsubscribe the user. The user does NOT have to be authenticated in order to unsubscribe.</p>
+
+<h3 id="team-breakdown">Team Breakdown</h3>
+
+<blockquote>
+<p>Team Breakdown Example Request</p>
+</blockquote>
+<pre class="highlight shell"><code>GET account/team_breakdown
+</code></pre>
+
+<blockquote>
+<p>Team Breakdown Example Response</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+  <span class="s2">"ROLLING 7 DAY NUMBERS"</span>: <span class="o">{</span>
+    <span class="s2">"New Prospects"</span>: 0,
+    <span class="s2">"Appointments Set"</span>: 0,
+    <span class="s2">"Appointments Done"</span>: 0,
+    <span class="s2">"Invites"</span>: 0,
+    <span class="s2">"New Shows"</span>: 0,
+    <span class="s2">"Upcoming Appointments"</span>: 0
+  <span class="o">}</span>,
+  <span class="s2">"TOTALS"</span>: <span class="o">{</span>
+    <span class="s2">"People Working With"</span>: 0,
+    <span class="s2">"Qualified People"</span>: 0,
+    <span class="s2">"Prospects"</span>: 0
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+
+<p>Returns a breakdown scoped to the current user and their immediate downlines.</p>
 
 <h2 id="user">User</h2>
 
